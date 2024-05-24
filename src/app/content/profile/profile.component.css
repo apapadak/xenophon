@@ -1,0 +1,14 @@
+/* profile.component.css */
+.personal-info-panel, .contact-info-panel {
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.personal-info-panel {
+  background-color: #FFC0CB; /* Pink */
+}
+
+.contact-info-panel {
+  background-color: #90EE90; /* Light green */
+}

@@ -1,0 +1,38 @@
+/* General styling for the navigation bar */
+.app-nav {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  background-color: #5a2a82; /* Dark purple background */
+  padding: 20px;
+  height: 100vh; /* Full height */
+  width: 250px; /* Adjust width as needed */
+  box-sizing: border-box;
+}
+
+/* Logo styles */
+.app-nav-logo {
+  width: 80%; /* Adjust size as needed */
+  margin-bottom: 20px; /* Space below the logo */
+}
+
+/* Navigation list styles */
+.nav-list {
+  list-style: none;
+  padding: 0;
+  width: 100%;
+}
+
+.nav-list li {
+  text-align: left;
+  padding: 10px;
+  font-size: 18px;
+  color: #ffffff; /* White text color */
+  cursor: pointer;
+}
+
+.nav-list li:hover {
+  background-color: #825aa2; /* Lighter purple for hover */
+}
+/* Add additional styles for active state, fonts, etc., as needed */

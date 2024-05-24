@@ -5,8 +5,8 @@ import {RouterOutlet} from "@angular/router";
 
 @Component({
   selector: 'app-home',
-  templateUrl: './payments.component.html',
-  styleUrls: ['./payments.component.css'],
+  templateUrl: './distributions.component.html',
+  styleUrls: ['./distributions.component.css'],
   standalone: true,
   imports: [
     RouterOutlet,
@@ -15,6 +15,6 @@ import {RouterOutlet} from "@angular/router";
     // ... other imports
   ]
 })
-export class PaymentsComponent {
+export class DistributionsComponent {
   // TODO: Implement home page logic
 }

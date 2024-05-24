@@ -9,6 +9,12 @@
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
+      /*"i18n": {
+        "sourceLocale": "en_GB",
+        "locales": {
+          "el-GR": "src/locale/messages.el.xlf"
+        }
+      },*/
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:application",
@@ -16,6 +22,7 @@
             "outputPath": "dist/my-angular-project",
             "index": "src/index.html",
             "browser": "src/main.ts",
+            //"localize": "en_GB",
             "polyfills": [
               "zone.js"
             ],
@@ -25,6 +32,9 @@
               "src/assets"
             ],
             "styles": [
+              "node_modules/primeng/resources/themes/lara-light-blue/theme.css",
+              "node_modules/primeng/resources/primeng.min.css",
+              "node_modules/primeicons/primeicons.css",
               "src/styles.css"
             ],
             "scripts": []
@@ -55,12 +65,19 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "buildTarget": "my-angular-project:build",
+            "proxyConfig": "proxy.conf.json",
+            "ssl": true,
+            "sslKey": "./ssl/server.key",
+            "sslCert": "./ssl/server.crt"
+          },
           "configurations": {
             "production": {
-              "buildTarget": "my-angular-project:build:production"
+              "buildTarget": "my-angular-project:build:production",
             },
             "development": {
-              "buildTarget": "my-angular-project:build:development"
+              "buildTarget": "my-angular-project:build:development",
             }
           },
           "defaultConfiguration": "development"

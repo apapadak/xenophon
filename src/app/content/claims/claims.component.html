@@ -1,1 +1,62 @@
-<h1> STATEMENTS </h1>
+<h1>Εφημερίδες και περιοδικά ποικίλης ύλης</h1>
+
+<div class="card">
+  <form #claimsForm="ngForm">
+    <p-table [value]="data" class="claims-table flexible-width p-datatable-min-height">
+      <ng-template pTemplate="header">
+        <tr class="">
+          <th class="min-width-50 header-tight-padding">Ενέργειες</th>
+          <th class="min-width-250 header-tight-padding">Τίτλος εντύπου</th>
+          <th class="min-width-150 header-tight-padding">Υπογραφή</th>
+          <th class="min-width-150 header-tight-padding">Είδος</th>
+          <th class="min-width-250 header-tight-padding">Περιοδικότητα</th>
+          <th class="min-width-250 header-tight-padding">Τίτλος Στήλης/Άρθρου</th>
+          <th class="min-width-50 header-tight-padding">Αριθμός λέξεων</th>
+          <th class="min-width-50 header-tight-padding">Μ/Ο Κυκλοφορίας 2023</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-i="rowIndex">
+        <tr>
+          <td class="cell-tight-padding">
+            <div class="button-container">
+              <p-button icon="pi pi-check" (click)="saveRow(rowData)" class="p-button-success p-mr-2"></p-button>
+              <p-button icon="pi pi-trash" (click)="deleteRow(i)" class="p-button-danger"></p-button>
+            </div>
+          </td>
+
+          <td class="cell-tight-padding">
+            <p-autoComplete appendTo="body" required [(ngModel)]="rowData.article_title" name="article_title{{i}}" [dropdown]="true" [suggestions]="filteredArticleTitles" (completeMethod)="searchArticleTitle($event)" class="wide-dropdown" placeholder="Εισάγετε τίτλο"></p-autoComplete>
+            <div *ngIf="!rowData.article_title && claimsForm.submitted" class="error-message">Ο Τίτλος εντύπου είναι υποχρεωτικός</div>
+          </td>
+          <td>
+            <input type="text" pInputText required [(ngModel)]="rowData.signature" name="signature{{i}}" placeholder="Υπογραφή">
+            <div *ngIf="!rowData.signature && claimsForm.submitted" class="error-message">Η Υπογραφή είναι υποχρεωτική</div>
+          </td>
+          <td class="cell-tight-padding">
+            <p-autoComplete appendTo="body" required [(ngModel)]="rowData.type" name="type{{i}}" [dropdown]="true" [suggestions]="filteredTypes" (completeMethod)="searchTypes($event)" placeholder="Είδος"></p-autoComplete>
+            <div *ngIf="!rowData.type && claimsForm.submitted" class="error-message">Το Είδος είναι υποχρεωτικό</div>
+          </td>
+          <td class="cell-tight-padding">
+            <p-autoComplete appendTo="body" required [(ngModel)]="rowData.periodicity" name="periodicity{{i}}" [dropdown]="true" [suggestions]="filteredPeriodicities" (completeMethod)="searchPeriodicity($event)" placeholder="Περιοδικότητα"></p-autoComplete>
+            <div *ngIf="!rowData.periodicity && claimsForm.submitted" class="error-message">Η Περιοδικότητα είναι υποχρεωτική</div>
+          </td>
+          <td class="cell-tight-padding">
+            <input type="text" pInputText required [(ngModel)]="rowData.articleTitle" name="articleTitle{{i}}" placeholder="Τίτλος Στήλης/Άρθρου">
+            <div *ngIf="!rowData.articleTitle && claimsForm.submitted" class="error-message">Ο Τίτλος Στήλης/Άρθρου είναι υποχρεωτικός</div>
+          </td>
+          <td class="cell-tight-padding">
+            <input type="text" pInputText required [(ngModel)]="rowData.wordCount" name="wordCount{{i}}" placeholder="Αριθμός λέξεων">
+            <div *ngIf="!rowData.wordCount && claimsForm.submitted" class="error-message">Ο Αριθμός λέξεων είναι υποχρεωτικός</div>
+          </td>
+          <td class="cell-tight-padding">
+            <input type="text" pInputText required [(ngModel)]="rowData.circulation" name="circulation{{i}}" placeholder="Μ/Ο Κυκλοφορίας">
+            <div *ngIf="!rowData.circulation && claimsForm.submitted" class="error-message">Ο Μ/Ο Κυκλοφορίας είναι υποχρεωτικός</div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </form>
+</div>
+
+<button pButton type="button" (click)="addRow()" icon="pi pi-plus" style="margin-top: 0.5em" aria-label="Add new row"></button>
+

@@ -1,2 +1,81 @@
-<h1> PROFILE </h1>
-ffdgfdgdgfdg
+<div class="profile-container">
+  <h1>PROFILE</h1>
+
+  <!-- Pink Panel - Προσωπικά Στοιχεία -->
+  <section class="personal-info-panel">
+    <h2>(1) Προσωπικά Στοιχεία</h2>
+    <div class="form-group">
+      <label for="afm">ΑΦΜ:</label>
+      <input type="text" id="afm" [(ngModel)]="userInfo.afm">
+    </div>
+    <div class="form-group">
+      <label for="legal_form">Νομική μορφή:</label>
+      <input type="text" id="legal_form" [(ngModel)]="userInfo.legal_form">
+    </div>
+    <div class="form-group">
+      <label for="tax_office">ΔΟΥ:</label>
+      <input type="text" id="tax_office" [(ngModel)]="userInfo.tax_office">
+    </div>
+    <div class="form-group">
+      <label for="fullName">Ονοματεπώνυμο:</label>
+      <input type="text" id="fullName" [(ngModel)]="fullName">
+    </div>
+    <div class="form-group">
+      <label for="father_name">Όνομα Πατρός:</label>
+      <input type="text" id="father_name" [(ngModel)]="userInfo.father_name">
+    </div>
+    <div class="form-group">
+      <label for="dob">Ημ/νία Γέννησης:</label>
+      <input type="date" id="dob" [(ngModel)]="userInfo.dob">
+    </div>
+    <div class="form-group">
+      <label for="adt">ΑΔΤ:</label>
+      <input type="text" id="adt" [(ngModel)]="userInfo.adt">
+    </div>
+    <div class="form-group">
+      <label for="iban">Τραπεζικός Λογαριασμός:</label>
+      <input type="text" id="iban" [(ngModel)]="userInfo.iban">
+    </div>
+    <div class="form-group">
+      <label for="bank">ΤΡΑΠΕΖΑ:</label>
+      <input type="text" id="bank" [(ngModel)]="userInfo.bank">
+    </div>
+  </section>
+
+  <!-- Green Panel - Στοιχεία Επικοινωνίας -->
+  <section class="communications-info-panel">
+    <h2>(1) Στοιχεία Επικοινωνίας</h2>
+    <div class="form-group">
+      <label for="address">Διεύθυνση:</label>
+      <input type="text" id="address" [(ngModel)]="userInfo.address">
+    </div>
+    <div class="form-group">
+      <label for="city">Πόλη:</label>
+      <input type="text" id="city" [(ngModel)]="userInfo.city">
+    </div>
+    <div class="form-group">
+      <label for="postal_code">Τ.Κ.:</label>
+      <input type="text" id="postal_code" [(ngModel)]="userInfo.postal_code">
+    </div>
+    <div class="form-group">
+      <label for="country">Χώρα:</label>
+      <input type="text" id="country" [(ngModel)]="userInfo.country">
+    </div>
+    <div class="form-group">
+      <label for="telephone">Τηλ:</label>
+      <input type="text" id="telephone" [(ngModel)]="userInfo.telephone">
+    </div>
+    <div class="form-group">
+      <label for="mobile">Κινητό:</label>
+      <input type="text" id="mobile" [(ngModel)]="userInfo.mobile">
+    </div>
+    <div class="form-group">
+      <label for="email_1">email1:</label>
+      <input type="text" id="email_1" [(ngModel)]="userInfo.email_1">
+    </div>
+    <div class="form-group">
+      <label for="email_2">email2:</label>
+      <input type="text" id="email_2" [(ngModel)]="userInfo.email_2">
+    </div>
+  </section>
+</div>

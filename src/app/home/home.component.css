@@ -1,0 +1,13 @@
+.home-container {
+  display: flex; /* This makes the container a flex container */
+}
+
+.navigation-section {
+  width: 20%; /* Adjust width as needed */
+  /* other styles for the navigation section */
+}
+
+.content-section {
+  width: 80%; /* Adjust width as needed */
+  /* other styles for the content section */
+}

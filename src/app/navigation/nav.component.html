@@ -1,0 +1,13 @@
+<!-- nav.component.html -->
+<nav class="app-nav">
+  <img src="/assets/logo.png" class="app-nav-logo" alt="Ξενοφών Logo">
+  <ul class="nav-list">
+    <li (click)="onNavigate('HOME')">Αρχική</li>
+    <li (click)="onNavigate('CONTRACTS')">Συμβάσεις</li>
+    <li class="disabled" (click)="onNavigate('CLAIMS')">Δηλώσεις</li>
+    <li class="disabled" (click)="onNavigate('DISTRIBUTIONS')">Διανομές</li>
+    <li (click)="onNavigate('PAYMENTS')">Είσπραξη</li>
+    <li (click)="onNavigate('PROFILE')">Προφίλ</li>
+    <li class="disabled" (click)="onNavigate('LOGOUT')">Έξοδος</li>
+  </ul>
+</nav>

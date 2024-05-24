@@ -1,0 +1,22 @@
+/* footer.component.css */
+.app-footer {
+  background-color: #f8f9fa; /* Example background color, adjust as needed */
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+
+  bottom: 0;
+  position: absolute;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.footer-right {
+  text-align: right;
+}

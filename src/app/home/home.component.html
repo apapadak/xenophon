@@ -1,4 +1,10 @@
 <div class="home-container">
-  <h2>Welcome to the Home Page</h2>
-  <!-- TODO: Add the content from the provided mockup -->
+  <div class="navigation-section">
+    <app-nav (navigate)="onNavigate($event)"></app-nav>
+  </div>
+  <div class="content-section">
+    <app-header></app-header>
+    <router-outlet></router-outlet>
+    <app-footer></app-footer>
+  </div>
 </div>
