@@ -9,8 +9,8 @@ export class ClaimsService {
     return this.http.get<any>(`/api/claims?username=${username}`);
   }
 
-  getArticleTitles() {
-    return this.http.get<any>('/api/claims/articleTitles');
+  getPublicationTitles() {
+    return this.http.get<any>('/api/claims/publicationTitles');
   }
 
   getTypes() {

@@ -1,7 +1,7 @@
 <h1>Εφημερίδες και περιοδικά ποικίλης ύλης</h1>
 
 <div class="card">
-  <form #claimsForm="ngForm">
+  <form #claimsForm="ngForm"  >
     <p-table [value]="data" class="claims-table flexible-width p-datatable-min-height">
       <ng-template pTemplate="header">
         <tr class="">
@@ -19,38 +19,129 @@
         <tr>
           <td class="cell-tight-padding">
             <div class="button-container">
-              <p-button icon="pi pi-check" (click)="saveRow(rowData)" class="p-button-success p-mr-2"></p-button>
+             <!-- <p-button icon="pi pi-check" (click)="saveRow(rowData)" class="p-button-success p-mr-2"></p-button> -->
+              <p-button icon="pi pi-check" (click)="saveRow(rowData, i,  publicationTitle, signature, type, periodicity, articleTitle, wordCount, circulation)" class="p-button-success p-mr-2" [disabled]="rowData.disabled"></p-button>
               <p-button icon="pi pi-trash" (click)="deleteRow(i)" class="p-button-danger"></p-button>
             </div>
           </td>
 
           <td class="cell-tight-padding">
-            <p-autoComplete appendTo="body" required [(ngModel)]="rowData.article_title" name="article_title{{i}}" [dropdown]="true" [suggestions]="filteredArticleTitles" (completeMethod)="searchArticleTitle($event)" class="wide-dropdown" placeholder="Εισάγετε τίτλο"></p-autoComplete>
-            <div *ngIf="!rowData.article_title && claimsForm.submitted" class="error-message">Ο Τίτλος εντύπου είναι υποχρεωτικός</div>
-          </td>
-          <td>
-            <input type="text" pInputText required [(ngModel)]="rowData.signature" name="signature{{i}}" placeholder="Υπογραφή">
-            <div *ngIf="!rowData.signature && claimsForm.submitted" class="error-message">Η Υπογραφή είναι υποχρεωτική</div>
-          </td>
-          <td class="cell-tight-padding">
-            <p-autoComplete appendTo="body" required [(ngModel)]="rowData.type" name="type{{i}}" [dropdown]="true" [suggestions]="filteredTypes" (completeMethod)="searchTypes($event)" placeholder="Είδος"></p-autoComplete>
-            <div *ngIf="!rowData.type && claimsForm.submitted" class="error-message">Το Είδος είναι υποχρεωτικό</div>
-          </td>
-          <td class="cell-tight-padding">
-            <p-autoComplete appendTo="body" required [(ngModel)]="rowData.periodicity" name="periodicity{{i}}" [dropdown]="true" [suggestions]="filteredPeriodicities" (completeMethod)="searchPeriodicity($event)" placeholder="Περιοδικότητα"></p-autoComplete>
-            <div *ngIf="!rowData.periodicity && claimsForm.submitted" class="error-message">Η Περιοδικότητα είναι υποχρεωτική</div>
-          </td>
-          <td class="cell-tight-padding">
-            <input type="text" pInputText required [(ngModel)]="rowData.articleTitle" name="articleTitle{{i}}" placeholder="Τίτλος Στήλης/Άρθρου">
-            <div *ngIf="!rowData.articleTitle && claimsForm.submitted" class="error-message">Ο Τίτλος Στήλης/Άρθρου είναι υποχρεωτικός</div>
-          </td>
-          <td class="cell-tight-padding">
-            <input type="text" pInputText required [(ngModel)]="rowData.wordCount" name="wordCount{{i}}" placeholder="Αριθμός λέξεων">
-            <div *ngIf="!rowData.wordCount && claimsForm.submitted" class="error-message">Ο Αριθμός λέξεων είναι υποχρεωτικός</div>
+            <p-autoComplete appendTo="body"
+                            required
+                            #publicationTitle="ngModel"
+                            [(ngModel)]="rowData.publicationTitle"
+                            name="publicationTitle{{i}}"
+                            [dropdown]="true"
+                            [suggestions]="filteredPublicationTitles"
+                            (completeMethod)="searchPublicationTitle($event)"
+                            field="publication_title"
+                            class="wide-dropdown"
+                            placeholder="Εισάγετε τίτλο"
+
+                            [disabled]="rowData.disabled">>
+            </p-autoComplete>
+
+            <div *ngIf="publicationTitle.invalid && (publicationTitle.dirty || publicationTitle.touched)" class="error-message">Ο Τίτλος εντύπου είναι υποχρεωτικός</div>
+
           </td>
           <td class="cell-tight-padding">
-            <input type="text" pInputText required [(ngModel)]="rowData.circulation" name="circulation{{i}}" placeholder="Μ/Ο Κυκλοφορίας">
-            <div *ngIf="!rowData.circulation && claimsForm.submitted" class="error-message">Ο Μ/Ο Κυκλοφορίας είναι υποχρεωτικός</div>
+            <input type="text"
+                   pInputText
+                   required
+                   #signature="ngModel"
+                   [(ngModel)]="rowData.signature"
+                   name="signature{{i}}"
+                   placeholder="Υπογραφή"
+
+                   [disabled]="rowData.disabled">
+
+            <div *ngIf="signature.invalid && (signature.dirty || signature.touched)" class="error-message">Η Υπογραφή είναι υποχρεωτική</div>
+
+          </td>
+          <td class="cell-tight-padding">
+            <p-autoComplete appendTo="body"
+                            required
+                            #type="ngModel"
+                            [(ngModel)]="rowData.type"
+                            name="type{{i}}"
+                            [dropdown]="true"
+                            [suggestions]="filteredTypes"
+                            (completeMethod)="searchTypes($event)"
+                            field="type"
+                            [forceSelection]="true"
+                            placeholder="Είδος"
+
+                            [disabled]="rowData.disabled">
+            </p-autoComplete>
+
+            <div *ngIf="type.invalid && (type.dirty || type.touched)" class="error-message">Υποχρεωτική επιλογή από λίστα</div>
+
+          </td>
+          <td class="cell-tight-padding">
+            <p-autoComplete appendTo="body"
+                            required
+                            #periodicity="ngModel"
+                            [(ngModel)]="rowData.periodicity"
+                            name="periodicity{{i}}"
+                            [dropdown]="true"
+                            [suggestions]="filteredPeriodicities"
+                            (completeMethod)="searchPeriodicity($event)"
+                            field="periodicity"
+                            [forceSelection]="true"
+                            placeholder="Περιοδικότητα"
+
+                            [disabled]="rowData.disabled">
+            </p-autoComplete>
+
+            <div *ngIf="periodicity.invalid && (periodicity.dirty || periodicity.touched)" class="error-message">Υποχρεωτική επιλογή από λίστα</div>
+
+          </td>
+          <td class="cell-tight-padding">
+            <input type="text" pInputText
+                   required
+                   #articleTitle="ngModel"
+                   [(ngModel)]="rowData.articleTitle"
+                   name="articleTitle{{i}}"
+                   placeholder="Τίτλος Στήλης/Άρθρου"
+
+                   [disabled]="rowData.disabled">
+
+            <div *ngIf="articleTitle.invalid && (articleTitle.dirty || articleTitle.touched)" class="error-message">Ο Τίτλος Στήλης/Άρθρου είναι υποχρεωτικός</div>
+
+          </td>
+          <td class="cell-tight-padding">
+            <input type="text" pInputText
+                   required
+                   #wordCount="ngModel"
+                   [(ngModel)]="rowData.wordCount"
+                   name="wordCount{{i}}"
+                   type="number"
+                   placeholder="Αριθμός λέξεων"
+                   min="1"
+                   step="1"
+                   (input)="validateInteger($event, 'wordCount', rowData)"
+
+                   [disabled]="rowData.disabled">
+
+            <div *ngIf="wordCount.invalid && (wordCount.dirty || wordCount.touched)" class="error-message">Ο Αριθμός λέξεων είναι υποχρεωτικός</div>
+
+          </td>
+          <td class="cell-tight-padding">
+            <input type="text" pInputText
+                   required
+                   #circulation="ngModel"
+                   [(ngModel)]="rowData.circulation"
+                   name="circulation{{i}}"
+                   type="number"
+                   placeholder="Μ/Ο Κυκλοφορίας"
+                   min="1"
+                   step="1"
+                   (input)="validateInteger($event, 'circulation', rowData)"
+
+                   [disabled]="rowData.disabled">
+
+            <div *ngIf="circulation.invalid && (circulation.dirty || circulation.touched)" class="error-message">Ο Μ/Ο Κυκλοφορίας είναι υποχρεωτικός</div>
+
           </td>
         </tr>
       </ng-template>
@@ -58,5 +149,8 @@
   </form>
 </div>
 
-<button pButton type="button" (click)="addRow()" icon="pi pi-plus" style="margin-top: 0.5em" aria-label="Add new row"></button>
+<p-button (click)="addRow()" icon="pi pi-plus" aria-label="Add new row" [disabled]="isAddRowDisabled()"></p-button>
+
+<p-button label="Προσωρινή αποθήκευση" (click)="tempStore()" icon="pi" aria-label="Προσωρινή αποθήκευση" [disabled]="!isTempStoreEnabled()"></p-button>
+<p-button label="Οριστική αποθήκευση" (click)="finalStore()" icon="pi" aria-label="Οριστική αποθήκευση"></p-button>
 

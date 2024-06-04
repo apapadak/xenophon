@@ -56,7 +56,7 @@ async function main() {
     await pool.query('BEGIN'); // Start a transaction
 
     // Process each column with the correct database column name
-    await processColumn(data.map(row => row.claims_article_titles), 'claims_article_titles', 'claims_article_titles', 'article_title');
+    await processColumn(data.map(row => row.claims_publication_titles), 'publication_title', 'claims_publication_titles', 'publication_title');
     await processColumn(data.map(row => row.claims_types), 'claims_types', 'claims_types', 'type');
     await processColumn(data.map(row => row.claims_periodicity), 'claims_periodicity', 'claims_periodicity', 'periodicity');
 

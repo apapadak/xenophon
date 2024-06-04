@@ -12,12 +12,12 @@
 
 /* Tighter padding for specific headers with dropdowns */
 th.header-tight-padding {
-  padding: 2px 10px 2px 0px;  /* Reduced top/bottom padding */
+  padding: 2px 10px 8px 0px;  /* Reduced top/bottom padding */
 }
 
 /* Tighter padding for specific headers with dropdowns */
 td.cell-tight-padding {
-  padding: 0px 4px 0px 0px;  /* Reduced top/bottom padding */
+  padding: 10px 4px 20px 0px;  /* Reduced top/bottom padding */
 }
 
 /* Add your own width, padding, margin, etc., as needed */
@@ -86,4 +86,10 @@ p-button {
   display: flex;
   align-items: center;
   justify-content: start;
+}
+
+.error-message {
+  color: red;
+  font-size: 0.8em;
+  margin-top: 4px;
 }

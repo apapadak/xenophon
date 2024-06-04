@@ -129,14 +129,14 @@ app.get('/api/claims/', authenticateToken, async (req, res) => {
       SELECT
         c.*,
         u.afm as afm,
-        t.article_title as article_title,
+        t.publication_title as publication_title,
         ct.type as claim_type,
         cp.periodicity as claim_periodicity
       FROM claims c
       LEFT JOIN users u ON c.user_id = u.user_id
-      LEFT JOIN claims_article_titles t ON c.claims_article_title_id = t.id
-      LEFT JOIN claims_types ct ON c.claims_type_id = ct.id
-      LEFT JOIN claims_periodicity cp ON c.claims_periodicity_id = cp.id
+      LEFT JOIN claims_publication_titles t ON c.publication_title_id = t.id
+      LEFT JOIN claims_types ct ON c.type_id = ct.id
+      LEFT JOIN claims_periodicity cp ON c.periodicity_id = cp.id
       WHERE u.afm = $1
     `, [username]);
 
@@ -155,15 +155,15 @@ app.get('/api/claims/', authenticateToken, async (req, res) => {
 
 
 // Endpoint to get claims article titles
-app.get('/api/claims/articleTitles', authenticateToken, async (req, res) => {
+app.get('/api/claims/publicationTitles', authenticateToken, async (req, res) => {
   try {
     const client = await pool.connect();
-    const result = await client.query('SELECT * FROM claims_article_titles');
+    const result = await client.query('SELECT * FROM claims_publication_titles');
 
     if (result.rows.length > 0) {
       res.json(result.rows);
     } else {
-      res.status(404).json({ message: "No claims article titles found" });
+      res.status(404).json({ message: "No claims publication titles found" });
     }
 
     client.release();
