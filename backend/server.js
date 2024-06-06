@@ -13,6 +13,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const DBURL = process.env.DATABASE_URL;
 const JWTSECRET = process.env.JWT_SECRET;
+const cookieParser = require('cookie-parser');
 
 // Apply middleware
 app.use(cors({
@@ -21,6 +22,8 @@ app.use(cors({
 
 app.use(bodyParser.json());
 
+app.use(cookieParser());
+
 // PostgreSQL connection setup
 const pool = new pg.Pool({
   connectionString: DBURL, // Update with your details
@@ -28,8 +31,7 @@ const pool = new pg.Pool({
 });
 
 function authenticateToken(req, res, next) {
-  const authHeader = req.headers.authorization;
-  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN_STRING
+  const token = req.cookies.jwt;
 
   if (token == null) return res.sendStatus(401); // No token present
 
@@ -65,7 +67,12 @@ app.post('/api/login', async (req, res) => {
       if (isMatch) {
         // Generate JWT
         const token = jwt.sign({ id: user.id }, JWTSECRET, { expiresIn: '1h' });
-        res.json({ message: "Logged in successfully!", token });
+        res.cookie('jwt', token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production', // Ensure secure is true in production
+          maxAge: 3600000 // 1 hour
+        });
+        res.json({ message: "Logged in successfully!" });
       } else {
         res.status(400).json({ message: "Invalid credentials!" });
       }
@@ -80,9 +87,19 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-/*app.post('/api/login', async (req, res) => {
-  return res.json({ message: "Static login route hit successfully!" });
-});*/
+// Token validation route
+app.get('/api/validateToken', authenticateToken, (req, res) => {
+  res.status(200).json({ valid: true });
+});
+
+// Add this endpoint to handle logout
+app.post('/api/logout', authenticateToken, (req, res) => {
+  // Clear the cookie
+  res.clearCookie('jwt', { httpOnly: true, secure: true, sameSite: 'strict' });
+  res.json({ message: "Logged out successfully" });
+});
+
+
 
 // Endpoint to get user information
 app.get('/api/user', authenticateToken, async (req, res) => {
@@ -98,7 +115,7 @@ app.get('/api/user', authenticateToken, async (req, res) => {
 
     if (result.rows.length > 0) {
       const user = result.rows[0];
-      const { user_id, password, created_at, ...userWithoutSensitiveInfo } = user;  // Destructure to omit the password field
+      const { password, created_at, ...userWithoutSensitiveInfo } = user;  // Destructure to omit the password field
 
       res.json(userWithoutSensitiveInfo);
     } else {
@@ -117,39 +134,152 @@ app.get('/api/user', authenticateToken, async (req, res) => {
 
 
 app.get('/api/claims/', authenticateToken, async (req, res) => {
-  const username = req.query.username;
+  const { userId } = req.query;
 
-  if (!username) {
-    return res.status(400).json({ message: "Username is required" });
+  if (!userId) {
+    return res.status(400).json({ message: "userId is required" });
   }
 
   try {
-    const client = await pool.connect();
-    const result = await client.query(`
-      SELECT
-        c.*,
-        u.afm as afm,
-        t.publication_title as publication_title,
-        ct.type as claim_type,
-        cp.periodicity as claim_periodicity
+    const result = await pool.query(
+      `SELECT
+        c.id AS claimId,
+        c.signature,
+        COALESCE(pte.id, pt.id) AS publicationTitle_id,
+        COALESCE(pte.publication_title, pt.publication_title) AS publicationTitle_publication_title,
+        t.id AS type_id,
+        t.type,
+        p.id AS periodicity_id,
+        p.periodicity,
+        c.article_title,
+        c.word_count,
+        c.circulation,
+        CASE WHEN pte.id IS NOT NULL THEN true ELSE false END AS custom
       FROM claims c
-      LEFT JOIN users u ON c.user_id = u.user_id
-      LEFT JOIN claims_publication_titles t ON c.publication_title_id = t.id
-      LEFT JOIN claims_types ct ON c.type_id = ct.id
-      LEFT JOIN claims_periodicity cp ON c.periodicity_id = cp.id
-      WHERE u.afm = $1
-    `, [username]);
+      LEFT JOIN claims_publication_titles pt ON c.publication_title_id = pt.id
+      LEFT JOIN claims_publication_titles_extra pte ON c.publication_title_id_extra = pte.id
+      LEFT JOIN claims_types t ON c.type_id = t.id
+      LEFT JOIN claims_periodicity p ON c.periodicity_id = p.id
+      WHERE c.user_id = $1`,
+      [userId]
+    );
 
-    if (result.rows.length > 0) {
-      res.json(result.rows);
-    } else {
-      res.status(404).json({ message: "No claims found for the specified username" });
+    const claims = result.rows.map(row => ({
+      claimId: row.claimid,
+      publicationTitle: {
+        id: row.publicationtitle_id,
+        publication_title: row.publicationtitle_publication_title,
+        custom: row.custom
+      },
+      signature: row.signature,
+      type: {
+        id: row.type_id,
+        type: row.type
+      },
+      periodicity: {
+        id: row.periodicity_id,
+        periodicity: row.periodicity
+      },
+      articleTitle: row.article_title,
+      wordCount: row.word_count,
+      circulation: row.circulation,
+      disabled: row.disabled
+    }));
+
+    console.log('Success fetching claims: ', claims);
+    res.status(200).json(claims);
+  } catch (error) {
+    console.error('Error fetching claims:', error);
+    res.status(500).send('Error fetching claims');
+  }
+});
+
+app.post('/api/claims/saveClaims', async (req, res) => {
+  const { userId, claims } = req.body;
+
+  console.log('Received userId:', userId);
+  console.log('Received claims:', JSON.stringify(claims, null, 2));
+
+  try {
+    await pool.query('BEGIN');
+
+    // Fetch all existing claims for the user
+    const existingClaimsResult = await pool.query(
+      'SELECT id FROM claims WHERE user_id = $1',
+      [userId]
+    );
+    const existingClaims = existingClaimsResult.rows;
+
+    // Identify claims to delete
+    const existingClaimIds = existingClaims.map(claim => claim.id);
+    const incomingClaimIds = claims.map(claim => claim.claimId);
+    const claimsToDelete = existingClaimIds.filter(id => !incomingClaimIds.includes(id));
+
+    // Delete the claims that are no longer present in the request
+    if (claimsToDelete.length > 0) {
+      await pool.query(
+        'DELETE FROM claims WHERE id = ANY($1::int[])',
+        [claimsToDelete]
+      );
     }
 
-    client.release();
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
+    for (const claim of claims) {
+      const {
+        claimId,
+        publicationTitle,
+        signature,
+        type,
+        periodicity,
+        articleTitle,
+        wordCount,
+        circulation
+      } = claim;
+
+      let publication_title_id = null;
+      let publication_title_id_extra = null;
+
+      if (publicationTitle.id === -1) {
+        const result = await pool.query(
+          'INSERT INTO claims_publication_titles_extra (publication_title) VALUES ($1) RETURNING id',
+          [publicationTitle.publication_title]
+        );
+        publication_title_id_extra = result.rows[0].id;
+      } else {
+        publication_title_id = publicationTitle.id;
+      }
+
+      if (claimId === -1) {
+        await pool.query(
+          `INSERT INTO claims (
+            user_id, signature, publication_title_id, publication_title_id_extra,
+            type_id, periodicity_id, article_title, word_count, circulation
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+          [
+            userId, signature, publication_title_id, publication_title_id_extra,
+            type.id, periodicity.id, articleTitle, wordCount, circulation
+          ]
+        );
+      } else {
+        await pool.query(
+          `UPDATE claims SET
+            user_id = $1, signature = $2, publication_title_id = $3,
+            publication_title_id_extra = $4, type_id = $5, periodicity_id = $6,
+            article_title = $7, word_count = $8, circulation = $9
+          WHERE id = $10`,
+          [
+            userId, signature, publication_title_id, publication_title_id_extra,
+            type.id, periodicity.id, articleTitle, wordCount, circulation, claimId
+          ]
+        );
+      }
+    }
+
+    await pool.query('COMMIT');
+    res.status(200).json({ message: 'Claims saved successfully' });
+  } catch (error) {
+    await pool.query('ROLLBACK');
+    console.error('Error saving claims:', error);
+    res.status(500).send('Error saving claims');
   }
 });
 

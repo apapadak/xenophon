@@ -4,6 +4,8 @@ import { FooterComponent } from "../footer/footer.component";
 import { NavigationComponent } from "../navigation/nav.component";
 import {Router, RouterOutlet} from "@angular/router";
 import {ProfileComponent} from "../content/profile/profile.component";
+import {AuthService} from "../services/AuthService";
+import {CommonModule} from "@angular/common";
 
 @Component({
   selector: 'app-home',
@@ -15,12 +17,13 @@ import {ProfileComponent} from "../content/profile/profile.component";
     HeaderComponent,
     FooterComponent,
     NavigationComponent,
-    ProfileComponent
+    ProfileComponent,
+    CommonModule
     // ... other imports
   ]
 })
 export class HomeComponent {
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService) {}
 
   onNavigate(route: string): void {
     // Logic to navigate to the selected route
@@ -56,14 +59,18 @@ export class HomeComponent {
   }
 
   private performLogout(): void {
-    // Clear JWT/userInfo from local storage or cookies
-    localStorage.removeItem('jwt');
-    localStorage.removeItem('userInfo');
-
-    // Here you can also make a backend call to invalidate the token if your backend supports it
-    // Navigate back to the login page
-    this.router.navigate(['login']).then(() => {
-      window.location.reload();  // Optional: Force a reload to clear all data
+    this.authService.logout().subscribe({
+      next: () => {
+        localStorage.removeItem('jwt');
+        localStorage.removeItem('userInfo');
+        this.router.navigate(['login']).then(() => {
+          window.location.reload();  // Optional: Force a reload to clear all data
+        });
+      },
+      error: (err) => {
+        console.error('Logout failed', err);
+        // Handle errors if necessary
+      }
     });
   }
 }

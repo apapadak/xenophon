@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import {HttpClientModule} from "@angular/common/http";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import {PageNotFoundComponent} from "./helpers/notfound/page-not-found.component";
 
 @Component({
   selector: 'app-root',
@@ -11,6 +12,7 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
   imports: [
     HttpClientModule,
     RouterOutlet,
+    PageNotFoundComponent
     // ... other imports
   ]
 })

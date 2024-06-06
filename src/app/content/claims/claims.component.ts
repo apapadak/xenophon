@@ -12,17 +12,19 @@ import {InputTextModule} from "primeng/inputtext";
 import {AutoCompleteCompleteEvent, AutoCompleteModule} from "primeng/autocomplete";
 import {PanelMenuModule} from "primeng/panelmenu";
 import {CommonModule} from "@angular/common";
+import {ToastModule} from "primeng/toast";
+import {MessageService} from "primeng/api";
 
 interface TableData {
-  claimsId: number;
+  claimId: number;
 
   publicationTitle: PublicationTitleData;
   signature: string;
   type: TypeData | null;
   periodicity: PeriodicityData | null;
   articleTitle: string;
-  wordCount: number;
-  circulation: number;
+  wordCount: number | string;
+  circulation: number | string;
 
   disabled: boolean; // Add this property used for disabling the whole row when needed
 }
@@ -30,6 +32,8 @@ interface TableData {
 interface PublicationTitleData {
   id: number;
   publication_title: string;
+
+  custom: boolean;
 }
 
 interface TypeData {
@@ -59,7 +63,9 @@ interface PeriodicityData {
     InputTextModule,
     AutoCompleteModule,
     PanelMenuModule,
-  ]
+    ToastModule,
+  ],
+  providers: [MessageService]
 })
 
 export class ClaimsComponent implements OnInit {
@@ -67,7 +73,7 @@ export class ClaimsComponent implements OnInit {
 
   data: TableData[] = [];
 
-  preparedData: TableData[] = [];
+  //preparedData: TableData[] = [];
 
   publicationTitles: PublicationTitleData[] = [];
   filteredPublicationTitles: PublicationTitleData[] = [];
@@ -82,14 +88,12 @@ export class ClaimsComponent implements OnInit {
 
   constructor(
     private claimsService: ClaimsService,
-    private fb: FormBuilder
+    private messageService: MessageService
   ) {}
 
   ngOnInit() {
-    this.addRow(); // Initialize with one empty row
+     // Initialize with one empty row
     this.fetchData();
-
-
   }
 
   fetchData() {
@@ -98,9 +102,27 @@ export class ClaimsComponent implements OnInit {
 
     console.log('userInfo: ', this.userInfo);
 
-    this.claimsService.getClaims(this.userInfo.afm).subscribe({
+    this.claimsService.getClaims(this.userInfo.user_id).subscribe({
       next: (data) => {
-        this.data = data;
+        // Add disabled flag to each row in the fetched data
+        this.data = data.map((row: TableData) => ({
+          ...row,
+          disabled: true
+        }));
+
+        // Synchronize preparedData with data so the preparedData can be sent to the backend during tempStore
+        /*this.preparedData = this.data.map((row: TableData) => ({
+          ...row,
+          wordCount: typeof row.wordCount === 'string' ? Number(row.wordCount) : row.wordCount,
+          circulation: typeof row.circulation === 'string' ? Number(row.circulation) : row.circulation
+        }));*/
+
+        if (this.data.length === 0) {
+          this.addRow();
+        }
+
+        console.log('data:', this.data);
+        //console.log('preparedData:', this.preparedData);
       },
       error: (err) => {
         console.error('Failed to fetch claims:', err);
@@ -116,28 +138,28 @@ export class ClaimsComponent implements OnInit {
     this.claimsService.getPublicationTitles().subscribe(data => {
       //this.publicationTitles = data.map((item: PublicationTitleData) => item.publication_title);
       this.publicationTitles = data;
-        console.log('publicationTitles:' , this.publicationTitles);
+      //console.log('publicationTitles:' , this.publicationTitles);
     });
 
     this.claimsService.getTypes().subscribe(data => {
       //this.types = data.map((item: TypeData) => item.type);
       this.types = data;
-      console.log('types:' , this.types);
+      //console.log('types:' , this.types);
     });
 
     this.claimsService.getPeriodicity().subscribe(data => {
       //this.periodicities = data.map((item: PeriodicityData) => item.periodicity);
       this.periodicities = data;
-      console.log('periodicities:' , this.periodicities);
+      //console.log('periodicities:' , this.periodicities);
     });
 
   }
 
   addRow() {
     this.data.push({
-      claimsId: -1,
+      claimId: -1,
 
-      publicationTitle: { id: -1, publication_title: '' }, // Initialize as PublicationTitleData
+      publicationTitle: { id: -1, publication_title: '', custom: false }, // Initialize as PublicationTitleData
       signature: '',
       type: null,
       periodicity: null,
@@ -160,22 +182,36 @@ export class ClaimsComponent implements OnInit {
       if (typeof rowData.publicationTitle === 'string') {
         rowData.publicationTitle = {
           id: -1,
-          publication_title: rowData.publicationTitle
+          publication_title: rowData.publicationTitle,
+          custom: true
         };
+      } else {
+        rowData.publicationTitle.custom = false;
       }
 
-     // let preparedRow = { ...rowData };
+      // Update data and preparedData
+      /*const updatedRow = {
+        ...rowData,
+        wordCount: typeof rowData.wordCount === 'string' ? Number(rowData.wordCount) : rowData.wordCount,
+        circulation: typeof rowData.circulation === 'string' ? Number(rowData.circulation) : rowData.circulation,
+        disabled: true // Disable the row after saving
+      };*/
 
-      this.preparedData.push( { ...rowData } );
-      rowData.disabled = true; // Disable the row after saving
+      rowData.wordCount = typeof rowData.wordCount === 'string' ? Number(rowData.wordCount) : rowData.wordCount;
+      rowData.circulation = typeof rowData.circulation === 'string' ? Number(rowData.circulation) : rowData.circulation;
 
-      console.log('Row prepared data prepared for saving:', this.preparedData);
+      rowData.disabled = true; // Ensure the row is disabled after saving
+
+      //this.data[rowIndex] = updatedRow;
+      //this.preparedData[rowIndex] = { ...updatedRow };
+
+      console.log('Row data prepared for saving:', this.data);
     } else {
       console.error('Validation failed for row data:', rowData);
     }
 
     console.log('data: ', this.data);
-    console.log('preparedData: ', this.preparedData);
+    //console.log('preparedData: ', this.preparedData);
   }
 
   private markAsTouched(...controls: any[]) {
@@ -195,9 +231,9 @@ export class ClaimsComponent implements OnInit {
       this.isPositiveInteger(rowData.circulation);
   }
 
-  private isPositiveInteger(value: number): boolean {
-    //const num = Number(value);
-    return Number.isInteger(value) && value > 0;
+  private isPositiveInteger(value: string | number): boolean {
+    const num = typeof value === 'string' ? Number(value) : value;
+    return Number.isInteger(num) && num > 0;
   }
 
   validateInteger(event: Event, field: keyof TableData, rowData: TableData): void {
@@ -210,11 +246,29 @@ export class ClaimsComponent implements OnInit {
 
   deleteRow(index: number) {
     this.data.splice(index, 1);
-    this.preparedData.splice(index, 1);
+    //this.preparedData.splice(index, 1);
   }
 
   tempStore() {
+    const payload = {
+      userId: this.userInfo.user_id,
+      claims: this.data.map(({ disabled, ...rest }) => rest) // Remove the 'disabled' flag from each row, no need to be sent to the server
+    };
 
+    console.log('Data to be sent:', payload);
+
+    this.claimsService.saveClaims(payload).subscribe({
+      next: (response) => {
+        this.messageService.add({severity: 'success', summary: 'Επιτυχία', detail: 'Επιτυχής προσωρινή αποθήκευση'});
+
+        console.log('Data successfully saved:', response);
+      },
+      error: (error) => {
+        this.messageService.add({severity: 'danger', summary: 'Αποτυχία', detail: 'Αποτυχία προσωρινής αποθήκευσης'});
+
+        console.error('Failed to save data:', error);
+      }
+    });
   }
 
   finalStore() {
@@ -236,15 +290,14 @@ export class ClaimsComponent implements OnInit {
     this.filteredPublicationTitles = this.transformAndSortDisplay(filtered, 'publication_title');
   }
   searchTypes(event: AutoCompleteCompleteEvent) {
-    console.log(this.types);
+    //console.log(this.types);
     const filtered = this.filterByField(this.types, 'type', event.query);
     this.filteredTypes = this.transformAndSortDisplay(filtered, 'type');
-    console.log(this.filteredTypes);
+    //console.log(this.filteredTypes);
   }
   searchPeriodicity(event: AutoCompleteCompleteEvent) {
     const filtered = this.filterByField(this.periodicities, 'periodicity', event.query);
     this.filteredPeriodicities = this.transformAndSortDisplay(filtered, 'periodicity');
-
   }
 
 

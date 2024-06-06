@@ -8,6 +8,7 @@ import {PaymentsComponent} from "./content/payments/payments.component";
 import {DistributionsComponent} from "./content/distributions/distributions.component";
 import {ClaimsComponent} from "./content/claims/claims.component";
 import {AuthGuard} from "./helpers/guards/auth.guard";
+import {PageNotFoundComponent} from "./helpers/notfound/page-not-found.component";
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -30,7 +31,7 @@ export const routes: Routes = [
       // ... other child routes
     ]
   },
-  //{ path: 'logout', component: ClaimsComponent }
+  { path: '**', component: PageNotFoundComponent } // Wildcard route
 ];
 
 @NgModule({

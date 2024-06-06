@@ -1,5 +1,7 @@
 <h1>Εφημερίδες και περιοδικά ποικίλης ύλης</h1>
 
+<p-toast></p-toast>
+
 <div class="card">
   <form #claimsForm="ngForm"  >
     <p-table [value]="data" class="claims-table flexible-width p-datatable-min-height">
@@ -37,6 +39,8 @@
                             field="publication_title"
                             class="wide-dropdown"
                             placeholder="Εισάγετε τίτλο"
+                            pTooltip="Επιλογη από λίστα ή ελεύθερο κείμενο"
+                            tooltipPosition="top"
 
                             [disabled]="rowData.disabled">>
             </p-autoComplete>
@@ -52,6 +56,8 @@
                    [(ngModel)]="rowData.signature"
                    name="signature{{i}}"
                    placeholder="Υπογραφή"
+                   pTooltip="Ελεύθερο κείμενο"
+                   tooltipPosition="top"
 
                    [disabled]="rowData.disabled">
 
@@ -70,6 +76,8 @@
                             field="type"
                             [forceSelection]="true"
                             placeholder="Είδος"
+                            pTooltip="Επιλογη από λίστα"
+                            tooltipPosition="top"
 
                             [disabled]="rowData.disabled">
             </p-autoComplete>
@@ -89,6 +97,8 @@
                             field="periodicity"
                             [forceSelection]="true"
                             placeholder="Περιοδικότητα"
+                            pTooltip="Επιλογη από λίστα"
+                            tooltipPosition="top"
 
                             [disabled]="rowData.disabled">
             </p-autoComplete>
@@ -103,6 +113,8 @@
                    [(ngModel)]="rowData.articleTitle"
                    name="articleTitle{{i}}"
                    placeholder="Τίτλος Στήλης/Άρθρου"
+                   pTooltip="Ελεύθερο κείμενο"
+                   tooltipPosition="top"
 
                    [disabled]="rowData.disabled">
 
@@ -110,13 +122,15 @@
 
           </td>
           <td class="cell-tight-padding">
-            <input type="text" pInputText
+            <input type="number" pInputText
                    required
                    #wordCount="ngModel"
                    [(ngModel)]="rowData.wordCount"
                    name="wordCount{{i}}"
                    type="number"
                    placeholder="Αριθμός λέξεων"
+                   pTooltip="Αριθμός λέξεων"
+                   tooltipPosition="top"
                    min="1"
                    step="1"
                    (input)="validateInteger($event, 'wordCount', rowData)"
@@ -127,13 +141,15 @@
 
           </td>
           <td class="cell-tight-padding">
-            <input type="text" pInputText
+            <input type="number" pInputText
                    required
                    #circulation="ngModel"
                    [(ngModel)]="rowData.circulation"
                    name="circulation{{i}}"
                    type="number"
                    placeholder="Μ/Ο Κυκλοφορίας"
+                   pTooltip="Μ/Ο Κυκλοφορίας"
+                   tooltipPosition="top"
                    min="1"
                    step="1"
                    (input)="validateInteger($event, 'circulation', rowData)"

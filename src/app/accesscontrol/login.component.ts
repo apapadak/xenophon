@@ -32,9 +32,7 @@ export class LoginComponent {
     console.log("attempting login... " + this.username + ' ' + this.password);
     this.authService.login(this.username, this.password).pipe(
       switchMap(response => {
-        // Assume the token is returned in response.token
         console.log('Login OK');
-        localStorage.setItem('jwt', response.token);
 
         // Fetch user details after successful login
         return this.userService.getUser(this.username);
