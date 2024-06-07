@@ -13,7 +13,8 @@ import {AutoCompleteCompleteEvent, AutoCompleteModule} from "primeng/autocomplet
 import {PanelMenuModule} from "primeng/panelmenu";
 import {CommonModule} from "@angular/common";
 import {ToastModule} from "primeng/toast";
-import {MessageService} from "primeng/api";
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import {MessageService, ConfirmationService} from "primeng/api";
 
 interface TableData {
   claimId: number;
@@ -27,6 +28,7 @@ interface TableData {
   circulation: number | string;
 
   disabled: boolean; // Add this property used for disabling the whole row when needed
+  permFlag: boolean;
 }
 
 interface PublicationTitleData {
@@ -64,8 +66,9 @@ interface PeriodicityData {
     AutoCompleteModule,
     PanelMenuModule,
     ToastModule,
+    ConfirmDialogModule,
   ],
-  providers: [MessageService]
+  providers: [MessageService, ConfirmationService]
 })
 
 export class ClaimsComponent implements OnInit {
@@ -88,12 +91,14 @@ export class ClaimsComponent implements OnInit {
 
   constructor(
     private claimsService: ClaimsService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService
   ) {}
 
   ngOnInit() {
      // Initialize with one empty row
     this.fetchData();
+    this.loadDropdownData();
   }
 
   fetchData() {
@@ -110,13 +115,6 @@ export class ClaimsComponent implements OnInit {
           disabled: true
         }));
 
-        // Synchronize preparedData with data so the preparedData can be sent to the backend during tempStore
-        /*this.preparedData = this.data.map((row: TableData) => ({
-          ...row,
-          wordCount: typeof row.wordCount === 'string' ? Number(row.wordCount) : row.wordCount,
-          circulation: typeof row.circulation === 'string' ? Number(row.circulation) : row.circulation
-        }));*/
-
         if (this.data.length === 0) {
           this.addRow();
         }
@@ -129,9 +127,6 @@ export class ClaimsComponent implements OnInit {
         // Handle errors here, possibly showing a user-friendly message
       }
     });
-
-    this.loadDropdownData();
-
   }
 
   loadDropdownData() {
@@ -167,7 +162,8 @@ export class ClaimsComponent implements OnInit {
       wordCount: '',
       circulation: '',
 
-      disabled: false // Initialize as false
+      disabled: false, // Initialize as false
+      permFlag: false
     });
   }
 
@@ -249,10 +245,12 @@ export class ClaimsComponent implements OnInit {
     //this.preparedData.splice(index, 1);
   }
 
-  tempStore() {
+  tempStore(permFlag: boolean) {
     const payload = {
       userId: this.userInfo.user_id,
-      claims: this.data.map(({ disabled, ...rest }) => rest) // Remove the 'disabled' flag from each row, no need to be sent to the server
+      claims: this.data.map(({ disabled, ...rest }) => rest), // Remove the 'disabled' flag from each row, no need to be sent to the server
+
+      permFlag: permFlag
     };
 
     console.log('Data to be sent:', payload);
@@ -260,6 +258,8 @@ export class ClaimsComponent implements OnInit {
     this.claimsService.saveClaims(payload).subscribe({
       next: (response) => {
         this.messageService.add({severity: 'success', summary: 'Επιτυχία', detail: 'Επιτυχής προσωρινή αποθήκευση'});
+
+        this.fetchData(); // refresh data array
 
         console.log('Data successfully saved:', response);
       },
@@ -271,19 +271,33 @@ export class ClaimsComponent implements OnInit {
     });
   }
 
-  finalStore() {
-
+  isStoreButtonsDisabled(): boolean {
+    //console.log(this.data);
+    //console.log('this.data.length ', this.data.length, ' ', this.data.every(row => row.disabled === true));
+    return this.data.length > 0 && !this.data.every(row => row.disabled);
   }
 
-  isTempStoreEnabled(): boolean {
-    //console.log(this.data.length !== 0 ,' ', this.data.some(row => !row.disabled));
-    return this.data.length > 0 && this.data.every(row => row.disabled);
+  confirmFinalStore() {
+    console.log('hi');
+    this.confirmationService.confirm({
+      message: 'Είστε σίγουροι ότι θέλετε να προχωρήσετε?\nΔεν επιτρέπονται άλλες αλλαγές μετά την Οριστική Αποθήκευση.',
+      accept: () => {
+        this.finalStore();
+      }
+    });
+  }
+
+  finalStore() {
+    this.tempStore(true);
+  }
+
+  showControls(): boolean {
+    return !this.data.every(row => row.permFlag);
   }
 
   isAddRowDisabled(): boolean {
     return this.data.some(row => !row.disabled);
   }
-
 
   searchPublicationTitle(event: AutoCompleteCompleteEvent) {
     const filtered = this.filterByField(this.publicationTitles, 'publication_title', event.query);
@@ -305,7 +319,7 @@ export class ClaimsComponent implements OnInit {
   filterByField<T>(arr: T[], field: keyof T, query: string): T[] {
     return arr.filter(item => {
       const value = item[field];
-      //console.log(`Filtering ${value} with query ${query}`);
+      console.log(`Filtering ${value} with query ${query}`);
       return typeof value === 'string' && value.toLowerCase().includes(query.toLowerCase());
     });
   }
@@ -347,8 +361,6 @@ export class ClaimsComponent implements OnInit {
 
     return a.localeCompare(b); // Default locale compare for other cases
   }
-
-
 
 }
 

@@ -1,5 +1,6 @@
 <h1>Εφημερίδες και περιοδικά ποικίλης ύλης</h1>
 
+<p-confirmDialog header="Επιβεβαίωση"></p-confirmDialog>
 <p-toast></p-toast>
 
 <div class="card">
@@ -22,8 +23,8 @@
           <td class="cell-tight-padding">
             <div class="button-container">
              <!-- <p-button icon="pi pi-check" (click)="saveRow(rowData)" class="p-button-success p-mr-2"></p-button> -->
-              <p-button icon="pi pi-check" (click)="saveRow(rowData, i,  publicationTitle, signature, type, periodicity, articleTitle, wordCount, circulation)" class="p-button-success p-mr-2" [disabled]="rowData.disabled"></p-button>
-              <p-button icon="pi pi-trash" (click)="deleteRow(i)" class="p-button-danger"></p-button>
+              <p-button icon="pi pi-check" *ngIf="!showControls()" (click)="saveRow(rowData, i,  publicationTitle, signature, type, periodicity, articleTitle, wordCount, circulation)" class="p-button-success p-mr-2" [disabled]="rowData.disabled"></p-button>
+              <p-button icon="pi pi-trash" [disabled]="!showControls()" (click)="deleteRow(i)" class="p-button-danger"></p-button>
             </div>
           </td>
 
@@ -165,8 +166,9 @@
   </form>
 </div>
 
-<p-button (click)="addRow()" icon="pi pi-plus" aria-label="Add new row" [disabled]="isAddRowDisabled()"></p-button>
+<div *ngIf="showControls()" id="addAndStoreControls">
+  <p-button (click)="addRow()" icon="pi pi-plus" aria-label="Add new row" [disabled]="isAddRowDisabled()"></p-button>
 
-<p-button label="Προσωρινή αποθήκευση" (click)="tempStore()" icon="pi" aria-label="Προσωρινή αποθήκευση" [disabled]="!isTempStoreEnabled()"></p-button>
-<p-button label="Οριστική αποθήκευση" (click)="finalStore()" icon="pi" aria-label="Οριστική αποθήκευση"></p-button>
-
+  <p-button label="Προσωρινή αποθήκευση" (click)="tempStore(false)" icon="pi" aria-label="Προσωρινή αποθήκευση" [disabled]="isStoreButtonsDisabled()"></p-button>
+  <p-button label="Οριστική αποθήκευση" (click)="confirmFinalStore()" icon="pi" aria-label="Οριστική αποθήκευση" [disabled]="isStoreButtonsDisabled()"></p-button>
+</div>

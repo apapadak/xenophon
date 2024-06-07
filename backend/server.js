@@ -70,6 +70,7 @@ app.post('/api/login', async (req, res) => {
         res.cookie('jwt', token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production', // Ensure secure is true in production
+          sameSite: 'Strict',
           maxAge: 3600000 // 1 hour
         });
         res.json({ message: "Logged in successfully!" });
@@ -154,15 +155,22 @@ app.get('/api/claims/', authenticateToken, async (req, res) => {
         c.article_title,
         c.word_count,
         c.circulation,
+        c.permflag AS "permFlag",
         CASE WHEN pte.id IS NOT NULL THEN true ELSE false END AS custom
       FROM claims c
       LEFT JOIN claims_publication_titles pt ON c.publication_title_id = pt.id
       LEFT JOIN claims_publication_titles_extra pte ON c.publication_title_id_extra = pte.id
       LEFT JOIN claims_types t ON c.type_id = t.id
       LEFT JOIN claims_periodicity p ON c.periodicity_id = p.id
-      WHERE c.user_id = $1`,
+      WHERE c.user_id = $1
+      ORDER BY c.id`, // Order by claimId
       [userId]
     );
+
+    // Print each row line by line
+    result.rows.forEach(row => {
+      console.log('Row:', row);
+    });
 
     const claims = result.rows.map(row => ({
       claimId: row.claimid,
@@ -183,10 +191,10 @@ app.get('/api/claims/', authenticateToken, async (req, res) => {
       articleTitle: row.article_title,
       wordCount: row.word_count,
       circulation: row.circulation,
-      disabled: row.disabled
+      permFlag: row.permFlag
     }));
 
-    console.log('Success fetching claims: ', claims);
+    console.log('\n\nSuccess fetching claims: ', claims, '\n\n');
     res.status(200).json(claims);
   } catch (error) {
     console.error('Error fetching claims:', error);
@@ -195,10 +203,11 @@ app.get('/api/claims/', authenticateToken, async (req, res) => {
 });
 
 app.post('/api/claims/saveClaims', async (req, res) => {
-  const { userId, claims } = req.body;
+  const { userId, claims, permFlag } = req.body;
 
   console.log('Received userId:', userId);
   console.log('Received claims:', JSON.stringify(claims, null, 2));
+  console.log('Received permFlag:', permFlag);
 
   try {
     await pool.query('BEGIN');
@@ -238,12 +247,16 @@ app.post('/api/claims/saveClaims', async (req, res) => {
       let publication_title_id = null;
       let publication_title_id_extra = null;
 
-      if (publicationTitle.id === -1) {
-        const result = await pool.query(
-          'INSERT INTO claims_publication_titles_extra (publication_title) VALUES ($1) RETURNING id',
-          [publicationTitle.publication_title]
-        );
-        publication_title_id_extra = result.rows[0].id;
+      if (publicationTitle.custom) {
+        if (publicationTitle.id === -1) {
+          const result = await pool.query(
+            'INSERT INTO claims_publication_titles_extra (publication_title) VALUES ($1) RETURNING id',
+            [publicationTitle.publication_title]
+          );
+          publication_title_id_extra = result.rows[0].id;
+        } else {
+          publication_title_id_extra = publicationTitle.id;
+        }
       } else {
         publication_title_id = publicationTitle.id;
       }
@@ -252,11 +265,11 @@ app.post('/api/claims/saveClaims', async (req, res) => {
         await pool.query(
           `INSERT INTO claims (
             user_id, signature, publication_title_id, publication_title_id_extra,
-            type_id, periodicity_id, article_title, word_count, circulation
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+            type_id, periodicity_id, article_title, word_count, circulation, permFlag
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
           [
             userId, signature, publication_title_id, publication_title_id_extra,
-            type.id, periodicity.id, articleTitle, wordCount, circulation
+            type.id, periodicity.id, articleTitle, wordCount, circulation, permFlag
           ]
         );
       } else {
@@ -264,11 +277,11 @@ app.post('/api/claims/saveClaims', async (req, res) => {
           `UPDATE claims SET
             user_id = $1, signature = $2, publication_title_id = $3,
             publication_title_id_extra = $4, type_id = $5, periodicity_id = $6,
-            article_title = $7, word_count = $8, circulation = $9
-          WHERE id = $10`,
+            article_title = $7, word_count = $8, circulation = $9, permFlag = $10
+          WHERE id = $11`,
           [
             userId, signature, publication_title_id, publication_title_id_extra,
-            type.id, periodicity.id, articleTitle, wordCount, circulation, claimId
+            type.id, periodicity.id, articleTitle, wordCount, circulation, permFlag, claimId
           ]
         );
       }
