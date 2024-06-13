@@ -13,7 +13,7 @@
           <th class="min-width-150 header-tight-padding">Υπογραφή</th>
           <th class="min-width-150 header-tight-padding">Είδος</th>
           <th class="min-width-250 header-tight-padding">Περιοδικότητα</th>
-          <th class="min-width-250 header-tight-padding">Τίτλος Στήλης/Άρθρου</th>
+          <th class="min-width-250 header-tight-padding">Ιδιότητα</th>
           <th class="min-width-50 header-tight-padding">Αριθμός λέξεων</th>
           <th class="min-width-50 header-tight-padding">Μ/Ο Κυκλοφορίας 2023</th>
         </tr>
@@ -113,13 +113,13 @@
                    #articleTitle="ngModel"
                    [(ngModel)]="rowData.articleTitle"
                    name="articleTitle{{i}}"
-                   placeholder="Τίτλος Στήλης/Άρθρου"
+                   placeholder="Ιδιότητα"
                    pTooltip="Ελεύθερο κείμενο"
                    tooltipPosition="top"
 
                    [disabled]="rowData.disabled">
 
-            <div *ngIf="articleTitle.invalid && (articleTitle.dirty || articleTitle.touched)" class="error-message">Ο Τίτλος Στήλης/Άρθρου είναι υποχρεωτικός</div>
+            <div *ngIf="articleTitle.invalid && (articleTitle.dirty || articleTitle.touched)" class="error-message">Η Ιδιότητα είναι υποχρεωτική</div>
 
           </td>
           <td class="cell-tight-padding">
