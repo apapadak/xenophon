@@ -1,5 +1,6 @@
 const xlsx = require('xlsx');
 const { Pool } = require('pg');
+const fs = require('fs');
 
 // Database pool setup
 const pool = new Pool({
@@ -48,10 +49,19 @@ async function processColumn(columnData, columnName, tableName, dbColumnName) {
   for (let value of values) {
     await pool.query(`INSERT INTO ${tableName} (${dbColumnName}) VALUES ($1)`, [value]);
   }
+
+  /*const queries = values.map(value => {
+    const formattedValue = value !== null ? `'${value}'` : 'NULL';
+    return `INSERT INTO ${tableName} (${dbColumnName}) VALUES (${formattedValue});`;
+  });
+
+  fs.appendFileSync('types.sql', queries.join('\n') + '\n', 'utf8');*/
 }
 
 async function main() {
   try {
+    fs.writeFileSync('types.sql', '', 'utf8');
+
     await pool.connect(); // Connect to the database
     await pool.query('BEGIN'); // Start a transaction
 
