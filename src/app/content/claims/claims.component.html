@@ -9,13 +9,13 @@
       <ng-template pTemplate="header">
         <tr class="">
           <th class="min-width-50 header-tight-padding">Ενέργειες</th>
-          <th class="min-width-250 header-tight-padding">Τίτλος εντύπου</th>
+          <th class="min-width-250 header-tight-padding">ΕΝΤΥΠΑ (Εφημερίδες/Περιοδικά)</th>
           <th class="min-width-150 header-tight-padding">Υπογραφή</th>
           <th class="min-width-150 header-tight-padding">Είδος</th>
           <th class="min-width-250 header-tight-padding">Περιοδικότητα</th>
           <th class="min-width-250 header-tight-padding">Ιδιότητα</th>
           <th class="min-width-50 header-tight-padding">Αριθμός λέξεων</th>
-          <th class="min-width-50 header-tight-padding">Μ/Ο Κυκλοφορίας 2023</th>
+          <th class="min-width-50 header-tight-padding">Μέση κυκλοφορία</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-rowData let-i="rowIndex">
@@ -23,7 +23,7 @@
           <td class="cell-tight-padding">
             <div class="button-container">
              <!-- <p-button icon="pi pi-check" (click)="saveRow(rowData)" class="p-button-success p-mr-2"></p-button> -->
-              <p-button icon="pi pi-check" (click)="saveRow(rowData, i,  publicationTitle, signature, type, periodicity, articleTitle, wordCount, circulation)" class="p-button-success p-mr-2" [disabled]="rowData.disabled"></p-button>
+              <p-button icon="pi pi-check" (click)="saveRow(rowData, i,  publicationTitle, signature, type, periodicity, role, wordcount, circulation)" class="p-button-success p-mr-2" [disabled]="rowData.disabled"></p-button>
               <p-button icon="pi pi-trash" [disabled]="!showControls()" (click)="deleteRow(i)" class="p-button-danger"></p-button>
             </div>
           </td>
@@ -37,6 +37,7 @@
                             [dropdown]="true"
                             [suggestions]="filteredPublicationTitles"
                             (completeMethod)="searchPublicationTitle($event)"
+                            (input)="limitInputLength($event, 255, rowData)"
                             field="publication_title"
                             class="wide-dropdown"
                             placeholder="Εισάγετε τίτλο"
@@ -59,6 +60,7 @@
                    placeholder="Υπογραφή"
                    pTooltip="Ελεύθερο κείμενο"
                    tooltipPosition="top"
+                   maxlength="255"
 
                    [disabled]="rowData.disabled">
 
@@ -108,56 +110,66 @@
 
           </td>
           <td class="cell-tight-padding">
-            <input type="text" pInputText
-                   required
-                   #articleTitle="ngModel"
-                   [(ngModel)]="rowData.articleTitle"
-                   name="articleTitle{{i}}"
-                   placeholder="Ιδιότητα"
-                   pTooltip="Ελεύθερο κείμενο"
-                   tooltipPosition="top"
+            <p-autoComplete appendTo="body"
+                            required
+                            #role="ngModel"
+                            [(ngModel)]="rowData.role"
+                            name="role{{i}}"
+                            [dropdown]="true"
+                            [suggestions]="filteredRoles"
+                            (completeMethod)="searchRole($event)"
+                            field="role"
+                            [forceSelection]="true"
+                            placeholder="Ιδιότητα"
+                            pTooltip="Επιλογη από λίστα"
+                            tooltipPosition="top"
 
-                   [disabled]="rowData.disabled">
+                            [disabled]="rowData.disabled">
+            </p-autoComplete>
 
-            <div *ngIf="articleTitle.invalid && (articleTitle.dirty || articleTitle.touched)" class="error-message">Η Ιδιότητα είναι υποχρεωτική</div>
-
-          </td>
-          <td class="cell-tight-padding">
-            <input type="number" pInputText
-                   required
-                   #wordCount="ngModel"
-                   [(ngModel)]="rowData.wordCount"
-                   name="wordCount{{i}}"
-                   type="number"
-                   placeholder="Αριθμός λέξεων"
-                   pTooltip="Αριθμός λέξεων"
-                   tooltipPosition="top"
-                   min="1"
-                   step="1"
-                   (input)="validateInteger($event, 'wordCount', rowData)"
-
-                   [disabled]="rowData.disabled">
-
-            <div *ngIf="wordCount.invalid && (wordCount.dirty || wordCount.touched)" class="error-message">Ο Αριθμός λέξεων είναι υποχρεωτικός</div>
+            <div *ngIf="role.invalid && (role.dirty || role.touched)" class="error-message">Υποχρεωτική επιλογή από λίστα</div>
 
           </td>
           <td class="cell-tight-padding">
-            <input type="number" pInputText
-                   required
-                   #circulation="ngModel"
-                   [(ngModel)]="rowData.circulation"
-                   name="circulation{{i}}"
-                   type="number"
-                   placeholder="Μ/Ο Κυκλοφορίας"
-                   pTooltip="Μ/Ο Κυκλοφορίας"
-                   tooltipPosition="top"
-                   min="1"
-                   step="1"
-                   (input)="validateInteger($event, 'circulation', rowData)"
+            <p-autoComplete appendTo="body"
+                            required
+                            #wordcount="ngModel"
+                            [(ngModel)]="rowData.wordcount"
+                            name="wordCount{{i}}"
+                            [dropdown]="true"
+                            [suggestions]="filteredWordcounts"
+                            (completeMethod)="searchWordcount($event)"
+                            field="wordcount"
+                            [forceSelection]="true"
+                            placeholder="Αριθμός λέξεων"
+                            pTooltip="Επιλογη από λίστα"
+                            tooltipPosition="top"
 
                    [disabled]="rowData.disabled">
+            </p-autoComplete>
 
-            <div *ngIf="circulation.invalid && (circulation.dirty || circulation.touched)" class="error-message">Ο Μ/Ο Κυκλοφορίας είναι υποχρεωτικός</div>
+            <div *ngIf="wordcount.invalid && (wordcount.dirty || wordcount.touched)" class="error-message">Υποχρεωτική επιλογή από λίστα</div>
+
+          </td>
+          <td class="cell-tight-padding">
+            <p-autoComplete appendTo="body"
+                            required
+                            #circulation="ngModel"
+                            [(ngModel)]="rowData.circulation"
+                            name="circulation{{i}}"
+                            [dropdown]="true"
+                            [suggestions]="filteredCirculations"
+                            (completeMethod)="searchCirculation($event)"
+                            field="circulation"
+                            [forceSelection]="true"
+                            placeholder="Μέση κυκλοφορία"
+                            pTooltip="Επιλογη από λίστα"
+                            tooltipPosition="top"
+
+                            [disabled]="rowData.disabled">
+            </p-autoComplete>
+
+            <div *ngIf="circulation.invalid && (circulation.dirty || circulation.touched)" class="error-message">Υποχρεωτική επιλογή από λίστα</div>
 
           </td>
         </tr>

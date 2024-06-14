@@ -152,9 +152,12 @@ app.get('/api/claims/', authenticateToken, async (req, res) => {
         t.type,
         p.id AS periodicity_id,
         p.periodicity,
-        c.article_title,
-        c.word_count,
-        c.circulation,
+        r.id AS role_id,
+        r.role,
+        wc.id AS wordcount_id,
+        wc.wordcount,
+        cl.id AS circulation_id,
+        cl.circulation,
         c.permflag AS "permFlag",
         CASE WHEN pte.id IS NOT NULL THEN true ELSE false END AS custom
       FROM claims c
@@ -162,6 +165,9 @@ app.get('/api/claims/', authenticateToken, async (req, res) => {
       LEFT JOIN claims_publication_titles_extra pte ON c.publication_title_id_extra = pte.id
       LEFT JOIN claims_types t ON c.type_id = t.id
       LEFT JOIN claims_periodicity p ON c.periodicity_id = p.id
+      LEFT JOIN claims_role r ON c.role_id = r.id
+      LEFT JOIN claims_wordcount wc ON c.wordcount_id = wc.id
+      LEFT JOIN claims_circulation cl ON c.circulation_id = cl.id
       WHERE c.user_id = $1
       ORDER BY c.id`, // Order by claimId
       [userId]
@@ -188,9 +194,18 @@ app.get('/api/claims/', authenticateToken, async (req, res) => {
         id: row.periodicity_id,
         periodicity: row.periodicity
       },
-      articleTitle: row.article_title,
-      wordCount: row.word_count,
-      circulation: row.circulation,
+      role: {
+        id: row.role_id,
+        role: row.role
+      },
+      wordcount: {
+        id: row.wordcount_id,
+        wordcount: row.wordcount
+      },
+      circulation: {
+        id: row.circulation_id,
+        circulation: row.circulation
+      },
       permFlag: row.permFlag
     }));
 
@@ -239,8 +254,8 @@ app.post('/api/claims/saveClaims', async (req, res) => {
         signature,
         type,
         periodicity,
-        articleTitle,
-        wordCount,
+        role,
+        wordcount,
         circulation
       } = claim;
 
@@ -265,11 +280,11 @@ app.post('/api/claims/saveClaims', async (req, res) => {
         await pool.query(
           `INSERT INTO claims (
             user_id, signature, publication_title_id, publication_title_id_extra,
-            type_id, periodicity_id, article_title, word_count, circulation, permFlag
+            type_id, periodicity_id, role_id, wordcount_id, circulation_id, permFlag
           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
           [
             userId, signature, publication_title_id, publication_title_id_extra,
-            type.id, periodicity.id, articleTitle, wordCount, circulation, permFlag
+            type.id, periodicity.id, role.id, wordcount.id, circulation.id, permFlag
           ]
         );
       } else {
@@ -277,11 +292,11 @@ app.post('/api/claims/saveClaims', async (req, res) => {
           `UPDATE claims SET
             user_id = $1, signature = $2, publication_title_id = $3,
             publication_title_id_extra = $4, type_id = $5, periodicity_id = $6,
-            article_title = $7, word_count = $8, circulation = $9, permFlag = $10
+            role_id = $7, wordcount_id = $8, circulation_id = $9, permFlag = $10
           WHERE id = $11`,
           [
             userId, signature, publication_title_id, publication_title_id_extra,
-            type.id, periodicity.id, articleTitle, wordCount, circulation, permFlag, claimId
+            type.id, periodicity.id, role.id, wordcount.id, circulation.id, permFlag, claimId
           ]
         );
       }
@@ -336,7 +351,7 @@ app.get('/api/claims/types', authenticateToken, async (req, res) => {
 });
 
 // Endpoint to get claims periodicity
-app.get('/api/claims/periodicity', authenticateToken, async (req, res) => {
+app.get('/api/claims/periodicities', authenticateToken, async (req, res) => {
   try {
     const client = await pool.connect();
     const result = await client.query('SELECT * FROM claims_periodicity');
@@ -345,6 +360,63 @@ app.get('/api/claims/periodicity', authenticateToken, async (req, res) => {
       res.json(result.rows);
     } else {
       res.status(404).json({ message: "No claims periodicity found" });
+    }
+
+    client.release();
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Endpoint to get claims roles
+app.get('/api/claims/roles', authenticateToken, async (req, res) => {
+  try {
+    const client = await pool.connect();
+    const result = await client.query('SELECT * FROM claims_role');
+
+    if (result.rows.length > 0) {
+      res.json(result.rows);
+    } else {
+      res.status(404).json({ message: "No claims roles found" });
+    }
+
+    client.release();
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Endpoint to get claims wordcounts
+app.get('/api/claims/wordcounts', authenticateToken, async (req, res) => {
+  try {
+    const client = await pool.connect();
+    const result = await client.query('SELECT * FROM claims_wordcount');
+
+    if (result.rows.length > 0) {
+      res.json(result.rows);
+    } else {
+      res.status(404).json({ message: "No claims wordcounts found" });
+    }
+
+    client.release();
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Endpoint to get claims circulations
+app.get('/api/claims/circulations', authenticateToken, async (req, res) => {
+  try {
+    const client = await pool.connect();
+    const result = await client.query('SELECT * FROM claims_circulation');
+
+    if (result.rows.length > 0) {
+      res.json(result.rows);
+    } else {
+      res.status(404).json({ message: "No claims circulations found" });
     }
 
     client.release();

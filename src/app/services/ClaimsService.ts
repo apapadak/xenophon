@@ -22,7 +22,19 @@ export class ClaimsService {
     return this.http.get<any>('/api/claims/types');
   }
 
-  getPeriodicity() {
-    return this.http.get<any>('/api/claims/periodicity');
+  getPeriodicities() {
+    return this.http.get<any>('/api/claims/periodicities');
+  }
+
+  getRoles() {
+    return this.http.get<any>('/api/claims/roles');
+  }
+
+  getWordcounts() {
+    return this.http.get<any>('/api/claims/wordcounts');
+  }
+
+  getCirculations() {
+    return this.http.get<any>('/api/claims/circulations');
   }
 }

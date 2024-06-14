@@ -23,9 +23,9 @@ interface TableData {
   signature: string;
   type: TypeData | null;
   periodicity: PeriodicityData | null;
-  articleTitle: string;
-  wordCount: number | string;
-  circulation: number | string;
+  role: RoleData | null;
+  wordcount: WordcountData | null;
+  circulation: CirculationData | null;
 
   disabled: boolean; // Add this property used for disabling the whole row when needed
   permFlag: boolean;
@@ -46,6 +46,21 @@ interface TypeData {
 interface PeriodicityData {
   id: number;
   periodicity: string;
+}
+
+interface RoleData {
+  id: number;
+  role: string;
+}
+
+interface WordcountData {
+  id: number;
+  wordcount: string;
+}
+
+interface CirculationData {
+  id: number;
+  circulation: string;
 }
 
 @Component({
@@ -86,6 +101,15 @@ export class ClaimsComponent implements OnInit {
 
   periodicities: PeriodicityData[] = [];
   filteredPeriodicities: PeriodicityData[] = [];
+
+  roles: RoleData[] = [];
+  filteredRoles: RoleData[] = [];
+
+  wordcounts: WordcountData[] = [];
+  filteredWordcounts: WordcountData[] = [];
+
+  circulations: CirculationData[] = [];
+  filteredCirculations: CirculationData[] = [];
 
   userInfo: any;
 
@@ -142,10 +166,24 @@ export class ClaimsComponent implements OnInit {
       //console.log('types:' , this.types);
     });
 
-    this.claimsService.getPeriodicity().subscribe(data => {
+    this.claimsService.getPeriodicities().subscribe(data => {
       //this.periodicities = data.map((item: PeriodicityData) => item.periodicity);
       this.periodicities = data;
       //console.log('periodicities:' , this.periodicities);
+    });
+
+    this.claimsService.getRoles().subscribe(data => {
+      this.roles = data;
+    });
+
+    this.claimsService.getWordcounts().subscribe(data => {
+      this.wordcounts = data;
+      //console.log('WordCounts:' , this.wordcounts);
+    });
+
+    this.claimsService.getCirculations().subscribe(data => {
+      this.circulations = data;
+      //console.log('circulations:' , this.circulations);
     });
 
   }
@@ -158,18 +196,18 @@ export class ClaimsComponent implements OnInit {
       signature: '',
       type: null,
       periodicity: null,
-      articleTitle: '',
-      wordCount: '',
-      circulation: '',
+      role: null,
+      wordcount: null,
+      circulation: null,
 
       disabled: false, // Initialize as false
       permFlag: false
     });
   }
 
-  saveRow(rowData: TableData, rowIndex: number, publicationTitle: any, signature: any, type: any, periodicity: any, articleTitle: any, wordCount: any, circulation: any) {
+  saveRow(rowData: TableData, rowIndex: number, publicationTitle: any, signature: any, type: any, periodicity: any, role: any, wordcount: any, circulation: any) {
     console.log(rowData);
-    this.markAsTouched(publicationTitle, signature, type, periodicity, articleTitle, wordCount, circulation);
+    this.markAsTouched(publicationTitle, signature, type, periodicity, role, wordcount, circulation);
 
     if (this.isValidRow(rowData)) {
       console.log('Saving row data:', rowData);
@@ -193,8 +231,8 @@ export class ClaimsComponent implements OnInit {
         disabled: true // Disable the row after saving
       };*/
 
-      rowData.wordCount = typeof rowData.wordCount === 'string' ? Number(rowData.wordCount) : rowData.wordCount;
-      rowData.circulation = typeof rowData.circulation === 'string' ? Number(rowData.circulation) : rowData.circulation;
+      //rowData.wordCount = typeof rowData.wordCount === 'string' ? Number(rowData.wordCount) : rowData.wordCount;
+      //rowData.circulation = typeof rowData.circulation === 'string' ? Number(rowData.circulation) : rowData.circulation;
 
       rowData.disabled = true; // Ensure the row is disabled after saving
 
@@ -222,27 +260,30 @@ export class ClaimsComponent implements OnInit {
       !!rowData.signature &&
       !!rowData.type &&
       !!rowData.periodicity &&
-      !!rowData.articleTitle &&
-      this.isPositiveInteger(rowData.wordCount) &&
-      this.isPositiveInteger(rowData.circulation);
+      !!rowData.role &&
+      !!rowData.wordcount &&
+      !!rowData.circulation;
   }
 
-  private isPositiveInteger(value: string | number): boolean {
+  /*private isPositiveInteger(value: string | number): boolean {
     const num = typeof value === 'string' ? Number(value) : value;
     return Number.isInteger(num) && num > 0;
-  }
+  }*/
 
-  validateInteger(event: Event, field: keyof TableData, rowData: TableData): void {
+  /*validateInteger(event: Event, field: keyof TableData, rowData: TableData): void {
     const input = event.target as HTMLInputElement;
     const value = Number(input.value);
     if (value < 1 || !Number.isInteger(value)) {
       (rowData as any)[field] = ''; // Use type assertion
     }
-  }
+  }*/
 
   deleteRow(index: number) {
     this.data.splice(index, 1);
-    //this.preparedData.splice(index, 1);
+
+    if (this.data.length === 0) {
+      this.addRow();
+    }
   }
 
   tempStore(permFlag: boolean) {
@@ -310,9 +351,25 @@ export class ClaimsComponent implements OnInit {
     //console.log(this.filteredTypes);
   }
   searchPeriodicity(event: AutoCompleteCompleteEvent) {
-    const filtered = this.filterByField(this.periodicities, 'periodicity', event.query);
-    this.filteredPeriodicities = this.transformAndSortDisplay(filtered, 'periodicity');
+    //const filtered = this.filterByField(this.periodicities, 'periodicity', event.query);
+    this.filteredPeriodicities = [...this.periodicities];//this.transformAndSortDisplay(filtered, 'periodicity');
   }
+
+  searchRole(event: AutoCompleteCompleteEvent) {
+    //const filtered = this.filterByField(this.roles, 'role', event.query);
+    this.filteredRoles = [...this.roles];// this.transformAndSortDisplay(filtered, 'role');
+  }
+
+  searchWordcount(event: AutoCompleteCompleteEvent) {
+   // const filtered = this.filterByField(this.wordcounts, 'wordcount', event.query);
+    this.filteredWordcounts = [...this.wordcounts];//this.transformAndSortDisplay(filtered, 'wordcount');
+  }
+
+  searchCirculation(event: AutoCompleteCompleteEvent) {
+    //const filtered = this.filterByField(this.circulations, 'circulation', event.query);
+    this.filteredCirculations = [...this.circulations];//this.transformAndSortDisplay(filtered, 'circulation');
+  }
+
 
 
 
@@ -360,6 +417,14 @@ export class ClaimsComponent implements OnInit {
     if (!isSymbolA && isSymbolB) return 1;
 
     return a.localeCompare(b); // Default locale compare for other cases
+  }
+
+  limitInputLength(event: any, maxLength: number, rowData: any) {
+    const inputElement = event.target as HTMLInputElement;
+    if (inputElement.value.length > maxLength) {
+      inputElement.value = inputElement.value.slice(0, maxLength);
+      rowData.publicationTitle = inputElement.value;  // Update the ngModel
+    }
   }
 
 }
