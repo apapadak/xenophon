@@ -118,6 +118,7 @@
                             [dropdown]="true"
                             [suggestions]="filteredRoles"
                             (completeMethod)="searchRole($event)"
+                            (ngModelChange)="handleRoleChange(rowData)"
                             field="role"
                             [forceSelection]="true"
                             placeholder="Ιδιότητα"
@@ -141,11 +142,11 @@
                             (completeMethod)="searchWordcount($event)"
                             field="wordcount"
                             [forceSelection]="true"
-                            placeholder="Αριθμός λέξεων"
+                            [placeholder]="rowData.disabled || (rowData.role?.disableWordCount && !rowData.wordcount) ? '' : 'Αριθμός λέξεων'"
                             pTooltip="Επιλογη από λίστα"
                             tooltipPosition="top"
 
-                   [disabled]="rowData.disabled">
+                            [disabled]="rowData.disabled || rowData.role?.disableWordCount">
             </p-autoComplete>
 
             <div *ngIf="wordcount.invalid && (wordcount.dirty || wordcount.touched)" class="error-message">Υποχρεωτική επιλογή από λίστα</div>

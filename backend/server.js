@@ -15,6 +15,8 @@ const DBURL = process.env.DATABASE_URL;
 const JWTSECRET = process.env.JWT_SECRET;
 const cookieParser = require('cookie-parser');
 
+const disableWordCountRoleIds = [4, 5, 6, 7, 8, 10, 11];
+
 // Apply middleware
 app.use(cors({
   origin: 'https://localhost:4200'
@@ -198,10 +200,10 @@ app.get('/api/claims/', authenticateToken, async (req, res) => {
         id: row.role_id,
         role: row.role
       },
-      wordcount: {
+      wordcount: row.wordcount_id ? {
         id: row.wordcount_id,
         wordcount: row.wordcount
-      },
+      } : null,
       circulation: {
         id: row.circulation_id,
         circulation: row.circulation
@@ -276,6 +278,8 @@ app.post('/api/claims/saveClaims', async (req, res) => {
         publication_title_id = publicationTitle.id;
       }
 
+      const wordcountId = disableWordCountRoleIds.includes(role.id) ? null : wordcount.id;
+
       if (claimId === -1) {
         await pool.query(
           `INSERT INTO claims (
@@ -284,7 +288,7 @@ app.post('/api/claims/saveClaims', async (req, res) => {
           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
           [
             userId, signature, publication_title_id, publication_title_id_extra,
-            type.id, periodicity.id, role.id, wordcount.id, circulation.id, permFlag
+            type.id, periodicity.id, role.id, wordcountId, circulation.id, permFlag
           ]
         );
       } else {
@@ -296,7 +300,7 @@ app.post('/api/claims/saveClaims', async (req, res) => {
           WHERE id = $11`,
           [
             userId, signature, publication_title_id, publication_title_id_extra,
-            type.id, periodicity.id, role.id, wordcount.id, circulation.id, permFlag, claimId
+            type.id, periodicity.id, role.id, wordcountId, circulation.id, permFlag, claimId
           ]
         );
       }
@@ -311,7 +315,7 @@ app.post('/api/claims/saveClaims', async (req, res) => {
   }
 });
 
-
+/*
 // Endpoint to get claims article titles
 app.get('/api/claims/publicationTitles', authenticateToken, async (req, res) => {
   try {
@@ -424,8 +428,41 @@ app.get('/api/claims/circulations', authenticateToken, async (req, res) => {
     console.error(err);
     res.status(500).json({ message: "Server error" });
   }
-});
+});*/
 
+// Combined endpoint to get all dropdown values
+app.get('/api/claims/dropdownData', authenticateToken, async (req, res) => {
+  try {
+    const client = await pool.connect();
+
+    const publicationTitlesResult = await client.query('SELECT * FROM claims_publication_titles');
+    const typesResult = await client.query('SELECT * FROM claims_types');
+    const periodicitiesResult = await client.query('SELECT * FROM claims_periodicity');
+    const rolesResult = await client.query('SELECT * FROM claims_role');
+    const wordcountsResult = await client.query('SELECT * FROM claims_wordcount');
+    const circulationsResult = await client.query('SELECT * FROM claims_circulation');
+
+    client.release();
+
+    // Add disableWordCount flag to each role
+    const roles = rolesResult.rows.map(role => ({
+      ...role,
+      disableWordCount: disableWordCountRoleIds.includes(role.id)
+    }));
+
+    res.json({
+      publicationTitles: publicationTitlesResult.rows,
+      types: typesResult.rows,
+      periodicities: periodicitiesResult.rows,
+      roles: roles,
+      wordcounts: wordcountsResult.rows,
+      circulations: circulationsResult.rows
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 
 

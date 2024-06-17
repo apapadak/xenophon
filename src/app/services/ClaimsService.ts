@@ -14,27 +14,7 @@ export class ClaimsService {
     return this.http.post<any>(`/api/claims/saveClaims`, payload);
   }
 
-  getPublicationTitles() {
-    return this.http.get<any>('/api/claims/publicationTitles');
-  }
-
-  getTypes() {
-    return this.http.get<any>('/api/claims/types');
-  }
-
-  getPeriodicities() {
-    return this.http.get<any>('/api/claims/periodicities');
-  }
-
-  getRoles() {
-    return this.http.get<any>('/api/claims/roles');
-  }
-
-  getWordcounts() {
-    return this.http.get<any>('/api/claims/wordcounts');
-  }
-
-  getCirculations() {
-    return this.http.get<any>('/api/claims/circulations');
+  getDropdownData(): Observable<any> {
+    return this.http.get<any>('/api/claims/dropdownData');
   }
 }

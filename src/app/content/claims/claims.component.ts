@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
 import { HeaderComponent } from "../../header/header.component";
 import { FooterComponent } from "../../footer/footer.component";
 import {RouterOutlet} from "@angular/router";
@@ -51,6 +51,8 @@ interface PeriodicityData {
 interface RoleData {
   id: number;
   role: string;
+
+  disableWordCount: boolean;
 }
 
 interface WordcountData {
@@ -154,7 +156,7 @@ export class ClaimsComponent implements OnInit {
   }
 
   loadDropdownData() {
-    this.claimsService.getPublicationTitles().subscribe(data => {
+   /* this.claimsService.getPublicationTitles().subscribe(data => {
       //this.publicationTitles = data.map((item: PublicationTitleData) => item.publication_title);
       this.publicationTitles = data;
       //console.log('publicationTitles:' , this.publicationTitles);
@@ -184,6 +186,15 @@ export class ClaimsComponent implements OnInit {
     this.claimsService.getCirculations().subscribe(data => {
       this.circulations = data;
       //console.log('circulations:' , this.circulations);
+    });*/
+
+    this.claimsService.getDropdownData().subscribe(data => {
+      this.publicationTitles = data.publicationTitles;
+      this.types = data.types;
+      this.periodicities = data.periodicities;
+      this.roles = data.roles;
+      this.wordcounts = data.wordcounts;
+      this.circulations = data.circulations;
     });
 
   }
@@ -223,21 +234,7 @@ export class ClaimsComponent implements OnInit {
         rowData.publicationTitle.custom = false;
       }
 
-      // Update data and preparedData
-      /*const updatedRow = {
-        ...rowData,
-        wordCount: typeof rowData.wordCount === 'string' ? Number(rowData.wordCount) : rowData.wordCount,
-        circulation: typeof rowData.circulation === 'string' ? Number(rowData.circulation) : rowData.circulation,
-        disabled: true // Disable the row after saving
-      };*/
-
-      //rowData.wordCount = typeof rowData.wordCount === 'string' ? Number(rowData.wordCount) : rowData.wordCount;
-      //rowData.circulation = typeof rowData.circulation === 'string' ? Number(rowData.circulation) : rowData.circulation;
-
       rowData.disabled = true; // Ensure the row is disabled after saving
-
-      //this.data[rowIndex] = updatedRow;
-      //this.preparedData[rowIndex] = { ...updatedRow };
 
       console.log('Row data prepared for saving:', this.data);
     } else {
@@ -254,14 +251,13 @@ export class ClaimsComponent implements OnInit {
     });
   }
 
-
   private isValidRow(rowData: TableData): boolean {
     return !!rowData.publicationTitle &&
       !!rowData.signature &&
       !!rowData.type &&
       !!rowData.periodicity &&
       !!rowData.role &&
-      !!rowData.wordcount &&
+      (rowData.role.disableWordCount || !!rowData.wordcount) &&
       !!rowData.circulation;
   }
 
@@ -281,16 +277,23 @@ export class ClaimsComponent implements OnInit {
   deleteRow(index: number) {
     this.data.splice(index, 1);
 
+    console.log('1 ', this.data);
     if (this.data.length === 0) {
       this.addRow();
     }
+    console.log('2 ', this.data);
   }
 
   tempStore(permFlag: boolean) {
     const payload = {
       userId: this.userInfo.user_id,
-      claims: this.data.map(({ disabled, ...rest }) => rest), // Remove the 'disabled' flag from each row, no need to be sent to the server
-
+      claims: this.data.map(({ disabled, ...row }) => ({
+        ...row,
+        role: row.role ? {
+          id: row.role.id,
+          role: row.role.role
+        } : null
+      })),
       permFlag: permFlag
     };
 
@@ -342,32 +345,32 @@ export class ClaimsComponent implements OnInit {
 
   searchPublicationTitle(event: AutoCompleteCompleteEvent) {
     const filtered = this.filterByField(this.publicationTitles, 'publication_title', event.query);
-    this.filteredPublicationTitles = this.transformAndSortDisplay(filtered, 'publication_title');
+    this.filteredPublicationTitles = this.transformAndMaintainOrder(filtered, 'id', 'publication_title');
   }
   searchTypes(event: AutoCompleteCompleteEvent) {
     //console.log(this.types);
     const filtered = this.filterByField(this.types, 'type', event.query);
-    this.filteredTypes = this.transformAndSortDisplay(filtered, 'type');
+    this.filteredTypes = this.transformAndMaintainOrder(filtered, 'id', 'type');
     //console.log(this.filteredTypes);
   }
   searchPeriodicity(event: AutoCompleteCompleteEvent) {
-    //const filtered = this.filterByField(this.periodicities, 'periodicity', event.query);
-    this.filteredPeriodicities = [...this.periodicities];//this.transformAndSortDisplay(filtered, 'periodicity');
+    const filtered = this.filterByField(this.periodicities, 'periodicity', event.query);
+    this.filteredPeriodicities = this.transformAndMaintainOrder(filtered, 'id', 'periodicity');
   }
 
   searchRole(event: AutoCompleteCompleteEvent) {
-    //const filtered = this.filterByField(this.roles, 'role', event.query);
-    this.filteredRoles = [...this.roles];// this.transformAndSortDisplay(filtered, 'role');
+    const filtered = this.filterByField(this.roles, 'role', event.query);
+    this.filteredRoles = this.transformAndMaintainOrder(filtered, 'id', 'role');
   }
 
   searchWordcount(event: AutoCompleteCompleteEvent) {
-   // const filtered = this.filterByField(this.wordcounts, 'wordcount', event.query);
-    this.filteredWordcounts = [...this.wordcounts];//this.transformAndSortDisplay(filtered, 'wordcount');
+    const filtered = this.filterByField(this.wordcounts, 'wordcount', event.query);
+    this.filteredWordcounts = this.transformAndMaintainOrder(filtered, 'id', 'wordcount');
   }
 
   searchCirculation(event: AutoCompleteCompleteEvent) {
-    //const filtered = this.filterByField(this.circulations, 'circulation', event.query);
-    this.filteredCirculations = [...this.circulations];//this.transformAndSortDisplay(filtered, 'circulation');
+    const filtered = this.filterByField(this.circulations, 'circulation', event.query);
+    this.filteredCirculations = this.transformAndMaintainOrder(filtered, 'id', 'circulation');
   }
 
 
@@ -381,20 +384,28 @@ export class ClaimsComponent implements OnInit {
     });
   }
 
-  transformAndSortDisplay<T>(arr: T[], field: keyof T): T[] {
-    return arr
-      .map(item => ({
-        ...item,
-        [field]: typeof item[field] === 'string' ? (item[field] as string).toLowerCase() : item[field]
-      }))
-      .sort((a, b) => {
-        const valueA = a[field];
-        const valueB = b[field];
-        if (typeof valueA === 'string' && typeof valueB === 'string') {
-          return this.customSort(valueA, valueB);
-        }
-        return 0;
-      });
+  transformAndMaintainOrder<T>(arr: T[], idField: keyof T, sortField: keyof T): T[] {
+    // Sort by the custom field first
+    const customSortedArr = arr.slice().sort((a, b) => {
+      const valueA = a[sortField];
+      const valueB = b[sortField];
+      if (typeof valueA === 'string' && typeof valueB === 'string') {
+        return this.customSort(valueA, valueB);
+      }
+      return 0;
+    });
+
+    // Then sort by the ID field to maintain the natural order
+    const finalSortedArr = customSortedArr.slice().sort((a, b) => {
+      const idA = a[idField];
+      const idB = b[idField];
+      if (typeof idA === 'number' && typeof idB === 'number') {
+        return idA - idB;
+      }
+      return 0;
+    });
+
+    return finalSortedArr;
   }
 
   customSort(a: string, b: string): number {
@@ -424,6 +435,12 @@ export class ClaimsComponent implements OnInit {
     if (inputElement.value.length > maxLength) {
       inputElement.value = inputElement.value.slice(0, maxLength);
       rowData.publicationTitle = inputElement.value;  // Update the ngModel
+    }
+  }
+
+  handleRoleChange(rowData: TableData) {
+    if (rowData.role?.disableWordCount) {
+      rowData.wordcount = null; // Clear word count if the role disables it
     }
   }
 
