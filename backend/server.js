@@ -18,9 +18,16 @@ const JWTSECRET = process.env.JWT_SECRET;
 const disableWordCountRoleIds = [4, 5, 6, 7, 8, 10, 11];
 
 // Apply middleware
-app.use(cors({
+/*app.use(cors({
   origin: 'http://localhost:4200'
-}));
+}));*/
+
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' ? 'https://members.xenophonrights.gr/' : 'http://localhost:4200',
+  credentials: true
+};
+
+app.use(cors(corsOptions));
 
 app.use(bodyParser.json());
 app.use(cookieParser());
@@ -70,7 +77,7 @@ app.post('/api/login', async (req, res) => {
         const token = jwt.sign({ id: user.id }, JWTSECRET, { expiresIn: '1h' });
         res.cookie('jwt', token, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === 'production', // Ensure secure is true in production
+          secure: process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'local', // Ensure secure is true in production
           sameSite: 'Strict',
           maxAge: 3600000 // 1 hour
         });
