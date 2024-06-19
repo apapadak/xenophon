@@ -92,8 +92,7 @@ export class ClaimsComponent implements OnInit {
   @ViewChild('claimsForm') claimsForm!: NgForm; // Reference to the form
 
   data: TableData[] = [];
-
-  //preparedData: TableData[] = [];
+  isAnyRowDeleted: boolean = false;
 
   publicationTitles: PublicationTitleData[] = [];
   filteredPublicationTitles: PublicationTitleData[] = [];
@@ -114,6 +113,8 @@ export class ClaimsComponent implements OnInit {
   filteredCirculations: CirculationData[] = [];
 
   userInfo: any;
+
+
 
   constructor(
     private claimsService: ClaimsService,
@@ -277,11 +278,28 @@ export class ClaimsComponent implements OnInit {
   deleteRow(index: number) {
     this.data.splice(index, 1);
 
+    this.isAnyRowDeleted = true;
     console.log('1 ', this.data);
-    if (this.data.length === 0) {
+    if (this.data.length === 0 && !this.isAnyRowDeleted) {
       this.addRow();
     }
+
     console.log('2 ', this.data);
+  }
+
+  isStoreButtonsDisabled(): boolean {
+    //console.log(this.data);
+    //console.log('this.data.length ', this.data.length, ' this.isAnyRowDeleted:', this.isAnyRowDeleted, ' ', this.data.every(row => row.disabled === true));
+    return (this.data.length == 0 && !this.isAnyRowDeleted) || (this.data.length > 0 && !this.data.every(row => row.disabled));
+  }
+
+  showControls(): boolean {
+    //console.log(this.isAnyRowDeleted, ' ', !this.data.every(row => row.permFlag));
+    return this.isAnyRowDeleted || !this.data.every(row => row.permFlag);
+  }
+
+  isAddRowDisabled(): boolean {
+    return (this.data.length == 0 && !this.isAnyRowDeleted) || this.data.some(row => !row.disabled);
   }
 
   tempStore(permFlag: boolean) {
@@ -304,6 +322,7 @@ export class ClaimsComponent implements OnInit {
         this.messageService.add({severity: 'success', summary: 'Επιτυχία', detail: 'Επιτυχής προσωρινή αποθήκευση'});
 
         this.fetchData(); // refresh data array
+        this.isAnyRowDeleted = false;
 
         console.log('Data successfully saved:', response);
       },
@@ -313,12 +332,6 @@ export class ClaimsComponent implements OnInit {
         console.error('Failed to save data:', error);
       }
     });
-  }
-
-  isStoreButtonsDisabled(): boolean {
-    //console.log(this.data);
-    //console.log('this.data.length ', this.data.length, ' ', this.data.every(row => row.disabled === true));
-    return this.data.length > 0 && !this.data.every(row => row.disabled);
   }
 
   confirmFinalStore() {
@@ -335,13 +348,6 @@ export class ClaimsComponent implements OnInit {
     this.tempStore(true);
   }
 
-  showControls(): boolean {
-    return !this.data.every(row => row.permFlag);
-  }
-
-  isAddRowDisabled(): boolean {
-    return this.data.some(row => !row.disabled);
-  }
 
   searchPublicationTitle(event: AutoCompleteCompleteEvent) {
     const filtered = this.filterByField(this.publicationTitles, 'publication_title', event.query);

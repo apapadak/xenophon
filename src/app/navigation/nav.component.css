@@ -4,7 +4,7 @@
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  background-color: #5a2a82; /* Dark purple background */
+  background-color: #A0AECD; /* Dark purple background */
   padding: 20px;
   height: 100vh; /* Full height */
   width: 250px; /* Adjust width as needed */
@@ -33,6 +33,6 @@
 }
 
 .nav-list li:hover {
-  background-color: #825aa2; /* Lighter purple for hover */
+  background-color: #a3486c; /* Lighter purple for hover */
 }
 /* Add additional styles for active state, fonts, etc., as needed */
