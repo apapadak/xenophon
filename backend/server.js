@@ -1,19 +1,19 @@
 require('dotenv').config(); // This should be at the top of your file
 
 const express = require('express');
-const fs = require('fs');
-const https = require('https');
+//const fs = require('fs');
+//const https = require('https');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const pg = require('pg');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const DBURL = process.env.DATABASE_URL;
 const JWTSECRET = process.env.JWT_SECRET;
-const cookieParser = require('cookie-parser');
 
 const disableWordCountRoleIds = [4, 5, 6, 7, 8, 10, 11];
 
@@ -23,7 +23,6 @@ app.use(cors({
 }));
 
 app.use(bodyParser.json());
-
 app.use(cookieParser());
 
 // PostgreSQL connection setup
@@ -315,122 +314,6 @@ app.post('/api/claims/saveClaims', async (req, res) => {
   }
 });
 
-/*
-// Endpoint to get claims article titles
-app.get('/api/claims/publicationTitles', authenticateToken, async (req, res) => {
-  try {
-    const client = await pool.connect();
-    const result = await client.query('SELECT * FROM claims_publication_titles');
-
-    if (result.rows.length > 0) {
-      res.json(result.rows);
-    } else {
-      res.status(404).json({ message: "No claims publication titles found" });
-    }
-
-    client.release();
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-// Endpoint to get claims types
-app.get('/api/claims/types', authenticateToken, async (req, res) => {
-  try {
-    const client = await pool.connect();
-    const result = await client.query('SELECT * FROM claims_types');
-
-    if (result.rows.length > 0) {
-      res.json(result.rows);
-    } else {
-      res.status(404).json({ message: "No claims types found" });
-    }
-
-    client.release();
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-// Endpoint to get claims periodicity
-app.get('/api/claims/periodicities', authenticateToken, async (req, res) => {
-  try {
-    const client = await pool.connect();
-    const result = await client.query('SELECT * FROM claims_periodicity');
-
-    if (result.rows.length > 0) {
-      res.json(result.rows);
-    } else {
-      res.status(404).json({ message: "No claims periodicity found" });
-    }
-
-    client.release();
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-// Endpoint to get claims roles
-app.get('/api/claims/roles', authenticateToken, async (req, res) => {
-  try {
-    const client = await pool.connect();
-    const result = await client.query('SELECT * FROM claims_role');
-
-    if (result.rows.length > 0) {
-      res.json(result.rows);
-    } else {
-      res.status(404).json({ message: "No claims roles found" });
-    }
-
-    client.release();
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-// Endpoint to get claims wordcounts
-app.get('/api/claims/wordcounts', authenticateToken, async (req, res) => {
-  try {
-    const client = await pool.connect();
-    const result = await client.query('SELECT * FROM claims_wordcount');
-
-    if (result.rows.length > 0) {
-      res.json(result.rows);
-    } else {
-      res.status(404).json({ message: "No claims wordcounts found" });
-    }
-
-    client.release();
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-// Endpoint to get claims circulations
-app.get('/api/claims/circulations', authenticateToken, async (req, res) => {
-  try {
-    const client = await pool.connect();
-    const result = await client.query('SELECT * FROM claims_circulation');
-
-    if (result.rows.length > 0) {
-      res.json(result.rows);
-    } else {
-      res.status(404).json({ message: "No claims circulations found" });
-    }
-
-    client.release();
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
-  }
-});*/
-
-// Combined endpoint to get all dropdown values
 app.get('/api/claims/dropdownData', authenticateToken, async (req, res) => {
   try {
     const client = await pool.connect();
@@ -467,11 +350,14 @@ app.get('/api/claims/dropdownData', authenticateToken, async (req, res) => {
 
 
 
-
+// HTTP server options
+app.listen(PORT, () => {
+  console.log(`HTTP server running on http://localhost:${PORT}`);
+});
 
 
 // HTTPS server options
-const options = {
+/*const options = {
   key: fs.readFileSync('key.pem'),
   cert: fs.readFileSync('cert.pem')
 };
@@ -479,4 +365,4 @@ const options = {
 // Start HTTPS server
 https.createServer(options, app).listen(3000, () => {
   console.log('HTTPS server running on https://localhost:3000');
-});
+});*/
