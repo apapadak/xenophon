@@ -1,8 +1,8 @@
 require('dotenv').config(); // This should be at the top of your file
 
 const express = require('express');
-//const fs = require('fs');
-//const https = require('https');
+const fs = require('fs');
+const https = require('https');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const pg = require('pg');
@@ -19,7 +19,7 @@ const disableWordCountRoleIds = [4, 5, 6, 7, 8, 10, 11];
 
 // Apply middleware
 app.use(cors({
-  origin: 'https://localhost:4200'
+  origin: 'http://localhost:4200'
 }));
 
 app.use(bodyParser.json());
@@ -351,13 +351,13 @@ app.get('/api/claims/dropdownData', authenticateToken, async (req, res) => {
 
 
 // HTTP server options
-app.listen(PORT, () => {
+/*app.listen(PORT, () => {
   console.log(`HTTP server running on http://localhost:${PORT}`);
-});
+});*/
 
 
 // HTTPS server options
-/*const options = {
+const options = {
   key: fs.readFileSync('key.pem'),
   cert: fs.readFileSync('cert.pem')
 };
@@ -365,4 +365,4 @@ app.listen(PORT, () => {
 // Start HTTPS server
 https.createServer(options, app).listen(3000, () => {
   console.log('HTTPS server running on https://localhost:3000');
-});*/
+});
