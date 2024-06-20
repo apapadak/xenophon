@@ -86,7 +86,7 @@ app.post('/api/login', async (req, res) => {
         res.status(400).json({ message: "Invalid credentials!" });
       }
     } else {
-      res.status(404).json({ message: "User not found!" });
+      res.status(400).json({ message: "User not found!" });
     }
 
     client.release();
