@@ -365,8 +365,8 @@ app.get('/api/claims/dropdownData', authenticateToken, async (req, res) => {
 
 // HTTPS server options
 const options = {
-  key: fs.readFileSync('key.pem'),
-  cert: fs.readFileSync('cert.pem')
+  key: fs.readFileSync(process.env.NODE_ENV === 'production' ? './ssl/backend.key' : './ssl/key.pem' ),
+  cert: fs.readFileSync(process.env.NODE_ENV === 'production' ? './ssl/backend.crt' : './ssl/cert.pem' )
 };
 
 // Start HTTPS server
