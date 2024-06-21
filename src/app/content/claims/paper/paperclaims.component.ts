@@ -1,9 +1,9 @@
-import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
-import { HeaderComponent } from "../../header/header.component";
-import { FooterComponent } from "../../footer/footer.component";
+import {Component, OnInit, ViewChild} from '@angular/core';
+import { HeaderComponent } from "../../../header/header.component";
+import { FooterComponent } from "../../../footer/footer.component";
 import {RouterOutlet} from "@angular/router";
-import {ClaimsService} from "../../services/ClaimsService";
-import {ProfileComponent} from "../profile/profile.component";
+import {ClaimsService} from "../../../services/ClaimsService";
+import {ProfileComponent} from "../../profile/profile.component";
 import {BrowserAnimationsModule, NoopAnimationsModule} from "@angular/platform-browser/animations";
 import {FormBuilder, FormGroup, FormsModule, NgForm, Validators} from "@angular/forms";
 import {TableModule} from "primeng/table";
@@ -19,7 +19,7 @@ import {MessageService, ConfirmationService} from "primeng/api";
 interface TableData {
   claimId: number;
 
-  publicationTitle: PublicationTitleData;
+  titlePaper: TitlePaperData;
   signature: string;
   type: TypeData | null;
   periodicity: PeriodicityData | null;
@@ -31,9 +31,9 @@ interface TableData {
   permFlag: boolean;
 }
 
-interface PublicationTitleData {
+interface TitlePaperData {
   id: number;
-  publication_title: string;
+  title: string;
 
   custom: boolean;
 }
@@ -67,8 +67,8 @@ interface CirculationData {
 
 @Component({
   selector: 'app-home',
-  templateUrl: './claims.component.html',
-  styleUrls: ['./claims.component.css'],
+  templateUrl: './paperclaims.component.html',
+  styleUrls: ['./paperclaims.component.css'],
   standalone: true,
   imports: [
     //RouterOutlet,
@@ -88,14 +88,14 @@ interface CirculationData {
   providers: [MessageService, ConfirmationService]
 })
 
-export class ClaimsComponent implements OnInit {
+export class PaperClaimsComponent implements OnInit {
   @ViewChild('claimsForm') claimsForm!: NgForm; // Reference to the form
 
   data: TableData[] = [];
   isAnyRowDeleted: boolean = false;
 
-  publicationTitles: PublicationTitleData[] = [];
-  filteredPublicationTitles: PublicationTitleData[] = [];
+  titlePapers: TitlePaperData[] = [];
+  filteredtitlePapers: TitlePaperData[] = [];
 
   types: TypeData[] = [];
   filteredTypes: TypeData[] = [];
@@ -134,7 +134,7 @@ export class ClaimsComponent implements OnInit {
 
     console.log('userInfo: ', this.userInfo);
 
-    this.claimsService.getClaims(this.userInfo.user_id).subscribe({
+    this.claimsService.getPaperClaims(this.userInfo.user_id).subscribe({
       next: (data) => {
         // Add disabled flag to each row in the fetched data
         this.data = data.map((row: TableData) => ({
@@ -157,54 +157,21 @@ export class ClaimsComponent implements OnInit {
   }
 
   loadDropdownData() {
-   /* this.claimsService.getPublicationTitles().subscribe(data => {
-      //this.publicationTitles = data.map((item: PublicationTitleData) => item.publication_title);
-      this.publicationTitles = data;
-      //console.log('publicationTitles:' , this.publicationTitles);
-    });
-
-    this.claimsService.getTypes().subscribe(data => {
-      //this.types = data.map((item: TypeData) => item.type);
-      this.types = data;
-      //console.log('types:' , this.types);
-    });
-
-    this.claimsService.getPeriodicities().subscribe(data => {
-      //this.periodicities = data.map((item: PeriodicityData) => item.periodicity);
-      this.periodicities = data;
-      //console.log('periodicities:' , this.periodicities);
-    });
-
-    this.claimsService.getRoles().subscribe(data => {
-      this.roles = data;
-    });
-
-    this.claimsService.getWordcounts().subscribe(data => {
-      this.wordcounts = data;
-      //console.log('WordCounts:' , this.wordcounts);
-    });
-
-    this.claimsService.getCirculations().subscribe(data => {
-      this.circulations = data;
-      //console.log('circulations:' , this.circulations);
-    });*/
-
-    this.claimsService.getDropdownData().subscribe(data => {
-      this.publicationTitles = data.publicationTitles;
+    this.claimsService.getPaperDropdownData().subscribe(data => {
+      this.titlePapers = data.titlePapers;
       this.types = data.types;
       this.periodicities = data.periodicities;
       this.roles = data.roles;
       this.wordcounts = data.wordcounts;
       this.circulations = data.circulations;
     });
-
   }
 
   addRow() {
     this.data.push({
       claimId: -1,
 
-      publicationTitle: { id: -1, publication_title: '', custom: false }, // Initialize as PublicationTitleData
+      titlePaper: { id: -1, title: '', custom: false },
       signature: '',
       type: null,
       periodicity: null,
@@ -217,22 +184,22 @@ export class ClaimsComponent implements OnInit {
     });
   }
 
-  saveRow(rowData: TableData, rowIndex: number, publicationTitle: any, signature: any, type: any, periodicity: any, role: any, wordcount: any, circulation: any) {
+  saveRow(rowData: TableData, rowIndex: number, title: any, signature: any, type: any, periodicity: any, role: any, wordcount: any, circulation: any) {
     console.log(rowData);
-    this.markAsTouched(publicationTitle, signature, type, periodicity, role, wordcount, circulation);
+    this.markAsTouched(title, signature, type, periodicity, role, wordcount, circulation);
 
     if (this.isValidRow(rowData)) {
       console.log('Saving row data:', rowData);
 
-      // Update publicationTitle based on whether it's a string or an object
-      if (typeof rowData.publicationTitle === 'string') {
-        rowData.publicationTitle = {
+      // Update titlePaper based on whether it's a string or an object
+      if (typeof rowData.titlePaper === 'string') {
+        rowData.titlePaper = {
           id: -1,
-          publication_title: rowData.publicationTitle,
+          title: rowData.titlePaper,
           custom: true
         };
       } else {
-        rowData.publicationTitle.custom = false;
+        rowData.titlePaper.custom = false;
       }
 
       rowData.disabled = true; // Ensure the row is disabled after saving
@@ -253,7 +220,7 @@ export class ClaimsComponent implements OnInit {
   }
 
   private isValidRow(rowData: TableData): boolean {
-    return !!rowData.publicationTitle &&
+    return !!rowData.titlePaper &&
       !!rowData.signature &&
       !!rowData.type &&
       !!rowData.periodicity &&
@@ -317,7 +284,7 @@ export class ClaimsComponent implements OnInit {
 
     console.log('Data to be sent:', payload);
 
-    this.claimsService.saveClaims(payload).subscribe({
+    this.claimsService.savePaperClaims(payload).subscribe({
       next: (response) => {
         this.messageService.add({severity: 'success', summary: 'Επιτυχία', detail: 'Επιτυχής προσωρινή αποθήκευση'});
 
@@ -349,9 +316,12 @@ export class ClaimsComponent implements OnInit {
   }
 
 
-  searchPublicationTitle(event: AutoCompleteCompleteEvent) {
-    const filtered = this.filterByField(this.publicationTitles, 'publication_title', event.query);
-    this.filteredPublicationTitles = this.transformAndMaintainOrder(filtered, 'id', 'publication_title');
+  searchTitlePaper(event: AutoCompleteCompleteEvent) {
+    console.log(this.titlePapers);
+    const filtered = this.filterByField(this.titlePapers, 'title', event.query);
+    console.log(filtered);
+    this.filteredtitlePapers = this.transformAndMaintainOrder(filtered, 'id', 'title');
+    console.log(this.filteredtitlePapers);
   }
   searchTypes(event: AutoCompleteCompleteEvent) {
     //console.log(this.types);
@@ -383,7 +353,7 @@ export class ClaimsComponent implements OnInit {
 
 
   filterByField<T>(arr: T[], field: keyof T, query: string): T[] {
-    return arr.filter(item => {
+    return arr.filter(item => {console.log(field);
       const value = item[field];
       console.log(`Filtering ${value} with query ${query}`);
       return typeof value === 'string' && value.toLowerCase().includes(query.toLowerCase());
@@ -440,7 +410,7 @@ export class ClaimsComponent implements OnInit {
     const inputElement = event.target as HTMLInputElement;
     if (inputElement.value.length > maxLength) {
       inputElement.value = inputElement.value.slice(0, maxLength);
-      rowData.publicationTitle = inputElement.value;  // Update the ngModel
+      rowData.titlePaper = inputElement.value;  // Update the ngModel
     }
   }
 

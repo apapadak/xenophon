@@ -23,7 +23,7 @@
           <td class="cell-tight-padding">
             <div class="button-container">
              <!-- <p-button icon="pi pi-check" (click)="saveRow(rowData)" class="p-button-success p-mr-2"></p-button> -->
-              <p-button icon="pi pi-check" (click)="saveRow(rowData, i,  publicationTitle, signature, type, periodicity, role, wordcount, circulation)" class="p-button-success p-mr-2" [disabled]="rowData.disabled"></p-button>
+              <p-button icon="pi pi-check" (click)="saveRow(rowData, i,  title, signature, type, periodicity, role, wordcount, circulation)" class="p-button-success p-mr-2" [disabled]="rowData.disabled"></p-button>
               <p-button icon="pi pi-trash" [disabled]="!showControls()" (click)="deleteRow(i)" class="p-button-danger"></p-button>
             </div>
           </td>
@@ -31,14 +31,14 @@
           <td class="cell-tight-padding">
             <p-autoComplete appendTo="body"
                             required
-                            #publicationTitle="ngModel"
-                            [(ngModel)]="rowData.publicationTitle"
-                            name="publicationTitle{{i}}"
+                            #title="ngModel"
+                            [(ngModel)]="rowData.titlePaper"
+                            name="titlePaper{{i}}"
                             [dropdown]="true"
-                            [suggestions]="filteredPublicationTitles"
-                            (completeMethod)="searchPublicationTitle($event)"
+                            [suggestions]="filteredtitlePapers"
+                            (completeMethod)="searchTitlePaper($event)"
                             (input)="limitInputLength($event, 255, rowData)"
-                            field="publication_title"
+                            field="title"
                             class="wide-dropdown"
                             placeholder="Εισάγετε τίτλο"
                             pTooltip="Επιλογη από λίστα ή ελεύθερο κείμενο"
@@ -47,7 +47,7 @@
                             [disabled]="rowData.disabled">>
             </p-autoComplete>
 
-            <div *ngIf="publicationTitle.invalid && (publicationTitle.dirty || publicationTitle.touched)" class="error-message">Ο Τίτλος εντύπου είναι υποχρεωτικός</div>
+            <div *ngIf="title.invalid && (title.dirty || title.touched)" class="error-message">Ο Τίτλος εντύπου είναι υποχρεωτικός</div>
 
           </td>
           <td class="cell-tight-padding">

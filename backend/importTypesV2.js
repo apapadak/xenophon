@@ -60,8 +60,8 @@ function customSort(a, b) {
   return a.localeCompare(b); // Default locale compare for other cases
 }
 
-// Function to process publication titles
-async function processPublicationTitles(columnData, columnName, tableName, dbColumnName, sequenceName) {
+// Function to process titles papers/internet
+async function processTitles(columnData, columnName, tableName, dbColumnName, sequenceName) {
   const values = filterAndPrintStrings(columnData, columnName);
   const duplicates = checkAndPrintDuplicates(values);
   if (duplicates.size > 0) {
@@ -120,15 +120,16 @@ async function main() {
     await pool.connect(); // Connect to the database
     await pool.query('BEGIN'); // Start a transaction
 
-    // Process claims_publication_titles with the specific requirements
-    await processPublicationTitles(data.map(row => row.claims_publication_titles), 'publication_title', 'claims_publication_titles', 'publication_title', 'claims_publication_titles_id_seq');
+    // Process claims_paper_titles with the specific requirements
+    await processTitles(data.map(row => row.claims_titles_paper), 'claims_titles_papers', 'claims_titles_papers', 'title', 'claims_titles_papers_id_seq');
+    await processTitles(data.map(row => row.claims_titles_internet), 'claims_titles_internet', 'claims_titles_internet', 'title', 'claims_titles_internet_id_seq');
 
     // Process each column with the correct database column name
     await processColumn(data.map(row => row.claims_types), 'claims_types', 'claims_types', 'type', 'claims_types_id_seq');
-    await processColumn(data.map(row => row.claims_periodicity), 'claims_periodicity', 'claims_periodicity', 'periodicity', 'claims_periodicity_id_seq');
-    await processColumn(data.map(row => row.claims_role), 'claims_role', 'claims_role', 'role', 'claims_role_id_seq');
-    await processColumn(data.map(row => row.claims_wordcount), 'claims_wordcount', 'claims_wordcount', 'wordcount', 'claims_wordcount_id_seq');
-    await processColumn(data.map(row => row.claims_circulation), 'claims_circulation', 'claims_circulation', 'circulation', 'claims_circulation_id_seq');
+    await processColumn(data.map(row => row.claims_periodicity), 'claims_periodicity', 'claims_periodicities', 'periodicity', 'claims_periodicities_id_seq');
+    await processColumn(data.map(row => row.claims_role), 'claims_role', 'claims_roles', 'role', 'claims_roles_id_seq');
+    await processColumn(data.map(row => row.claims_wordcount), 'claims_wordcount', 'claims_wordcounts', 'wordcount', 'claims_wordcounts_id_seq');
+    await processColumn(data.map(row => row.claims_circulation), 'claims_circulation', 'claims_circulations', 'circulation', 'claims_circulations_id_seq');
 
     await pool.query('COMMIT'); // Commit transaction
     console.log('All data committed successfully');

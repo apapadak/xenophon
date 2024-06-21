@@ -36,8 +36,11 @@ export class HomeComponent {
       case 'CONTRACTS':
         this.router.navigate(['contracts']);
         break;
-      case 'CLAIMS':
-        this.router.navigate(['claims']);
+      case 'PAPERCLAIMS':
+        this.router.navigate(['paperclaims']);
+        break;
+      case 'INTERNETCLAIMS':
+        this.router.navigate(['internetclaims']);
         break;
       case 'PAYMENTS':
         this.router.navigate(['payments']);

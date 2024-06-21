@@ -6,15 +6,27 @@ import {Observable} from "rxjs";
 export class ClaimsService {
   constructor(private http: HttpClient) {}
 
-  getClaims(userId: string) {
-    return this.http.get<any>(`/api/claims?userId=${userId}`);
+  getPaperClaims(userId: string) {
+    return this.http.get<any>(`/api/claims/paper/?userId=${userId}`);
   }
 
-  saveClaims(payload: any): Observable<any> {
-    return this.http.post<any>(`/api/claims/saveClaims`, payload);
+  getInternetClaims(userId: string) {
+    return this.http.get<any>(`/api/claims/internet/?userId=${userId}`);
   }
 
-  getDropdownData(): Observable<any> {
-    return this.http.get<any>('/api/claims/dropdownData');
+  savePaperClaims(payload: any): Observable<any> {
+    return this.http.post<any>(`/api/claims/paper/saveClaims`, payload);
+  }
+
+  saveInternetClaims(payload: any): Observable<any> {
+    return this.http.post<any>(`/api/claims/internet/saveClaims`, payload);
+  }
+
+  getPaperDropdownData(): Observable<any> {
+    return this.http.get<any>('/api/claims/paper/dropdownData');
+  }
+
+  getInternetDropdownData(): Observable<any> {
+    return this.http.get<any>('/api/claims/internet/dropdownData');
   }
 }

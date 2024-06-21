@@ -8,8 +8,8 @@
     <li (click)="toggleSubMenu('CLAIMS')">
       Δηλώσεις
       <ul *ngIf="showSubMenu['CLAIMS']" class="sub-menu">
-        <li (click)="onNavigate('CLAIMS')">Δηλώσεις (Έντυπο)</li>
-        <li (click)="onNavigate('NEWCLAIMS')">Δηλώσεις (Ιστοσελίδες))</li>
+        <li (click)="onNavigate('PAPERCLAIMS')">Έντυπα</li>
+        <li (click)="onNavigate('INTERNETCLAIMS')">Ιστοσελίδες</li>
       </ul>
     </li>
 

@@ -6,12 +6,12 @@ import {ProfileComponent} from "./content/profile/profile.component";
 
 export const routes: Routes = [
   { path: 'home', component: HomeComponent, data: { name: 'HOME' } },
-  /* { path: 'contracts', component: ClaimsComponent },
-   { path: 'declarations', component: ClaimsComponent },
-   { path: 'fillingout', component: ClaimsComponent },
-   { path: 'payments', component: ClaimsComponent },*/
+  /* { path: 'contracts', component: PaperclaimsComponent },
+   { path: 'declarations', component: PaperclaimsComponent },
+   { path: 'fillingout', component: PaperclaimsComponent },
+   { path: 'payments', component: PaperclaimsComponent },*/
   { path: 'profile', component: ProfileComponent }
-  //{ path: 'logout', component: ClaimsComponent }
+  //{ path: 'logout', component: PaperclaimsComponent }
 
 ];
 
