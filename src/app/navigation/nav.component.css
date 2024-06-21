@@ -35,4 +35,24 @@
 .nav-list li:hover {
   background-color: #a3486c; /* Lighter purple for hover */
 }
+
+/* Submenu styles */
+.sub-menu {
+  list-style: none;
+  padding: 0;
+  padding-left: 20px;
+  margin: 10px 0 0;
+}
+
+.sub-menu li {
+  padding: 5px 0;
+  font-size: 16px;
+  color: #ffffff; /* White text color */
+  cursor: pointer;
+}
+
+.sub-menu li:hover {
+  background-color: #b75a76; /* Even lighter purple for hover */
+}
+
 /* Add additional styles for active state, fonts, etc., as needed */

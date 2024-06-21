@@ -4,7 +4,15 @@
   <ul class="nav-list">
     <li (click)="onNavigate('HOME')">Αρχική</li>
     <li (click)="onNavigate('CONTRACTS')">Συμβάσεις</li>
-    <li class="disabled" (click)="onNavigate('CLAIMS')">Δηλώσεις</li>
+
+    <li (click)="toggleSubMenu('CLAIMS')">
+      Δηλώσεις
+      <ul *ngIf="showSubMenu['CLAIMS']" class="sub-menu">
+        <li (click)="onNavigate('CLAIMS')">Δηλώσεις (Έντυπο)</li>
+        <li (click)="onNavigate('NEWCLAIMS')">Δηλώσεις (Ιστοσελίδες))</li>
+      </ul>
+    </li>
+
     <li class="disabled" (click)="onNavigate('DISTRIBUTIONS')">Διανομές</li>
     <li (click)="onNavigate('PAYMENTS')">Είσπραξη</li>
     <li (click)="onNavigate('PROFILE')">Προφίλ</li>
