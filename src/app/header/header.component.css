@@ -1,0 +1,31 @@
+.app-header {
+  background-color: #8BC34A; /* Green background color */
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.header-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffffff; /* White text color */
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  color: #ffffff; /* White text color */
+}
+
+.user-info i {
+  margin-right: 8px;
+  font-size: 20px; /* Adjust icon size if needed */
+}

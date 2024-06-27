@@ -1,81 +1,82 @@
-<div class="profile-container">
-  <h1>PROFILE</h1>
+<div class="container">
+  <div class="personal-info section">
+    <h3>(1) Προσωπικά Στοιχεία</h3>
 
-  <!-- Pink Panel - Προσωπικά Στοιχεία -->
-  <section class="personal-info-panel">
-    <h2>(1) Προσωπικά Στοιχεία</h2>
+    <!-- Pink Panel - Προσωπικά Στοιχεία -->
     <div class="form-group">
       <label for="afm">ΑΦΜ:</label>
-      <input type="text" id="afm" [(ngModel)]="userInfo.afm">
+      <input type="text" id="afm" [(ngModel)]="userInfo.afm" disabled="true">
     </div>
     <div class="form-group">
       <label for="legal_form">Νομική μορφή:</label>
-      <input type="text" id="legal_form" [(ngModel)]="userInfo.legal_form">
+      <input type="text" id="legal_form" [(ngModel)]="userInfo.legal_form" disabled="true">
     </div>
     <div class="form-group">
       <label for="tax_office">ΔΟΥ:</label>
-      <input type="text" id="tax_office" [(ngModel)]="userInfo.tax_office">
+      <input type="text" id="tax_office" [(ngModel)]="userInfo.tax_office" disabled="true">
     </div>
     <div class="form-group">
       <label for="fullName">Ονοματεπώνυμο:</label>
-      <input type="text" id="fullName" [(ngModel)]="fullName">
+      <input type="text" id="fullName" [(ngModel)]="fullName" disabled="true">
     </div>
     <div class="form-group">
       <label for="father_name">Όνομα Πατρός:</label>
-      <input type="text" id="father_name" [(ngModel)]="userInfo.father_name">
+      <input type="text" id="father_name" [(ngModel)]="userInfo.father_name" disabled="true">
     </div>
     <div class="form-group">
       <label for="dob">Ημ/νία Γέννησης:</label>
-      <input type="date" id="dob" [(ngModel)]="userInfo.dob">
+      <input type="date" id="dob" [(ngModel)]="userInfo.dob" disabled="true">
     </div>
     <div class="form-group">
       <label for="adt">ΑΔΤ:</label>
-      <input type="text" id="adt" [(ngModel)]="userInfo.adt">
+      <input type="text" id="adt" [(ngModel)]="userInfo.adt" disabled="true">
     </div>
     <div class="form-group">
       <label for="iban">Τραπεζικός Λογαριασμός:</label>
-      <input type="text" id="iban" [(ngModel)]="userInfo.iban">
+      <input type="text" id="iban" [(ngModel)]="userInfo.iban" disabled="true">
     </div>
     <div class="form-group">
       <label for="bank">ΤΡΑΠΕΖΑ:</label>
-      <input type="text" id="bank" [(ngModel)]="userInfo.bank">
+      <input type="text" id="bank" [(ngModel)]="userInfo.bank" disabled="true">
     </div>
-  </section>
+  </div>
 
-  <!-- Green Panel - Στοιχεία Επικοινωνίας -->
-  <section class="communications-info-panel">
-    <h2>(1) Στοιχεία Επικοινωνίας</h2>
+
+  <div class="contact-info section">
+    <h3>(2) Στοιχεία Επικοινωνίας</h3>
+
+    <!-- Green Panel - Στοιχεία Επικοινωνίας -->
     <div class="form-group">
       <label for="address">Διεύθυνση:</label>
-      <input type="text" id="address" [(ngModel)]="userInfo.address">
+      <input type="text" id="address" [(ngModel)]="userInfo.address" disabled="true">
     </div>
     <div class="form-group">
       <label for="city">Πόλη:</label>
-      <input type="text" id="city" [(ngModel)]="userInfo.city">
+      <input type="text" id="city" [(ngModel)]="userInfo.city" disabled="true">
     </div>
     <div class="form-group">
       <label for="postal_code">Τ.Κ.:</label>
-      <input type="text" id="postal_code" [(ngModel)]="userInfo.postal_code">
+      <input type="text" id="postal_code" [(ngModel)]="userInfo.postal_code" disabled="true">
     </div>
     <div class="form-group">
       <label for="country">Χώρα:</label>
-      <input type="text" id="country" [(ngModel)]="userInfo.country">
+      <input type="text" id="country" [(ngModel)]="userInfo.country" disabled="true">
     </div>
     <div class="form-group">
       <label for="telephone">Τηλ:</label>
-      <input type="text" id="telephone" [(ngModel)]="userInfo.telephone">
+      <input type="text" id="telephone" [(ngModel)]="userInfo.telephone" disabled="true">
     </div>
     <div class="form-group">
       <label for="mobile">Κινητό:</label>
-      <input type="text" id="mobile" [(ngModel)]="userInfo.mobile">
+      <input type="text" id="mobile" [(ngModel)]="userInfo.mobile" disabled="true">
     </div>
     <div class="form-group">
       <label for="email_1">email1:</label>
-      <input type="text" id="email_1" [(ngModel)]="userInfo.email_1">
+      <input type="text" id="email_1" [(ngModel)]="userInfo.email_1" disabled="true">
     </div>
     <div class="form-group">
       <label for="email_2">email2:</label>
-      <input type="text" id="email_2" [(ngModel)]="userInfo.email_2">
+      <input type="text" id="email_2" [(ngModel)]="userInfo.email_2" disabled="true">
     </div>
-  </section>
+  </div>
 </div>

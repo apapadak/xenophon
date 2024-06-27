@@ -22,11 +22,15 @@ export class ClaimsService {
     return this.http.post<any>(`/api/claims/internet/saveClaims`, payload);
   }
 
-  getPaperDropdownData(): Observable<any> {
-    return this.http.get<any>('/api/claims/paper/dropdownData');
+  getTitlePapersDropdownData(): Observable<any> {
+    return this.http.get<any>('/api/claims/paper/titlePapers');
   }
 
-  getInternetDropdownData(): Observable<any> {
-    return this.http.get<any>('/api/claims/internet/dropdownData');
+  getTitleInternetDropdownData(): Observable<any> {
+    return this.http.get<any>('/api/claims/internet/titleInternet');
+  }
+
+  getClaimsDropdownData(): Observable<any> {
+    return this.http.get<any>('/api/claims/dropdownData');
   }
 }

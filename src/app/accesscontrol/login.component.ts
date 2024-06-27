@@ -29,7 +29,11 @@ export class LoginComponent {
   ) {} // Step 2: Inject Router
 
   onLogin() {
+    this.username = this.username.trim();
+    this.password = this.password.trim();
+
     console.log("attempting login... " + this.username + ' ' + this.password);
+
     this.authService.login(this.username, this.password).pipe(
       switchMap(response => {
         console.log('Login OK');

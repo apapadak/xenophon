@@ -1,11 +1,8 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import { HeaderComponent } from "../../../header/header.component";
 import { FooterComponent } from "../../../footer/footer.component";
-import {RouterOutlet} from "@angular/router";
 import {ClaimsService} from "../../../services/ClaimsService";
-import {ProfileComponent} from "../../profile/profile.component";
-import {BrowserAnimationsModule, NoopAnimationsModule} from "@angular/platform-browser/animations";
-import {FormBuilder, FormGroup, FormsModule, NgForm, Validators} from "@angular/forms";
+import {FormsModule, NgForm} from "@angular/forms";
 import {TableModule} from "primeng/table";
 import {ButtonModule} from "primeng/button";
 import {InputTextModule} from "primeng/inputtext";
@@ -15,55 +12,7 @@ import {CommonModule} from "@angular/common";
 import {ToastModule} from "primeng/toast";
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import {MessageService, ConfirmationService} from "primeng/api";
-
-interface TableData {
-  claimId: number;
-
-  titlePaper: TitlePaperData;
-  signature: string;
-  type: TypeData | null;
-  periodicity: PeriodicityData | null;
-  role: RoleData | null;
-  wordcount: WordcountData | null;
-  circulation: CirculationData | null;
-
-  disabled: boolean; // Add this property used for disabling the whole row when needed
-  permFlag: boolean;
-}
-
-interface TitlePaperData {
-  id: number;
-  title: string;
-
-  custom: boolean;
-}
-
-interface TypeData {
-  id: number;
-  type: string;
-}
-
-interface PeriodicityData {
-  id: number;
-  periodicity: string;
-}
-
-interface RoleData {
-  id: number;
-  role: string;
-
-  disableWordCount: boolean;
-}
-
-interface WordcountData {
-  id: number;
-  wordcount: string;
-}
-
-interface CirculationData {
-  id: number;
-  circulation: string;
-}
+import {CirculationData, ClaimsCommonService, PeriodicityData, RoleData, TitlePaperData, TypeData, WordcountData,} from '../../../helpers/common/claims-common.service';
 
 @Component({
   selector: 'app-home',
@@ -85,52 +34,31 @@ interface CirculationData {
     ToastModule,
     ConfirmDialogModule,
   ],
-  providers: [MessageService, ConfirmationService]
+  providers: [MessageService, ConfirmationService, ClaimsCommonService]
 })
 
 export class PaperClaimsComponent implements OnInit {
-  @ViewChild('claimsForm') claimsForm!: NgForm; // Reference to the form
-
-  data: TableData[] = [];
-  isAnyRowDeleted: boolean = false;
-
-  titlePapers: TitlePaperData[] = [];
-  filteredtitlePapers: TitlePaperData[] = [];
-
-  types: TypeData[] = [];
-  filteredTypes: TypeData[] = [];
-
-  periodicities: PeriodicityData[] = [];
-  filteredPeriodicities: PeriodicityData[] = [];
-
-  roles: RoleData[] = [];
-  filteredRoles: RoleData[] = [];
-
-  wordcounts: WordcountData[] = [];
-  filteredWordcounts: WordcountData[] = [];
-
-  circulations: CirculationData[] = [];
-  filteredCirculations: CirculationData[] = [];
+  @ViewChild('claimsPaperForm') claimsPaperForm!: NgForm; // Reference to the form
 
   userInfo: any;
 
-
+  //data: TableData[] = [];
+  //isAnyRowDeleted: boolean = false;
 
   constructor(
-    private claimsService: ClaimsService,
-    private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    public claimsCommonService: ClaimsCommonService
   ) {}
 
   ngOnInit() {
-     // Initialize with one empty row
-    this.fetchData();
-    this.loadDropdownData();
+    this.userInfo = this.claimsCommonService.getUserInfo();
+
+    //this.fetchData();
+    this.claimsCommonService.fetchPaperClaims();
+    //this.loadDropdownData();
+    this.claimsCommonService.loadPaperDropdownData();
   }
 
-  fetchData() {
-    const userInfoString = localStorage.getItem('userInfo');
-    this.userInfo = userInfoString ? JSON.parse(userInfoString) : '';
+  /*fetchData() {
 
     console.log('userInfo: ', this.userInfo);
 
@@ -147,16 +75,14 @@ export class PaperClaimsComponent implements OnInit {
         }
 
         console.log('data:', this.data);
-        //console.log('preparedData:', this.preparedData);
       },
       error: (err) => {
         console.error('Failed to fetch claims:', err);
-        // Handle errors here, possibly showing a user-friendly message
       }
     });
-  }
+  }*/
 
-  loadDropdownData() {
+  /*loadDropdownData() {
     this.claimsService.getPaperDropdownData().subscribe(data => {
       this.titlePapers = data.titlePapers;
       this.types = data.types;
@@ -165,9 +91,9 @@ export class PaperClaimsComponent implements OnInit {
       this.wordcounts = data.wordcounts;
       this.circulations = data.circulations;
     });
-  }
+  }*/
 
-  addRow() {
+  /*addRow() {
     this.data.push({
       claimId: -1,
 
@@ -182,13 +108,13 @@ export class PaperClaimsComponent implements OnInit {
       disabled: false, // Initialize as false
       permFlag: false
     });
-  }
+  }*/
 
-  saveRow(rowData: TableData, rowIndex: number, title: any, signature: any, type: any, periodicity: any, role: any, wordcount: any, circulation: any) {
+  /*saveRow(rowData: TableData, rowIndex: number, title: any, signature: any, type: any, periodicity: any, role: any, wordcount: any, circulation: any) {
     console.log(rowData);
-    this.markAsTouched(title, signature, type, periodicity, role, wordcount, circulation);
+    this.claimsCommonService.markAsTouched(title, signature, type, periodicity, role, wordcount, circulation);
 
-    if (this.isValidRow(rowData)) {
+    if (this.claimsCommonService.isValidRow(rowData)) {
       console.log('Saving row data:', rowData);
 
       // Update titlePaper based on whether it's a string or an object
@@ -210,39 +136,9 @@ export class PaperClaimsComponent implements OnInit {
     }
 
     console.log('data: ', this.data);
-    //console.log('preparedData: ', this.preparedData);
-  }
-
-  private markAsTouched(...controls: any[]) {
-    controls.forEach(control => {
-      control.control.markAsTouched();
-    });
-  }
-
-  private isValidRow(rowData: TableData): boolean {
-    return !!rowData.titlePaper &&
-      !!rowData.signature &&
-      !!rowData.type &&
-      !!rowData.periodicity &&
-      !!rowData.role &&
-      (rowData.role.disableWordCount || !!rowData.wordcount) &&
-      !!rowData.circulation;
-  }
-
-  /*private isPositiveInteger(value: string | number): boolean {
-    const num = typeof value === 'string' ? Number(value) : value;
-    return Number.isInteger(num) && num > 0;
   }*/
 
-  /*validateInteger(event: Event, field: keyof TableData, rowData: TableData): void {
-    const input = event.target as HTMLInputElement;
-    const value = Number(input.value);
-    if (value < 1 || !Number.isInteger(value)) {
-      (rowData as any)[field] = ''; // Use type assertion
-    }
-  }*/
-
-  deleteRow(index: number) {
+  /*deleteRow(index: number) {
     this.data.splice(index, 1);
 
     this.isAnyRowDeleted = true;
@@ -302,7 +198,6 @@ export class PaperClaimsComponent implements OnInit {
   }
 
   confirmFinalStore() {
-    console.log('hi');
     this.confirmationService.confirm({
       message: 'Είστε σίγουροι ότι θέλετε να προχωρήσετε?\nΔεν επιτρέπονται άλλες αλλαγές μετά την Οριστική Αποθήκευση.',
       accept: () => {
@@ -313,112 +208,7 @@ export class PaperClaimsComponent implements OnInit {
 
   finalStore() {
     this.tempStore(true);
-  }
-
-
-  searchTitlePaper(event: AutoCompleteCompleteEvent) {
-    console.log(this.titlePapers);
-    const filtered = this.filterByField(this.titlePapers, 'title', event.query);
-    console.log(filtered);
-    this.filteredtitlePapers = this.transformAndMaintainOrder(filtered, 'id', 'title');
-    console.log(this.filteredtitlePapers);
-  }
-  searchTypes(event: AutoCompleteCompleteEvent) {
-    //console.log(this.types);
-    const filtered = this.filterByField(this.types, 'type', event.query);
-    this.filteredTypes = this.transformAndMaintainOrder(filtered, 'id', 'type');
-    //console.log(this.filteredTypes);
-  }
-  searchPeriodicity(event: AutoCompleteCompleteEvent) {
-    const filtered = this.filterByField(this.periodicities, 'periodicity', event.query);
-    this.filteredPeriodicities = this.transformAndMaintainOrder(filtered, 'id', 'periodicity');
-  }
-
-  searchRole(event: AutoCompleteCompleteEvent) {
-    const filtered = this.filterByField(this.roles, 'role', event.query);
-    this.filteredRoles = this.transformAndMaintainOrder(filtered, 'id', 'role');
-  }
-
-  searchWordcount(event: AutoCompleteCompleteEvent) {
-    const filtered = this.filterByField(this.wordcounts, 'wordcount', event.query);
-    this.filteredWordcounts = this.transformAndMaintainOrder(filtered, 'id', 'wordcount');
-  }
-
-  searchCirculation(event: AutoCompleteCompleteEvent) {
-    const filtered = this.filterByField(this.circulations, 'circulation', event.query);
-    this.filteredCirculations = this.transformAndMaintainOrder(filtered, 'id', 'circulation');
-  }
-
-
-
-
-  filterByField<T>(arr: T[], field: keyof T, query: string): T[] {
-    return arr.filter(item => {console.log(field);
-      const value = item[field];
-      console.log(`Filtering ${value} with query ${query}`);
-      return typeof value === 'string' && value.toLowerCase().includes(query.toLowerCase());
-    });
-  }
-
-  transformAndMaintainOrder<T>(arr: T[], idField: keyof T, sortField: keyof T): T[] {
-    // Sort by the custom field first
-    const customSortedArr = arr.slice().sort((a, b) => {
-      const valueA = a[sortField];
-      const valueB = b[sortField];
-      if (typeof valueA === 'string' && typeof valueB === 'string') {
-        return this.customSort(valueA, valueB);
-      }
-      return 0;
-    });
-
-    // Then sort by the ID field to maintain the natural order
-    const finalSortedArr = customSortedArr.slice().sort((a, b) => {
-      const idA = a[idField];
-      const idB = b[idField];
-      if (typeof idA === 'number' && typeof idB === 'number') {
-        return idA - idB;
-      }
-      return 0;
-    });
-
-    return finalSortedArr;
-  }
-
-  customSort(a: string, b: string): number {
-    const greekRegex = /^[Α-Ωα-ω]/; // Greek letters
-    const numberRegex = /^[0-9]/;   // Numbers
-    const symbolRegex = /^[^A-Za-z0-9Α-Ωα-ω]/; // Symbols
-
-    const isGreekA = greekRegex.test(a);
-    const isGreekB = greekRegex.test(b);
-    const isNumberA = numberRegex.test(a);
-    const isNumberB = numberRegex.test(b);
-    const isSymbolA = symbolRegex.test(a);
-    const isSymbolB = symbolRegex.test(b);
-
-    if (isGreekA && !isGreekB) return -1;
-    if (!isGreekA && isGreekB) return 1;
-    if (isNumberA && !isNumberB) return -1;
-    if (!isNumberA && isNumberB) return 1;
-    if (isSymbolA && !isSymbolB) return -1;
-    if (!isSymbolA && isSymbolB) return 1;
-
-    return a.localeCompare(b); // Default locale compare for other cases
-  }
-
-  limitInputLength(event: any, maxLength: number, rowData: any) {
-    const inputElement = event.target as HTMLInputElement;
-    if (inputElement.value.length > maxLength) {
-      inputElement.value = inputElement.value.slice(0, maxLength);
-      rowData.titlePaper = inputElement.value;  // Update the ngModel
-    }
-  }
-
-  handleRoleChange(rowData: TableData) {
-    if (rowData.role?.disableWordCount) {
-      rowData.wordcount = null; // Clear word count if the role disables it
-    }
-  }
+  }*/
 
 }
 

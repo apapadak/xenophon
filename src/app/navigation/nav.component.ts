@@ -16,8 +16,8 @@ export class NavigationComponent {
 
   constructor() {}
 
-  toggleSubMenu(item: string): void {
-    this.showSubMenu[item] = !this.showSubMenu[item];
+  ngOnInit(): void {
+    this.showSubMenu['CLAIMS'] = true; // Set the submenu to be open by default
   }
 
   onNavigate(route: string): void {

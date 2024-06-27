@@ -3,6 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import {HttpClientModule} from "@angular/common/http";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {PageNotFoundComponent} from "./helpers/notfound/page-not-found.component";
+import {AppStateService} from "./helpers/common/app-state.service";
 
 @Component({
   selector: 'app-root',
@@ -18,4 +19,6 @@ import {PageNotFoundComponent} from "./helpers/notfound/page-not-found.component
 })
 export class AppComponent {
   title = 'Xenophon';
+
+  constructor(private appStateService: AppStateService) {}
 }

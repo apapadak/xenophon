@@ -5,11 +5,12 @@
     <li (click)="onNavigate('HOME')">Αρχική</li>
     <li (click)="onNavigate('CONTRACTS')">Συμβάσεις</li>
 
-    <li (click)="toggleSubMenu('CLAIMS')">
+    <li>
       Δηλώσεις
       <ul *ngIf="showSubMenu['CLAIMS']" class="sub-menu">
         <li (click)="onNavigate('PAPERCLAIMS')">Έντυπα</li>
         <li (click)="onNavigate('INTERNETCLAIMS')">Ιστοσελίδες</li>
+        <li (click)="onNavigate('TVRADIO')">TV & Radio</li>
       </ul>
     </li>
 

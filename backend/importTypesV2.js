@@ -123,6 +123,8 @@ async function main() {
     // Process claims_paper_titles with the specific requirements
     await processTitles(data.map(row => row.claims_titles_paper), 'claims_titles_papers', 'claims_titles_papers', 'title', 'claims_titles_papers_id_seq');
     await processTitles(data.map(row => row.claims_titles_internet), 'claims_titles_internet', 'claims_titles_internet', 'title', 'claims_titles_internet_id_seq');
+    //await processTitles(data.map(row => row.claims_titles_tv), 'claims_titles_tv', 'claims_titles_tv', 'title', 'claims_titles_tv_id_seq');
+    //await processTitles(data.map(row => row.claims_titles_radio), 'claims_titles_radio', 'claims_titles_radio', 'title', 'claims_titles_radio_id_seq');
 
     // Process each column with the correct database column name
     await processColumn(data.map(row => row.claims_types), 'claims_types', 'claims_types', 'type', 'claims_types_id_seq');

@@ -353,7 +353,7 @@ app.post('/api/claims/paper/saveClaims', async (req, res) => {
         if (titlePaper.id === -1) {
           const result = await pool.query(
             'INSERT INTO claims_titles_papers_extra (title_extra) VALUES ($1) RETURNING id',
-            [titlePaper.title_extra]
+            [titlePaper.title]
           );
           title_paper_id_extra = result.rows[0].id;
         } else {
@@ -449,7 +449,7 @@ app.post('/api/claims/internet/saveClaims', async (req, res) => {
         if (titleInternet.id === -1) {
           const result = await pool.query(
             'INSERT INTO claims_titles_internet_extra (title_extra) VALUES ($1) RETURNING id',
-            [titleInternet.title_extra]
+            [titleInternet.title]
           );
           title_internet_id_extra = result.rows[0].id;
         } else {
@@ -498,23 +498,40 @@ app.post('/api/claims/internet/saveClaims', async (req, res) => {
 
 
 
-const claimTypeConfig = {
-  paper: {
-    titlesKey: 'titlePapers',
-    titlesTable: 'claims_titles_papers',
-  },
-  internet: {
-    titlesKey: 'titleInternet',
-    titlesTable: 'claims_titles_internet',
+app.get('/api/claims/paper/titlePapers', authenticateToken, async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const result = await client.query('SELECT * FROM claims_titles_papers');
+    res.json({
+      titlePapers: result.rows
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  } finally {
+    client.release();
   }
-};
+});
 
-const getDropdownData = async (claimType) => {
+app.get('/api/claims/internet/titleInternet', authenticateToken, async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const result = await client.query('SELECT * FROM claims_titles_internet');
+    res.json({
+      titleInternet: result.rows
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  } finally {
+    client.release();
+  }
+});
+
+app.get('/api/claims/dropdownData', authenticateToken, async (req, res) => {
   const client = await pool.connect();
 
   try {
-    const { titlesKey, titlesTable } = claimTypeConfig[claimType];
-    const titleResult = await client.query(`SELECT * FROM ${titlesTable}`);
     const typesResult = await client.query('SELECT * FROM claims_types');
     const periodicitiesResult = await client.query('SELECT * FROM claims_periodicities');
     const rolesResult = await client.query('SELECT * FROM claims_roles');
@@ -527,32 +544,18 @@ const getDropdownData = async (claimType) => {
       disableWordCount: disableWordCountRoleIds.includes(role.id)
     }));
 
-    return {
-      [titlesKey]: titleResult.rows,
+    res.json({
       types: typesResult.rows,
       periodicities: periodicitiesResult.rows,
       roles: roles,
       wordcounts: wordcountsResult.rows,
       circulations: circulationsResult.rows
-    };
-  } finally {
-    client.release();
-  }
-};
-
-app.get('/api/claims/:type/dropdownData', authenticateToken, async (req, res) => {
-  const claimType = req.params.type;
-
-  if (!claimTypeConfig[claimType]) {
-    return res.status(400).json({ message: "Invalid claim type" });
-  }
-
-  try {
-    const data = await getDropdownData(claimType);
-    res.json(data);
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
+  } finally {
+    client.release();
   }
 });
 

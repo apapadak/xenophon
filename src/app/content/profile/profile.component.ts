@@ -14,7 +14,6 @@ import {FormsModule} from "@angular/forms";
     HeaderComponent,
     FooterComponent,
     FormsModule
-    // ... other imports
   ]
 })
 export class ProfileComponent implements OnInit {
@@ -27,13 +26,11 @@ export class ProfileComponent implements OnInit {
   loadProfileData() {
     const userInfo = localStorage.getItem('userInfo');
 
-    // Check if data exists, if not initialize to defaults or empty objects
     this.userInfo = userInfo ? JSON.parse(userInfo) : this.initializePersonalInfo();
     console.log('this.userInfo: ', userInfo);
   }
 
   initializePersonalInfo() {
-    // Return a default personalInfo object or an empty one
     return {
       "afm": '',
       "firstname": '',
@@ -56,12 +53,10 @@ export class ProfileComponent implements OnInit {
     };
   }
 
-  // Getter for fullName that concatenates firstName and lastName
   get fullName(): string {
     return `${this.userInfo.firstName} ${this.userInfo.lastName}`;
   }
 
-  // Setter for fullName that splits the fullName and sets firstName and lastName
   set fullName(value: string) {
     const [firstName, lastName] = value.split(' ');
     this.userInfo.firstName = firstName;

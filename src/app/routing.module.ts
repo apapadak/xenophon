@@ -9,6 +9,7 @@ import {DistributionsComponent} from "./content/distributions/distributions.comp
 import {PaperClaimsComponent} from "./content/claims/paper/paperclaims.component";
 import {AuthGuard} from "./helpers/guards/auth.guard";
 import {PageNotFoundComponent} from "./helpers/notfound/page-not-found.component";
+import {InternetClaimsComponent} from "./content/claims/internet/internetclaims.component";
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -25,7 +26,7 @@ export const routes: Routes = [
     children: [
       { path: 'contracts', component: ContractsComponent, canActivate: [AuthGuard] },
       { path: 'paperclaims', component: PaperClaimsComponent, canActivate: [AuthGuard] },
-      { path: 'internetclaims', component: PaperClaimsComponent, canActivate: [AuthGuard] },
+      { path: 'internetclaims', component: InternetClaimsComponent, canActivate: [AuthGuard] },
       { path: 'payments', component: PaymentsComponent, canActivate: [AuthGuard] },
       { path: 'distributions', component: DistributionsComponent, canActivate: [AuthGuard] },
       { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },

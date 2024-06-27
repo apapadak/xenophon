@@ -1,14 +1,58 @@
-/* profile.component.css */
-.personal-info-panel, .contact-info-panel {
+.container {
+  width: 80%;
+  margin: 20px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.section {
+  border: 1px solid #ccc;
+  padding: 16px;
+  margin: 8px;
   border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  flex: 1;
+  min-width: 300px;
 }
-
-.personal-info-panel {
-  background-color: #FFC0CB; /* Pink */
+.personal-info {
+  background: linear-gradient(to bottom right, #ffcccc, #ffcce5);
 }
-
-.contact-info-panel {
-  background-color: #90EE90; /* Light green */
+.contact-info {
+  background: linear-gradient(to bottom right, #ccffcc, #e5ffcc);
+}
+.names-pseudonyms {
+  background: linear-gradient(to bottom right, #cce5ff, #e5ccff);
+}
+.duration-rights {
+  background: linear-gradient(to bottom right, #ffccff, #e5ccff);
+}
+h3 {
+  margin-top: 0;
+}
+form {
+  display: flex;
+  flex-direction: column;
+}
+label {
+  margin-top: 8px;
+}
+input, select {
+  padding: 8px;
+  margin-top: 4px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  width: 100%;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+}
+th, td {
+  padding: 8px;
+  border: 1px solid #ccc;
+  text-align: left;
+}
+th {
+  background-color: #f2f2f2;
 }
