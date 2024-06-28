@@ -10,10 +10,10 @@ const worksheet = workbook.Sheets[sheetName];
 let data = XLSX.utils.sheet_to_json(worksheet);
 
 const pool = new Pool({
-  user: 'xenophon_user',
+  user: 'postgres',
   host: 'localhost',
-  database: 'xenophon',
-  password: 'Xen8Hop!',
+  database: 'postgres',
+  password: 'ps@2024',
   port: '5432',  // Port should be a number or a numeric string
 });
 
