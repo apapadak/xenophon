@@ -1,13 +1,14 @@
+require('dotenv').config(); // This should be at the top of your file
+
 const xlsx = require('xlsx');
 const { Pool } = require('pg');
 
-// Database pool setup
+const DBURL = process.env.DATABASE_URL;
+
+// PostgreSQL connection setup
 const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'postgres',
-  password: 'ps@2024',
-  port: 5432,
+  connectionString: DBURL, // Update with your details
+  ssl: false
 });
 
 const workbook = xlsx.readFile('types.xlsx');

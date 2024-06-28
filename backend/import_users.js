@@ -1,7 +1,10 @@
+require('dotenv').config(); // This should be at the top of your file
+
 const XLSX = require('xlsx');
 const bcrypt = require('bcryptjs');  // Using bcryptjs for hashing
 const { Pool } = require('pg');
 const fs = require('fs');
+const pg = require("pg");
 
 // Load the workbook
 const workbook = XLSX.readFile('new_file.xlsx');
@@ -9,12 +12,12 @@ const sheetName = workbook.SheetNames[0];
 const worksheet = workbook.Sheets[sheetName];
 let data = XLSX.utils.sheet_to_json(worksheet);
 
+const DBURL = process.env.DATABASE_URL;
+
+// PostgreSQL connection setup
 const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'postgres',
-  password: 'ps@2024',
-  port: '5432',  // Port should be a number or a numeric string
+  connectionString: DBURL, // Update with your details
+  ssl: false
 });
 
 async function clearTable() {
