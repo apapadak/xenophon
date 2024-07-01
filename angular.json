@@ -48,7 +48,7 @@
                   "maximumError": "1.5mb"
                 },
                 {
-                  "type": "total",
+                  "type": "all",
                   "maximumWarning": "1.2mb",
                   "maximumError": "1.5mb"
                 }
