@@ -14,11 +14,12 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const DBURL = process.env.DATABASE_URL;
 const JWTSECRET = process.env.JWT_SECRET;
+const DNS_SITE = process.env.DNS_SITE;
 
 const disableWordCountRoleIds = [4, 5, 6, 7, 8, 10, 11];
 
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' ? 'https://members.xenophonrights.gr/' : 'http://localhost:4200',
+  origin: process.env.DNS_SITE,
   credentials: true
 };
 
