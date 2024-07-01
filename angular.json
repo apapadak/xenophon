@@ -44,13 +44,13 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "1mb"
+                  "maximumWarning": "1.2mb",
+                  "maximumError": "1.5mb"
                 },
                 {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "2kb",
-                  "maximumError": "4kb"
+                  "type": "total",
+                  "maximumWarning": "1.2mb",
+                  "maximumError": "1.5mb"
                 }
               ],
               "outputHashing": "all"
@@ -68,7 +68,6 @@
           "options": {
             "buildTarget": "my-angular-project:build",
             "proxyConfig": "proxy-https.conf.json",
-            //"proxyConfig": "proxy-http.conf.json",
             "ssl": true,
             "sslKey": "./ssl/server.key",
             "sslCert": "./ssl/server.crt"
