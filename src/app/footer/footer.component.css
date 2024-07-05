@@ -1,4 +1,3 @@
-/* footer.component.css */
 .app-footer {
   background-color: #f8f9fa; /* Example background color, adjust as needed */
   padding: 10px;
@@ -6,9 +5,10 @@
   justify-content: space-between;
   align-items: center;
   font-size: 0.8rem;
-
+  box-sizing: border-box;
+  position: fixed;
   bottom: 0;
-  position: absolute;
+  width: 100%;
 }
 
 .footer-content {

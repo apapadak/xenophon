@@ -8,14 +8,14 @@
     <p-table [value]="claimsCommonService.data" class="claims-table flexible-width p-datatable-min-height">
       <ng-template pTemplate="header">
         <tr class="">
-          <th class="min-width-50 header-tight-padding">Ενέργειες</th>
-          <th class="min-width-250 header-tight-padding">Έντυπο</th>
+          <th class="min-width-150 header-tight-padding">Ενέργειες</th>
+          <th class="min-width-150 header-tight-padding">Έντυπο</th>
           <th class="min-width-150 header-tight-padding">Υπογραφή</th>
           <th class="min-width-150 header-tight-padding">Είδος</th>
-          <th class="min-width-250 header-tight-padding">Περιοδικότητα</th>
-          <th class="min-width-250 header-tight-padding">Ιδιότητα</th>
-          <th class="min-width-50 header-tight-padding">Αριθμός λέξεων</th>
-          <th class="min-width-50 header-tight-padding">Μέση κυκλοφορία</th>
+          <th class="min-width-150 header-tight-padding">Περιοδικότητα</th>
+          <th class="min-width-150 header-tight-padding">Ιδιότητα</th>
+          <th class="min-width-150 header-tight-padding">Αριθμός λέξεων</th>
+          <th class="min-width-150 header-tight-padding">Μέση κυκλοφορία</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-rowData let-i="rowIndex">
@@ -60,7 +60,7 @@
                    pTooltip="Ελεύθερο κείμενο"
                    tooltipPosition="top"
                    maxlength="255"
-
+                   class="custom-input"
                    [disabled]="rowData.disabled">
 
             <div *ngIf="signature.invalid && (signature.dirty || signature.touched)" class="error-message">Η Υπογραφή είναι υποχρεωτική</div>
@@ -176,7 +176,7 @@
     </p-table>
   </form>
 
-  <div *ngIf="claimsCommonService.showControls()" id="addAndStoreControls">
+  <div *ngIf="claimsCommonService.showControls()" id="addAndStoreControls" class="addAndStoreControls">
     <p-button (click)="claimsCommonService.addPaperRow()" icon="pi pi-plus" aria-label="Add new row" [disabled]="claimsCommonService.isAddRowDisabled()"></p-button>
 
     <p-button label="Προσωρινή αποθήκευση" (click)="claimsCommonService.tempStore('paper',false)" icon="pi" aria-label="Προσωρινή αποθήκευση" [disabled]="claimsCommonService.isStoreButtonsDisabled()"></p-button>

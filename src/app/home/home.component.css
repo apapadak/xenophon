@@ -1,13 +1,21 @@
 .home-container {
-  display: flex; /* This makes the container a flex container */
+  display: flex; /* Flex container for the nav and content sections */
+  height: 100vh; /* Full viewport height */
 }
 
 .navigation-section {
-  width: 15%; /* Adjust width as needed */
-  /* other styles for the navigation section */
+  width: 250px; /* Fixed width matching the nav width */
+  flex-shrink: 0; /* Prevent shrinking */
 }
 
 .content-section {
-  width: 80%; /* Adjust width as needed */
-  /* other styles for the content section */
+  flex-grow: 1; /* Take remaining width */
+  display: flex;
+  flex-direction: column;
+  padding: 20px; /* Add padding to the content section */
+}
+
+.content-section .app-header,
+.content-section .app-footer {
+  width: 100%;
 }

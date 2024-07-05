@@ -91,5 +91,29 @@ p-button {
 .error-message {
   color: red;
   font-size: 0.8em;
-  margin-top: 4px;
+  padding-top: 10px;
 }
+
+.addAndStoreControls {
+  padding: 10px 0px 0px 0px;
+}
+
+.custom-input {
+  min-width: 150px;
+  width: 200px; /* Adjust the width as needed */
+  max-width: 100%; /* Ensure it doesn't exceed the container's width */
+}
+
+/*.custom-autocomplete {
+  display: block;
+  width: 250px; // Adjust the width as needed
+  max-width: 100%; // Ensure it doesn't exceed the container's width
+}
+
+.custom-autocomplete .ui-autocomplete-panel {
+  width: 250px; // Ensure the dropdown panel matches the input width
+}
+
+.custom-autocomplete .ui-inputtext {
+  width: 100%; // Ensure the input text takes up the full width of the component
+}*/

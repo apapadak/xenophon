@@ -1,4 +1,3 @@
-/* General styling for the navigation bar */
 .app-nav {
   display: flex;
   flex-direction: column;
@@ -11,13 +10,11 @@
   box-sizing: border-box;
 }
 
-/* Logo styles */
 .app-nav-logo {
   width: 80%; /* Adjust size as needed */
   margin-bottom: 20px; /* Space below the logo */
 }
 
-/* Navigation list styles */
 .nav-list {
   list-style: none;
   padding: 0;
@@ -36,7 +33,6 @@
   background-color: #a3486c; /* Lighter purple for hover */
 }
 
-/* Submenu styles */
 .sub-menu {
   list-style: none;
   padding: 0;
@@ -54,5 +50,3 @@
 .sub-menu li:hover {
   background-color: #b75a76; /* Even lighter purple for hover */
 }
-
-/* Add additional styles for active state, fonts, etc., as needed */
