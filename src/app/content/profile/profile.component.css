@@ -15,10 +15,10 @@
   min-width: 300px;
 }
 .personal-info {
-  background: linear-gradient(to bottom right, #ffcccc, #ffcce5);
+  background: linear-gradient(to bottom right, #a0cdbf, #a0cdd8);
 }
 .contact-info {
-  background: linear-gradient(to bottom right, #ccffcc, #e5ffcc);
+  background: linear-gradient(to bottom right, #c1cadf, #c1caf8);
 }
 .names-pseudonyms {
   background: linear-gradient(to bottom right, #cce5ff, #e5ccff);

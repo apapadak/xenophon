@@ -10,16 +10,14 @@ import {PaperClaimsComponent} from "./content/claims/paper/paperclaims.component
 import {AuthGuard} from "./helpers/guards/auth.guard";
 import {PageNotFoundComponent} from "./helpers/notfound/page-not-found.component";
 import {InternetClaimsComponent} from "./content/claims/internet/internetclaims.component";
+import {TvClaimsComponent} from "./content/claims/tv/tvclaims.component";
+import {RadioClaimsComponent} from "./content/claims/radio/radioclaims.component";
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'logout', component: LoginComponent,canActivate: [AuthGuard] },
   { path: 'home', component: HomeComponent, canActivate: [AuthGuard], data: { name: 'HOME' } },
-  /* { path: 'contracts', component: PaperclaimsComponent },
-   { path: 'declarations', component: PaperclaimsComponent },
-   { path: 'fillingout', component: PaperclaimsComponent },
-   { path: 'payments', component: PaperclaimsComponent },*/
   {
     path: '',
     component: HomeComponent,
@@ -27,6 +25,8 @@ export const routes: Routes = [
       { path: 'contracts', component: ContractsComponent, canActivate: [AuthGuard] },
       { path: 'paperclaims', component: PaperClaimsComponent, canActivate: [AuthGuard] },
       { path: 'internetclaims', component: InternetClaimsComponent, canActivate: [AuthGuard] },
+      { path: 'tvclaims', component: TvClaimsComponent, canActivate: [AuthGuard] },
+      { path: 'radioclaims', component: RadioClaimsComponent, canActivate: [AuthGuard] },
       { path: 'payments', component: PaymentsComponent, canActivate: [AuthGuard] },
       { path: 'distributions', component: DistributionsComponent, canActivate: [AuthGuard] },
       { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },

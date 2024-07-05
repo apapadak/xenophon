@@ -16,7 +16,8 @@ const DBURL = process.env.DATABASE_URL;
 const JWTSECRET = process.env.JWT_SECRET;
 const DNS_SITE = process.env.DNS_SITE;
 
-const disableWordCountRoleIds = [4, 5, 6, 7, 8, 10, 11];
+const disableWordCountRoleIds = [1, 3, 4, 5, 7, 8, 9];
+const disablePeriodicitiesIdsForTvsRadios = [5, 6, 7, 8];
 
 const corsOptions = {
   origin: process.env.DNS_SITE,
@@ -241,8 +242,7 @@ app.get('/api/claims/internet', authenticateToken, async (req, res) => {
         r.role,
         wc.id AS wordcount_id,
         wc.wordcount,
-        cl.id AS circulation_id,
-        cl.circulation,
+        c.circulation,
         c.permflag AS "permFlag",
         CASE WHEN pte.id IS NOT NULL THEN true ELSE false END AS custom
       FROM claims_internet c
@@ -252,7 +252,6 @@ app.get('/api/claims/internet', authenticateToken, async (req, res) => {
       LEFT JOIN claims_periodicities p ON c.periodicity_id = p.id
       LEFT JOIN claims_roles r ON c.role_id = r.id
       LEFT JOIN claims_wordcounts wc ON c.wordcount_id = wc.id
-      LEFT JOIN claims_circulations cl ON c.circulation_id = cl.id
       WHERE c.user_id = $1
       ORDER BY c.id`, // Order by claimId
       [userId]
@@ -287,10 +286,161 @@ app.get('/api/claims/internet', authenticateToken, async (req, res) => {
         id: row.wordcount_id,
         wordcount: row.wordcount
       } : null,
-      circulation: {
+      /*circulation: {
         id: row.circulation_id,
         circulation: row.circulation
+      },*/
+      circulation: row.circulation,
+      permFlag: row.permFlag
+    }));
+
+    console.log('\n\nSuccess fetching claims: ', claims, '\n\n');
+    res.status(200).json(claims);
+  } catch (error) {
+    console.error('Error fetching claims:', error);
+    res.status(500).send('Error fetching claims');
+  }
+});
+
+app.get('/api/claims/tv', authenticateToken, async (req, res) => {
+  const { userId } = req.query;
+
+  if (!userId) {
+    return res.status(400).json({ message: "userId is required" });
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT
+        c.id AS claimId,
+        c.signature,
+        COALESCE(pt.id, pte.id) AS titletv_id,
+        COALESCE(pt.title, pte.title_extra) AS titletv_title,
+        t.id AS type_id,
+        t.type,
+        p.id AS periodicity_id,
+        p.periodicity,
+        r.id AS role_id,
+        r.role,
+        c.wordcount,
+        c.circulation,
+        c.permflag AS "permFlag",
+        CASE WHEN pte.id IS NOT NULL THEN true ELSE false END AS custom
+      FROM claims_tv c
+      LEFT JOIN claims_titles_tv pt ON c.title_tv_id = pt.id
+      LEFT JOIN claims_titles_tv_extra pte ON c.title_tv_id_extra = pte.id
+      LEFT JOIN claims_tv_types t ON c.tv_type_id = t.id
+      LEFT JOIN claims_periodicities p ON c.periodicity_id = p.id
+      LEFT JOIN claims_roles r ON c.role_id = r.id
+      WHERE c.user_id = $1
+      ORDER BY c.id`, // Order by claimId
+      [userId]
+    );
+    //LEFT JOIN claims_wordcounts wc ON c.wordcount_id = wc.id
+    //LEFT JOIN claims_circulations cl ON c.circulation_id = cl.id
+
+    // Print each row line by line
+    result.rows.forEach(row => {
+      console.log('Row:', row);
+    });
+
+    const claims = result.rows.map(row => ({
+      claimId: row.claimid,
+      titleTv: {
+        id: row.titletv_id,
+        title: row.titletv_title,
+        custom: row.custom
       },
+      signature: row.signature,
+      tvType: {
+        id: row.type_id,
+        type: row.type
+      },
+      periodicity: {
+        id: row.periodicity_id,
+        periodicity: row.periodicity
+      },
+      role: {
+        id: row.role_id,
+        role: row.role
+      },
+      wordcount: null,
+      circulation: null,
+      permFlag: row.permFlag
+    }));
+
+    console.log('\n\nSuccess fetching claims: ', claims, '\n\n');
+    res.status(200).json(claims);
+  } catch (error) {
+    console.error('Error fetching claims:', error);
+    res.status(500).send('Error fetching claims');
+  }
+});
+
+app.get('/api/claims/radio', authenticateToken, async (req, res) => {
+  const { userId } = req.query;
+
+  if (!userId) {
+    return res.status(400).json({ message: "userId is required" });
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT
+        c.id AS claimId,
+        c.signature,
+        COALESCE(pt.id, pte.id) AS titleradio_id,
+        COALESCE(pt.title, pte.title_extra) AS titleradio_title,
+        t.id AS type_id,
+        t.type,
+        p.id AS periodicity_id,
+        p.periodicity,
+        r.id AS role_id,
+        r.role,
+        c.wordcount,
+        c.circulation,
+        c.permflag AS "permFlag",
+        CASE WHEN pte.id IS NOT NULL THEN true ELSE false END AS custom
+      FROM claims_radio c
+      LEFT JOIN claims_titles_radio pt ON c.title_radio_id = pt.id
+      LEFT JOIN claims_titles_radio_extra pte ON c.title_radio_id_extra = pte.id
+      LEFT JOIN claims_radio_types t ON c.radio_type_id = t.id
+      LEFT JOIN claims_periodicities p ON c.periodicity_id = p.id
+      LEFT JOIN claims_roles r ON c.role_id = r.id
+      WHERE c.user_id = $1
+      ORDER BY c.id`, // Order by claimId
+      [userId]
+    );
+    //LEFT JOIN claims_wordcounts wc ON c.wordcount_id = wc.id
+    //LEFT JOIN claims_circulations cl ON c.circulation_id = cl.id
+
+    // Print each row line by line
+    result.rows.forEach(row => {
+      console.log('Row:', row);
+    });
+
+    const claims = result.rows.map(row => ({
+      claimId: row.claimid,
+      titleRadio: {
+        id: row.titleradio_id,
+        title: row.titleradio_title,
+        custom: row.custom
+      },
+      signature: row.signature,
+      radioType: {
+        id: row.type_id,
+        type: row.type
+      },
+      periodicity: {
+        id: row.periodicity_id,
+        periodicity: row.periodicity
+      },
+      role: {
+        id: row.role_id,
+        role: row.role
+      },
+      wordcount: null,
+      circulation: null,
       permFlag: row.permFlag
     }));
 
@@ -309,7 +459,7 @@ app.post('/api/claims/paper/saveClaims', async (req, res) => {
   const { userId, claims, permFlag } = req.body;
 
   console.log('Received userId:', userId);
-  console.log('Received claims:', JSON.stringify(claims, null, 2));
+  console.log('Received paper claims:', JSON.stringify(claims, null, 2));
   console.log('Received permFlag:', permFlag);
 
   try {
@@ -405,7 +555,7 @@ app.post('/api/claims/internet/saveClaims', async (req, res) => {
   const { userId, claims, permFlag } = req.body;
 
   console.log('Received userId:', userId);
-  console.log('Received claims:', JSON.stringify(claims, null, 2));
+  console.log('Received internet claims:', JSON.stringify(claims, null, 2));
   console.log('Received permFlag:', permFlag);
 
   try {
@@ -466,11 +616,11 @@ app.post('/api/claims/internet/saveClaims', async (req, res) => {
         await pool.query(
           `INSERT INTO claims_internet (
             user_id, signature, title_internet_id, title_internet_id_extra,
-            type_id, periodicity_id, role_id, wordcount_id, circulation_id, permFlag
+            type_id, periodicity_id, role_id, wordcount_id, circulation, permFlag
           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
           [
             userId, signature, title_internet_id, title_internet_id_extra,
-            type.id, periodicity.id, role.id, wordcountId, circulation.id, permFlag
+            type.id, periodicity.id, role.id, wordcountId, circulation, permFlag
           ]
         );
       } else {
@@ -478,11 +628,199 @@ app.post('/api/claims/internet/saveClaims', async (req, res) => {
           `UPDATE claims_internet SET
             user_id = $1, signature = $2, title_internet_id = $3,
             title_internet_id_extra = $4, type_id = $5, periodicity_id = $6,
-            role_id = $7, wordcount_id = $8, circulation_id = $9, permFlag = $10
+            role_id = $7, wordcount_id = $8, circulation = $9, permFlag = $10
           WHERE id = $11`,
           [
             userId, signature, title_internet_id, title_internet_id_extra,
-            type.id, periodicity.id, role.id, wordcountId, circulation.id, permFlag, claimId
+            type.id, periodicity.id, role.id, wordcountId, circulation, permFlag, claimId
+          ]
+        );
+      }
+    }
+
+    await pool.query('COMMIT');
+    res.status(200).json({ message: 'Claims saved successfully' });
+  } catch (error) {
+    await pool.query('ROLLBACK');
+    console.error('Error saving claims:', error);
+    res.status(500).send('Error saving claims');
+  }
+});
+
+app.post('/api/claims/tv/saveClaims', async (req, res) => {
+  const { userId, claims, permFlag } = req.body;
+
+  console.log('Received userId:', userId);
+  console.log('Received tv claims:', JSON.stringify(claims, null, 2));
+  console.log('Received permFlag:', permFlag);
+
+  try {
+    await pool.query('BEGIN');
+
+    // Fetch all existing claims for the user
+    const existingClaimsResult = await pool.query(
+      'SELECT id FROM claims_tv WHERE user_id = $1',
+      [userId]
+    );
+    const existingClaims = existingClaimsResult.rows;
+
+    // Identify claims to delete
+    const existingClaimIds = existingClaims.map(claim => claim.id);
+    const incomingClaimIds = claims.map(claim => claim.claimId);
+    const claimsToDelete = existingClaimIds.filter(id => !incomingClaimIds.includes(id));
+
+    // Delete the claims that are no longer present in the request
+    if (claimsToDelete.length > 0) {
+      await pool.query(
+        'DELETE FROM claims_tv WHERE id = ANY($1::int[])',
+        [claimsToDelete]
+      );
+    }
+
+    for (const claim of claims) {
+      const {
+        claimId,
+        titleTv,
+        signature,
+        tvType,
+        periodicity,
+        role,
+        wordcount,
+        circulation
+      } = claim;
+
+      let title_tv_id = null;
+      let title_tv_id_extra = null;
+
+      if (titleTv.custom) {
+        if (titleTv.id === -1) {
+          const result = await pool.query(
+            'INSERT INTO claims_titles_tv_extra (title_extra) VALUES ($1) RETURNING id',
+            [titleTv.title]
+          );
+          title_tv_id_extra = result.rows[0].id;
+        } else {
+          title_tv_id_extra = titleTv.id;
+        }
+      } else {
+        title_tv_id = titleTv.id;
+      }
+
+      if (claimId === -1) {
+        await pool.query(
+          `INSERT INTO claims_tv (
+            user_id, signature, title_tv_id, title_tv_id_extra,
+            tv_type_id, periodicity_id, role_id, wordcount, circulation, permFlag
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+          [
+            userId, signature, title_tv_id, title_tv_id_extra,
+            tvType.id, periodicity.id, role.id, wordcount, circulation, permFlag
+          ]
+        );
+      } else {
+        await pool.query(
+          `UPDATE claims_tv SET
+            user_id = $1, signature = $2, title_tv_id = $3,
+            title_tv_id_extra = $4, tv_type_id = $5, periodicity_id = $6,
+            role_id = $7, wordcount = $8, circulation = $9, permFlag = $10
+          WHERE id = $11`,
+          [
+            userId, signature, title_tv_id, title_tv_id_extra,
+            tvType.id, periodicity.id, role.id, wordcount, circulation, permFlag, claimId
+          ]
+        );
+      }
+    }
+
+    await pool.query('COMMIT');
+    res.status(200).json({ message: 'Claims saved successfully' });
+  } catch (error) {
+    await pool.query('ROLLBACK');
+    console.error('Error saving claims:', error);
+    res.status(500).send('Error saving claims');
+  }
+});
+
+app.post('/api/claims/radio/saveClaims', async (req, res) => {
+  const { userId, claims, permFlag } = req.body;
+
+  console.log('Received userId:', userId);
+  console.log('Received radio claims:', JSON.stringify(claims, null, 2));
+  console.log('Received permFlag:', permFlag);
+
+  try {
+    await pool.query('BEGIN');
+
+    // Fetch all existing claims for the user
+    const existingClaimsResult = await pool.query(
+      'SELECT id FROM claims_radio WHERE user_id = $1',
+      [userId]
+    );
+    const existingClaims = existingClaimsResult.rows;
+
+    // Identify claims to delete
+    const existingClaimIds = existingClaims.map(claim => claim.id);
+    const incomingClaimIds = claims.map(claim => claim.claimId);
+    const claimsToDelete = existingClaimIds.filter(id => !incomingClaimIds.includes(id));
+
+    // Delete the claims that are no longer present in the request
+    if (claimsToDelete.length > 0) {
+      await pool.query(
+        'DELETE FROM claims_radio WHERE id = ANY($1::int[])',
+        [claimsToDelete]
+      );
+    }
+
+    for (const claim of claims) {
+      const {
+        claimId,
+        titleRadio,
+        signature,
+        radioType,
+        periodicity,
+        role,
+        wordcount,
+        circulation
+      } = claim;
+
+      let title_radio_id = null;
+      let title_radio_id_extra = null;
+
+      if (titleRadio.custom) {
+        if (titleRadio.id === -1) {
+          const result = await pool.query(
+            'INSERT INTO claims_titles_radio_extra (title_extra) VALUES ($1) RETURNING id',
+            [titleRadio.title]
+          );
+          title_radio_id_extra = result.rows[0].id;
+        } else {
+          title_radio_id_extra = titleRadio.id;
+        }
+      } else {
+        title_radio_id = titleRadio.id;
+      }
+
+      if (claimId === -1) {
+        await pool.query(
+          `INSERT INTO claims_radio (
+            user_id, signature, title_radio_id, title_radio_id_extra,
+            radio_type_id, periodicity_id, role_id, wordcount, circulation, permFlag
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+          [
+            userId, signature, title_radio_id, title_radio_id_extra,
+            radioType.id, periodicity.id, role.id, wordcount, circulation, permFlag
+          ]
+        );
+      } else {
+        await pool.query(
+          `UPDATE claims_radio SET
+            user_id = $1, signature = $2, title_radio_id = $3,
+            title_radio_id_extra = $4, radio_type_id = $5, periodicity_id = $6,
+            role_id = $7, wordcount = $8, circulation = $9, permFlag = $10
+          WHERE id = $11`,
+          [
+            userId, signature, title_radio_id, title_radio_id_extra,
+            radioType.id, periodicity.id, role.id, wordcount, circulation, permFlag, claimId
           ]
         );
       }
@@ -498,42 +836,17 @@ app.post('/api/claims/internet/saveClaims', async (req, res) => {
 });
 
 
-
-app.get('/api/claims/paper/titlePapers', authenticateToken, async (req, res) => {
-  const client = await pool.connect();
-  try {
-    const result = await client.query('SELECT * FROM claims_titles_papers');
-    res.json({
-      titlePapers: result.rows
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
-  } finally {
-    client.release();
-  }
-});
-
-app.get('/api/claims/internet/titleInternet', authenticateToken, async (req, res) => {
-  const client = await pool.connect();
-  try {
-    const result = await client.query('SELECT * FROM claims_titles_internet');
-    res.json({
-      titleInternet: result.rows
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
-  } finally {
-    client.release();
-  }
-});
-
 app.get('/api/claims/dropdownData', authenticateToken, async (req, res) => {
   const client = await pool.connect();
-
+//disablePeriodicitiesIdsForTvsRadios
   try {
+    const titlePapersResult = await client.query('SELECT * FROM claims_titles_papers');
+    const titleInternetResult = await client.query('SELECT * FROM claims_titles_internet');
+    const titleTvResult = await client.query('SELECT * FROM claims_titles_tv');
+    const titleRadioResult = await client.query('SELECT * FROM claims_titles_radio');
     const typesResult = await client.query('SELECT * FROM claims_types');
+    const tvtypesResult = await client.query('SELECT * FROM claims_tv_types');
+    const radiotypesResult = await client.query('SELECT * FROM claims_radio_types');
     const periodicitiesResult = await client.query('SELECT * FROM claims_periodicities');
     const rolesResult = await client.query('SELECT * FROM claims_roles');
     const wordcountsResult = await client.query('SELECT * FROM claims_wordcounts');
@@ -546,8 +859,16 @@ app.get('/api/claims/dropdownData', authenticateToken, async (req, res) => {
     }));
 
     res.json({
+      titlePapers: titlePapersResult.rows,
+      titleInternet: titleInternetResult.rows,
+      titleTv: titleTvResult.rows,
+      titleRadio: titleRadioResult.rows,
       types: typesResult.rows,
+      tvtypes: tvtypesResult.rows,
+      radiotypes: radiotypesResult.rows,
       periodicities: periodicitiesResult.rows,
+      tvperiodicities: periodicitiesResult.rows.filter(row => !disablePeriodicitiesIdsForTvsRadios.includes(row.id)),
+      radioperiodicities: periodicitiesResult.rows.filter(row => !disablePeriodicitiesIdsForTvsRadios.includes(row.id)),
       roles: roles,
       wordcounts: wordcountsResult.rows,
       circulations: circulationsResult.rows

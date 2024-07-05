@@ -28,15 +28,15 @@
           </td>
 
           <td class="cell-tight-padding">
+            <!-- (ngModelChange)="rowData.titlePaper = rowData.titlePaper ? rowData.titlePaper.slice(0, 255) : ''" -->
             <p-autoComplete appendTo="body"
                             required
                             #title="ngModel"
                             [(ngModel)]="rowData.titlePaper"
                             name="titlePaper{{i}}"
                             [dropdown]="true"
-                            (ngModelChange)="rowData.titlePaper = rowData.titlePaper ? rowData.titlePaper.slice(0, 255) : ''"
-                            [suggestions]="claimsCommonService.filteredTitlePapers"
-                            (completeMethod)="claimsCommonService.searchTitlePaper($event)"
+                            [suggestions]="claimsCommonService.titlePapers"
+                            (completeMethod)="claimsCommonService.titlePapers = claimsCommonService.search('titlePapers',  'title', $event, 'id', 'title')"
                             field="title"
                             class="wide-dropdown"
                             placeholder="Εισάγετε τίτλο"
@@ -46,7 +46,7 @@
                             [disabled]="rowData.disabled">
             </p-autoComplete>
 
-            <div *ngIf="title.invalid && (title.dirty || title.touched)" class="error-message">Ο Τίτλος εντύπου είναι υποχρεωτικός</div>
+            <div *ngIf="(title.model === '' || title.model.title === '') && (title.dirty || title.touched)" class="error-message">Ο Τίτλος εντύπου είναι υποχρεωτικός</div>
 
           </td>
           <td class="cell-tight-padding">
@@ -72,8 +72,8 @@
                             [(ngModel)]="rowData.type"
                             name="type{{i}}"
                             [dropdown]="true"
-                            [suggestions]="claimsCommonService.filteredTypes"
-                            (completeMethod)="claimsCommonService.searchTypes($event)"
+                            [suggestions]="claimsCommonService.types"
+                            (completeMethod)="claimsCommonService.types = claimsCommonService.search('types',  'type', $event, 'id', 'type')"
                             field="type"
                             [forceSelection]="true"
                             placeholder="Είδος"
@@ -93,8 +93,8 @@
                             [(ngModel)]="rowData.periodicity"
                             name="periodicity{{i}}"
                             [dropdown]="true"
-                            [suggestions]="claimsCommonService.filteredPeriodicities"
-                            (completeMethod)="claimsCommonService.searchPeriodicity($event)"
+                            [suggestions]="claimsCommonService.periodicities"
+                            (completeMethod)="claimsCommonService.periodicities = claimsCommonService.search('periodicities',  'periodicity', $event, 'id', 'periodicity')"
                             field="periodicity"
                             [forceSelection]="true"
                             placeholder="Περιοδικότητα"
@@ -114,8 +114,8 @@
                             [(ngModel)]="rowData.role"
                             name="role{{i}}"
                             [dropdown]="true"
-                            [suggestions]="claimsCommonService.filteredRoles"
-                            (completeMethod)="claimsCommonService.searchRole($event)"
+                            [suggestions]="claimsCommonService.roles"
+                            (completeMethod)="claimsCommonService.roles = claimsCommonService.search('roles',  'role', $event, 'id', 'role')"
                             (ngModelChange)="claimsCommonService.handleRoleChange(rowData)"
                             field="role"
                             [forceSelection]="true"
@@ -136,8 +136,8 @@
                             [(ngModel)]="rowData.wordcount"
                             name="wordCount{{i}}"
                             [dropdown]="true"
-                            [suggestions]="claimsCommonService.filteredWordcounts"
-                            (completeMethod)="claimsCommonService.searchWordcount($event)"
+                            [suggestions]="claimsCommonService.wordcounts"
+                            (completeMethod)="claimsCommonService.wordcounts = claimsCommonService.search('wordcounts',  'wordcount', $event, 'id', 'wordcount')"
                             field="wordcount"
                             [forceSelection]="true"
                             [placeholder]="rowData.disabled || (rowData.role?.disableWordCount && !rowData.wordcount) ? '' : 'Αριθμός λέξεων'"
@@ -157,8 +157,8 @@
                             [(ngModel)]="rowData.circulation"
                             name="circulation{{i}}"
                             [dropdown]="true"
-                            [suggestions]="claimsCommonService.filteredCirculations"
-                            (completeMethod)="claimsCommonService.searchCirculation($event)"
+                            [suggestions]="claimsCommonService.circulations"
+                            (completeMethod)="claimsCommonService.circulations = claimsCommonService.search('circulations',  'circulation', $event, 'id', 'circulation')"
                             field="circulation"
                             [forceSelection]="true"
                             placeholder="Μέση κυκλοφορία"
@@ -179,7 +179,7 @@
   <div *ngIf="claimsCommonService.showControls()" id="addAndStoreControls">
     <p-button (click)="claimsCommonService.addPaperRow()" icon="pi pi-plus" aria-label="Add new row" [disabled]="claimsCommonService.isAddRowDisabled()"></p-button>
 
-    <p-button label="Προσωρινή αποθήκευση" (click)="claimsCommonService.tempStore(false)" icon="pi" aria-label="Προσωρινή αποθήκευση" [disabled]="claimsCommonService.isStoreButtonsDisabled()"></p-button>
-    <p-button label="Οριστική αποθήκευση" (click)="claimsCommonService.confirmFinalStore()" icon="pi" aria-label="Οριστική αποθήκευση" [disabled]="claimsCommonService.isStoreButtonsDisabled()"></p-button>
+    <p-button label="Προσωρινή αποθήκευση" (click)="claimsCommonService.tempStore('paper',false)" icon="pi" aria-label="Προσωρινή αποθήκευση" [disabled]="claimsCommonService.isStoreButtonsDisabled()"></p-button>
+    <p-button label="Οριστική αποθήκευση" (click)="claimsCommonService.confirmFinalStore('paper')" icon="pi" aria-label="Οριστική αποθήκευση" [disabled]="claimsCommonService.isStoreButtonsDisabled()"></p-button>
   </div>
 </div>

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common'; // Import CommonModule
+import { CommonModule } from '@angular/common';
 
 
 import { Router } from '@angular/router';
@@ -8,25 +8,27 @@ import {AuthService} from '../services/AuthService';
 import { UserService } from '../services/UserService';
 import {HttpClientModule} from "@angular/common/http";
 import {switchMap} from "rxjs";
+import {ConfirmationService, MessageService} from "primeng/api";
+import {ClaimsCommonService} from "../helpers/common/claims-common.service";
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
   standalone: true,
-  imports: [FormsModule, HttpClientModule, CommonModule] // Import FormsModule here
+  imports: [FormsModule, HttpClientModule, CommonModule]
 })
 export class LoginComponent {
   username: string = '';
   password: string = '';
 
-  errorMessage: string = '';  // Add an error message field
+  errorMessage: string = '';
 
   constructor(
     private router: Router,
     private authService: AuthService,
-    private userService: UserService
-  ) {} // Step 2: Inject Router
+    private userService: UserService,
+  ) {  }
 
   onLogin() {
     this.username = this.username.trim();
@@ -37,6 +39,8 @@ export class LoginComponent {
     this.authService.login(this.username, this.password).pipe(
       switchMap(response => {
         console.log('Login OK');
+
+
 
         // Fetch user details after successful login
         return this.userService.getUser(this.username);
@@ -49,7 +53,7 @@ export class LoginComponent {
         this.router.navigate(['/home']);
       },
       error => {
-        console.log('Login unsucceful ', error);
+        console.log('Login unsuccessful ', error);
         this.handleErrorResponse(error);
       }
     );

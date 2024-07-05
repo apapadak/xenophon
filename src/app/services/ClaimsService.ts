@@ -14,6 +14,14 @@ export class ClaimsService {
     return this.http.get<any>(`/api/claims/internet/?userId=${userId}`);
   }
 
+  getTvClaims(userId: string) {
+    return this.http.get<any>(`/api/claims/tv/?userId=${userId}`);
+  }
+
+  getRadioClaims(userId: string) {
+    return this.http.get<any>(`/api/claims/radio/?userId=${userId}`);
+  }
+
   savePaperClaims(payload: any): Observable<any> {
     return this.http.post<any>(`/api/claims/paper/saveClaims`, payload);
   }
@@ -22,15 +30,15 @@ export class ClaimsService {
     return this.http.post<any>(`/api/claims/internet/saveClaims`, payload);
   }
 
-  getTitlePapersDropdownData(): Observable<any> {
-    return this.http.get<any>('/api/claims/paper/titlePapers');
+  saveTvClaims(payload: any): Observable<any> {
+    return this.http.post<any>(`/api/claims/tv/saveClaims`, payload);
   }
 
-  getTitleInternetDropdownData(): Observable<any> {
-    return this.http.get<any>('/api/claims/internet/titleInternet');
+  saveRadioClaims(payload: any): Observable<any> {
+    return this.http.post<any>(`/api/claims/radio/saveClaims`, payload);
   }
 
-  getClaimsDropdownData(): Observable<any> {
+  getDropdownData(): Observable<any> {
     return this.http.get<any>('/api/claims/dropdownData');
   }
 }

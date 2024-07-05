@@ -35,19 +35,16 @@ import {ClaimsCommonService} from '../../../helpers/common/claims-common.service
   providers: [MessageService, ConfirmationService, ClaimsCommonService]
 })
 
-export class InternetClaimsComponent implements OnInit {
+export class InternetClaimsComponent {
   @ViewChild('claimsInternetForm') claimsInternetForm!: NgForm; // Reference to the form
 
   userInfo: any;
 
   constructor(
     public claimsCommonService: ClaimsCommonService
-  ) {}
-
-  ngOnInit() {
+  ) {
     this.userInfo = this.claimsCommonService.getUserInfo();
 
     this.claimsCommonService.fetchInternetClaims();
-    this.claimsCommonService.loadInternetDropdownData();
   }
 }

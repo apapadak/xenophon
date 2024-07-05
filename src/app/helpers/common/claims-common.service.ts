@@ -1,44 +1,95 @@
-import { Injectable } from '@angular/core';
+import {Injectable, OnInit} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {ClaimsService} from "../../services/ClaimsService";
 import {AutoCompleteCompleteEvent} from "primeng/autocomplete";
-import {NgForm} from "@angular/forms";
+import {NgForm, NgModel} from "@angular/forms";
 import {ConfirmationService, MessageService} from "primeng/api";
 
 export interface BaseTableData {
   claimId: number;
 
   signature: string;
-  type: TypeData | null;
+
   periodicity: PeriodicityData | null;
   role: RoleData | null;
   wordcount: WordcountData | null;
-  circulation: CirculationData | null;
+  circulation: CirculationData | number | null;
 
   disabled: boolean; // Add this property used for disabling the whole row when needed
   permFlag: boolean;
 }
 
-// Define a type that includes titlePaper in the correct position
 type PaperTableDataPreMerge = {
   claimId: number;
   titlePaper: TitlePaperData;
 } & Omit<BaseTableData, 'claimId'>;
 
-// Define a type that includes titleInternet in the correct position
 type InternetTableDataPreMerge = {
   claimId: number;
   titleInternet: TitleInternetData;
 } & Omit<BaseTableData, 'claimId'>;
 
-export interface PaperTableData extends PaperTableDataPreMerge  {
+type TvTableDataPreMerge = {
+  claimId: number;
+  titleTv: TitleTvData;
+} & Omit<BaseTableData, 'claimId'>;
+
+type RadioTableDataPreMerge = {
+  claimId: number;
+  titleRadio: TitleRadioData;
+} & Omit<BaseTableData, 'claimId'>;
+
+
+
+
+
+type TypeTableDataPreMerge = {
+  signature: string;
+  periodicity: PeriodicityData | null;
+} & Omit<BaseTableData, 'signature'>;
+
+type TvTypeTableDataPreMerge = {
+  signature: string;
+  periodicity: PeriodicityData | null;
+} & Omit<BaseTableData, 'signature'>;
+
+type RadioTypeTableDataPreMerge = {
+  signature: string;
+  periodicity: PeriodicityData | null;
+} & Omit<BaseTableData, 'signature'>;
+
+export interface TypeTableData extends TypeTableDataPreMerge  {
+  type: TypeData | null;
+}
+
+export interface TvTypeTableData extends TvTypeTableDataPreMerge {
+  tvType: TvTypeData | null;
+}
+
+export interface RadioTypeTableData extends RadioTypeTableDataPreMerge {
+  radioType: RadioTypeData | null;
+}
+
+
+export interface PaperTableData extends TypeTableData  {
   titlePaper: TitlePaperData;
 }
 
-export interface InternetTableData extends InternetTableDataPreMerge {
+export interface InternetTableData extends TypeTableData {
   titleInternet: TitleInternetData;
 }
+
+export interface TvTableData extends TvTypeTableData {
+  titleTv: TitleTvData;
+}
+
+export interface RadioTableData extends RadioTypeTableData {
+  titleRadio: TitleRadioData;
+}
+
+
+
 
 export interface TitlePaperData {
   id: number;
@@ -54,7 +105,31 @@ export interface TitleInternetData {
   custom: boolean;
 }
 
+export interface TitleTvData {
+  id: number;
+  title: string;
+
+  custom: boolean;
+}
+
+export interface TitleRadioData {
+  id: number;
+  title: string;
+
+  custom: boolean;
+}
+
 export interface TypeData {
+  id: number;
+  type: string;
+}
+
+export interface TvTypeData {
+  id: number;
+  type: string;
+}
+
+export interface RadioTypeData {
   id: number;
   type: string;
 }
@@ -91,35 +166,37 @@ export class ClaimsCommonService {
   //paperData: PaperTableData[] = [];
   //internetData: InternetTableData[] = [];
 
-  data: (PaperTableData | InternetTableData)[] = [];
+  data: (PaperTableData | InternetTableData | TvTableData | RadioTableData)[] = [];
 
   titlePapers: TitlePaperData[] = [];
   titleInternet: TitleInternetData[] = [];
-  filteredTitlePapers: TitlePaperData[] = [];
-  filteredTitleInternet: TitleInternetData[] = [];
+  titleTv: TitleTvData[] = [];
+  titleRadio: TitleRadioData[] = [];
+  //filteredTitlePapers: TitlePaperData[] = [];
+  //filteredTitleInternet: TitleInternetData[] = [];
 
   types: TypeData[] = [];
-  filteredTypes: TypeData[] = [];
+  tvtypes: TypeData[] = [];
+  radiotypes: TypeData[] = [];
 
   periodicities: PeriodicityData[] = [];
-  filteredPeriodicities: PeriodicityData[] = [];
+  tvperiodicities: PeriodicityData[] = [];
+  radioperiodicities: PeriodicityData[] = [];
 
   roles: RoleData[] = [];
-  filteredRoles: RoleData[] = [];
 
   wordcounts: WordcountData[] = [];
-  filteredWordcounts: WordcountData[] = [];
 
   circulations: CirculationData[] = [];
-  filteredCirculations: CirculationData[] = [];
 
   isAnyRowDeleted: boolean = false;
 
   constructor(private http: HttpClient,
               private claimsService: ClaimsService,
               private messageService: MessageService,
-              private confirmationService: ConfirmationService,
+              private confirmationService: ConfirmationService
   ) {
+    this.loadDropdownData();
   }
 
   getUserInfo() {
@@ -129,13 +206,60 @@ export class ClaimsCommonService {
     return this.userInfo;
   }
 
+  loadDropdownData() {
+    this.claimsService.getDropdownData().subscribe(data => {
+      this.titlePapers = data.titlePapers;
+      this.titleInternet = data.titleInternet;
+      this.titleTv = data.titleTv;
+      this.titleRadio = data.titleRadio;
+      this.types = data.types;
+      this.tvtypes = data.tvtypes;
+      this.radiotypes = data.radiotypes;
+      this.periodicities = data.periodicities;
+      this.tvperiodicities = data.tvperiodicities;
+      this.radioperiodicities = data.radioperiodicities;
+      this.roles = data.roles;
+      this.wordcounts = data.wordcounts;
+      this.circulations = data.circulations;
+
+      sessionStorage.setItem('titlePapers', JSON.stringify(this.titlePapers));
+      sessionStorage.setItem('titleInternet', JSON.stringify(this.titleInternet));
+      sessionStorage.setItem('titleTv', JSON.stringify(this.titleTv));
+      sessionStorage.setItem('titleRadio', JSON.stringify(this.titleRadio));
+      sessionStorage.setItem('types', JSON.stringify(this.types));
+      sessionStorage.setItem('tvtypes', JSON.stringify(this.tvtypes));
+      sessionStorage.setItem('radiotypes', JSON.stringify(this.radiotypes));
+      sessionStorage.setItem('periodicities', JSON.stringify(this.periodicities));
+      sessionStorage.setItem('tvperiodicities', JSON.stringify(this.tvperiodicities));
+      sessionStorage.setItem('radioperiodicities', JSON.stringify(this.radioperiodicities));
+      sessionStorage.setItem('roles', JSON.stringify(this.roles));
+      sessionStorage.setItem('wordcounts', JSON.stringify(this.wordcounts));
+      sessionStorage.setItem('circulations', JSON.stringify(this.circulations));
+    });
+  }
+  /*loadInternetDropdownData() {
+    this.claimsService.getTitleInternetDropdownData().subscribe(data => {
+      this.titleInternet = data.titleInternet;
+    });
+    this.loadClaimsDropdownData();
+  }
+
+  loadClaimsDropdownData() {
+    this.claimsService.getClaimsDropdownData().subscribe(data => {
+      this.types = data.types;
+      this.periodicities = data.periodicities;
+      this.roles = data.roles;
+      this.wordcounts = data.wordcounts;
+      this.circulations = data.circulations;
+    });
+  }*/
+
   fetchPaperClaims() {
     console.log('userInfo: ', this.userInfo);
 
     this.claimsService.getPaperClaims(this.userInfo.user_id).subscribe({
       next: (data) => {
-        // Add disabled flag to each row in the fetched data
-        this.data = data.map((row: PaperTableData) => ({
+        this.data = data.map((row: PaperTableData) => ({  // Add disabled flag to each row in the fetched data
           ...row,
           disabled: true
         }));
@@ -157,8 +281,7 @@ export class ClaimsCommonService {
 
     this.claimsService.getInternetClaims(this.userInfo.user_id).subscribe({
       next: (data) => {
-        // Add disabled flag to each row in the fetched data
-        this.data = data.map((row: PaperTableData) => ({
+        this.data = data.map((row: PaperTableData) => ({ // Add disabled flag to each row in the fetched data
           ...row,
           disabled: true
         }));
@@ -175,26 +298,47 @@ export class ClaimsCommonService {
     });
   }
 
-  loadPaperDropdownData() {
-    this.claimsService.getTitlePapersDropdownData().subscribe(data => {
-      this.titlePapers = data.titlePapers;
+  fetchTvClaims() {
+    console.log('userInfo: ', this.userInfo);
+
+    this.claimsService.getTvClaims(this.userInfo.user_id).subscribe({
+      next: (data) => {
+        this.data = data.map((row: TvTableData) => ({ // Add disabled flag to each row in the fetched data
+          ...row,
+          disabled: true
+        }));
+
+        if (this.data.length === 0) {
+          this.addTvRow();
+        }
+
+        console.log('data:', this.data);
+      },
+      error: (err) => {
+        console.error('Failed to fetch paper claims:', err);
+      }
     });
-    this.loadClaimsDropdownData();
-  }
-  loadInternetDropdownData() {
-    this.claimsService.getTitleInternetDropdownData().subscribe(data => {
-      this.titleInternet = data.titleInternet;
-    });
-    this.loadClaimsDropdownData();
   }
 
-  loadClaimsDropdownData() {
-    this.claimsService.getClaimsDropdownData().subscribe(data => {
-      this.types = data.types;
-      this.periodicities = data.periodicities;
-      this.roles = data.roles;
-      this.wordcounts = data.wordcounts;
-      this.circulations = data.circulations;
+  fetchRadioClaims() {
+    console.log('userInfo: ', this.userInfo);
+
+    this.claimsService.getRadioClaims(this.userInfo.user_id).subscribe({
+      next: (data) => {
+        this.data = data.map((row: RadioTableData) => ({ // Add disabled flag to each row in the fetched data
+          ...row,
+          disabled: true
+        }));
+
+        if (this.data.length === 0) {
+          this.addRadioRow();
+        }
+
+        console.log('data:', this.data);
+      },
+      error: (err) => {
+        console.error('Failed to fetch paper claims:', err);
+      }
     });
   }
 
@@ -210,7 +354,7 @@ export class ClaimsCommonService {
       wordcount: null,
       circulation: null,
 
-      disabled: false, // Initialize as false
+      disabled: false,
       permFlag: false
     };
 
@@ -229,14 +373,52 @@ export class ClaimsCommonService {
       wordcount: null,
       circulation: null,
 
-      disabled: false, // Initialize as false
+      disabled: false,
       permFlag: false
     };
 
     this.data.push(newRow);
   }
 
-  isPaperTableData(data: any): data is PaperTableData {
+  addTvRow() {
+    const newRow: TvTableData = {
+      claimId: -1,
+
+      titleTv: { id: -1, title: '', custom: false },
+      signature: '',
+      tvType: null,
+      periodicity: null,
+      role: null,
+      wordcount: null,
+      circulation: null,
+
+      disabled: false,
+      permFlag: false
+    };
+
+    this.data.push(newRow);
+  }
+
+  addRadioRow() {
+    const newRow: RadioTableData = {
+      claimId: -1,
+
+      titleRadio: { id: -1, title: '', custom: false },
+      signature: '',
+      radioType: null,
+      periodicity: null,
+      role: null,
+      wordcount: null,
+      circulation: null,
+
+      disabled: false,
+      permFlag: false
+    };
+
+    this.data.push(newRow);
+  }
+
+  /*isPaperTableData(data: any): data is PaperTableData {
     return 'titlePaper' in data;
   }
 
@@ -244,22 +426,29 @@ export class ClaimsCommonService {
     return 'titleInternet' in data;
   }
 
+  isTvTableData(data: any): data is TvTableData {
+    return 'titleTv' in data;
+  }
+
+  isRadioTableData(data: any): data is RadioTableData {
+    return 'titleRadio' in data;
+  }*/
+
   savePaperRow(form: NgForm, rowData: PaperTableData) {
     console.log(rowData);
     //console.log(form);
-    //console.log(form.controls);
+    console.log(form.controls);
 
-   // const { title, signature, type, periodicity, role, wordcount, circulation } = form.controls;
-    //this.markAsTouched(form.controls);
     Object.keys(form.controls).forEach(controlName => {
       const control = form.controls[controlName];
       control.markAsTouched();
     });
 
-    if (this.isValidRow(rowData)) {
-      console.log('Saving row data:', rowData);
+    console.log(form.controls);
 
-      // Handle PaperTableData
+    if (this.isValidPaperRow(rowData)) {
+      console.log('Saving paper row data:', rowData);
+
       if (typeof rowData.titlePaper === 'string') {
         rowData.titlePaper = {
           id: -1,
@@ -271,24 +460,23 @@ export class ClaimsCommonService {
       }
 
       rowData.disabled = true; // Ensure the row is disabled after saving
+      console.log('paper row data prepared for saving:', this.data);
     } else {
-      console.error('Validation failed for row data:', rowData);
+      console.error('Validation failed for paper row data:', rowData);
     }
-
-    console.log('row data prepared for saving:', this.data);
   }
 
   saveInternetRow(form: NgForm,rowData: InternetTableData) {
     console.log(rowData);
 
-    //const { title, signature, type, periodicity, role, wordcount, circulation } = form.controls;
+    console.log(form.controls);
     Object.keys(form.controls).forEach(controlName => {
       const control = form.controls[controlName];
       control.markAsTouched();
     });
 
-    if (this.isValidRow(rowData)) {
-      console.log('Saving row data:', rowData);
+    if (this.isValidInternetRow(rowData)) {
+      console.log('Saving internet row data:', rowData);
 
       if (typeof rowData.titleInternet === 'string') {
         rowData.titleInternet = {
@@ -301,18 +489,77 @@ export class ClaimsCommonService {
       }
 
       rowData.disabled = true; // Ensure the row is disabled after saving
+      console.log('internet row data prepared for saving:', this.data);
     } else {
-      console.error('Validation failed for row data:', rowData);
+      console.error('Validation failed for internet row data:', rowData);
     }
-
-    console.log('row data prepared for saving:', this.data);
   }
 
-  isValidRow(rowData: PaperTableData | InternetTableData): boolean {
-    // Check if rowData has titlePaper or titleInternet
-    const hasTitle = this.isPaperTableData(rowData) ? !!rowData.titlePaper : !!rowData.titleInternet;
+  saveTvRow(form: NgForm, rowData: TvTableData) {
+    console.log(rowData);
 
-    return hasTitle &&
+    console.log(form.controls);
+    Object.keys(form.controls).forEach(controlName => {
+      const control = form.controls[controlName];
+      control.markAsTouched();
+    });
+
+    if (this.isValidTvRow(rowData)) {
+      console.log('Saving tv row data:', rowData);
+
+      if (typeof rowData.titleTv === 'string') {
+        rowData.titleTv = {
+          id: -1,
+          title: rowData.titleTv,
+          custom: true
+        };
+      } else {
+        rowData.titleTv.custom = false;
+      }
+
+      rowData.disabled = true; // Ensure the row is disabled after saving
+      console.log('tv row data prepared for saving:', this.data);
+    } else {
+      console.error('Validation failed for tv row data:', rowData);
+    }
+  }
+
+  saveRadioRow(form: NgForm, rowData: RadioTableData) {
+    console.log(rowData);
+
+    console.log(form.controls);
+    Object.keys(form.controls).forEach(controlName => {
+      const control = form.controls[controlName];
+      control.markAsTouched();
+    });
+
+    if (this.isValidRadioRow(rowData)) {
+      console.log('Saving radio row data:', rowData);
+
+      if (typeof rowData.titleRadio === 'string') {
+        rowData.titleRadio = {
+          id: -1,
+          title: rowData.titleRadio,
+          custom: true
+        };
+      } else {
+        rowData.titleRadio.custom = false;
+      }
+
+      rowData.disabled = true; // Ensure the row is disabled after saving
+      console.log('radio row data prepared for saving:', this.data);
+    } else {
+      console.error('Validation failed for radio row data:', rowData);
+    }
+  }
+
+  value(control: NgModel): boolean {
+    console.log(control);
+    return true;//control.invalid && (control.dirty || control.touched);
+  }
+
+  isValidPaperRow(rowData: PaperTableData): boolean {
+    return !!rowData.titlePaper &&
       !!rowData.signature &&
       !!rowData.type &&
       !!rowData.periodicity &&
@@ -321,34 +568,60 @@ export class ClaimsCommonService {
       !!rowData.circulation;
   }
 
-  searchTitlePaper(event: AutoCompleteCompleteEvent) {
+  isValidInternetRow(rowData: InternetTableData): boolean {
+    return !!rowData.titleInternet &&
+      !!rowData.signature &&
+      !!rowData.type &&
+      !!rowData.periodicity &&
+      !!rowData.role &&
+      (rowData.role.disableWordCount || !!rowData.wordcount) &&
+      !!rowData.circulation;
+  }
+
+  isValidTvRow(rowData: TvTableData): boolean {
+    return !!rowData.titleTv &&
+      !!rowData.signature &&
+      !!rowData.tvType &&
+      !!rowData.periodicity &&
+      !!rowData.role
+  }
+
+  isValidRadioRow(rowData: RadioTableData): boolean {
+    return !!rowData.titleRadio &&
+      !!rowData.signature &&
+      !!rowData.radioType &&
+      !!rowData.periodicity &&
+      !!rowData.role
+  }
+
+  /*searchTitlePaper(event: AutoCompleteCompleteEvent) {
     console.log('hi');
-    this.filteredTitlePapers = this.search(this.titlePapers, 'title', event, 'id', 'title');
+   // this.filteredTitlePapers = this.search(this.titlePapers, 'title', event, 'id', 'title');
   }
 
   searchTitleInternet(event: AutoCompleteCompleteEvent) {
-    this.filteredTitleInternet = this.search(this.titleInternet, 'title', event, 'id', 'title');
+   // this.filteredTitleInternet = this.search(this.titleInternet, 'title', event, 'id', 'title');
   }
 
   searchTypes(event: AutoCompleteCompleteEvent) {
-    this.filteredTypes = this.search(this.types, 'type', event, 'id', 'type');
+   // this.filteredTypes = this.search(this.types, 'type', event, 'id', 'type');
   }
 
   searchPeriodicity(event: AutoCompleteCompleteEvent) {
-    this.filteredPeriodicities = this.search(this.periodicities, 'periodicity', event, 'id', 'periodicity');
+  // this.filteredPeriodicities = this.search(this.periodicities, 'periodicity', event, 'id', 'periodicity');
   }
 
   searchRole(event: AutoCompleteCompleteEvent) {
-    this.filteredRoles = this.search(this.roles, 'role', event, 'id', 'role');
+  //  this.filteredRoles = this.search(this.roles, 'role', event, 'id', 'role');
   }
 
   searchWordcount(event: AutoCompleteCompleteEvent) {
-    this.filteredWordcounts = this.search(this.wordcounts, 'wordcount', event, 'id', 'wordcount');
+   // this.filteredWordcounts = this.search(this.wordcounts, 'wordcount', event, 'id', 'wordcount');
   }
 
   searchCirculation(event: AutoCompleteCompleteEvent) {
-    this.filteredCirculations = this.search(this.circulations, 'circulation', event, 'id', 'circulation');
-  }
+  //  this.filteredCirculations = this.search(this.circulations, 'circulation', event, 'id', 'circulation');
+  }*/
 
   deleteRow(index: number) {
     this.data.splice(index, 1);
@@ -377,7 +650,7 @@ export class ClaimsCommonService {
     return (this.data.length == 0 && !this.isAnyRowDeleted) || this.data.some(row => !row.disabled);
   }
 
-  tempStore(permFlag: boolean) {
+  tempStore(formType: 'paper' | 'internet' | 'tv' | 'radio', permFlag: boolean) {
     const payload = {
       userId: this.userInfo.user_id,
       claims: this.data.map(({ disabled, ...row }) => ({
@@ -392,54 +665,89 @@ export class ClaimsCommonService {
 
     console.log('Data to be sent:', payload);
 
-    let saveClaimsObservable: Observable<any>;
+    let saveClaimsObservable: Observable<any> | null = null;
 
-    if (this.data.length == 0 || this.isPaperTableData(this.data[0])) {
-      saveClaimsObservable = this.claimsService.savePaperClaims(payload);
-    } else if (this.data.length == 0 || this.isInternetTableData(this.data[0])) {
-      saveClaimsObservable = this.claimsService.saveInternetClaims(payload);
-    } else {
-      console.error('Unknown data type');
-      return;
+    switch (formType) {
+      case 'paper':
+        saveClaimsObservable = this.claimsService.savePaperClaims(payload);
+        break;
+      case 'internet':
+        saveClaimsObservable = this.claimsService.saveInternetClaims(payload);
+        break;
+      case 'tv':
+        saveClaimsObservable = this.claimsService.saveTvClaims(payload);
+        break;
+      case 'radio':
+        saveClaimsObservable = this.claimsService.saveRadioClaims(payload);
+        break;
+      default:
+        console.error('Unknown form type');
     }
+    if (saveClaimsObservable) {
+      saveClaimsObservable.subscribe({
+        next: (response) => {
+          this.messageService.add({severity: 'success', summary: 'Επιτυχία', detail: 'Επιτυχής προσωρινή αποθήκευση'});
 
-    saveClaimsObservable.subscribe({
-      next: (response) => {
-        this.messageService.add({severity: 'success', summary: 'Επιτυχία', detail: 'Επιτυχής προσωρινή αποθήκευση'});
+          //this.fetchData(); // refresh data array
+          this.isAnyRowDeleted = false;
 
-        //this.fetchData(); // refresh data array
-        this.isAnyRowDeleted = false;
+          console.log('Data successfully saved:', response);
+        },
+        error: (error) => {
+          this.messageService.add({severity: 'danger', summary: 'Αποτυχία', detail: 'Αποτυχία προσωρινής αποθήκευσης'});
 
-        console.log('Data successfully saved:', response);
-      },
-      error: (error) => {
-        this.messageService.add({severity: 'danger', summary: 'Αποτυχία', detail: 'Αποτυχία προσωρινής αποθήκευσης'});
-
-        console.error('Failed to save data:', error);
-      }
-    });
+          console.error('Failed to save data:', error);
+        }
+      });
+    }
   }
 
-  confirmFinalStore() {
+  confirmFinalStore(formType: 'paper' | 'internet' | 'tv' | 'radio') {
     this.confirmationService.confirm({
       message: 'Είστε σίγουροι ότι θέλετε να προχωρήσετε?\nΔεν επιτρέπονται άλλες αλλαγές μετά την Οριστική Αποθήκευση.',
       accept: () => {
-        this.finalStore();
+        this.finalStore(formType);
       }
     });
   }
 
-  finalStore() {
-    this.tempStore(true);
+  finalStore(formType: 'paper' | 'internet' | 'tv' | 'radio') {
+    this.tempStore(formType, true);
   }
 
-  search<T>(arr: T[], field: keyof T, event: AutoCompleteCompleteEvent, idField: keyof T, sortField: keyof T): T[] {
-    const filtered = this.filterByField(arr, field, event.query);
+  search<T>(hash: string, field: keyof T, event: AutoCompleteCompleteEvent, idField: keyof T, sortField: keyof T): T[] {
+    const storedData = sessionStorage.getItem(hash);
+    let array: T[] = [];
+
+    if (storedData) {
+      array = JSON.parse(storedData);
+    }
+
+    const filtered = this.filterByField(array, field, event.query);
     return this.transformAndMaintainOrder(filtered, idField, sortField);
   }
 
+  /*onSearch(event: AutoCompleteCompleteEvent) {
+    event.originalEvent..suggestions = this.search(this.titlePapers, 'title', event, 'id', 'title');
+  }*/
+
+  /*search<T>(arr: T[], field: keyof T, event: { query: string }, idField: keyof T, sortField: keyof T): T[] {
+    const filtered = this.filterByField(arr, field, event.query);
+    return this.transformAndMaintainOrder(filtered, idField, sortField);
+  }*/
+  /*searchTitlePaper(event: any) {
+    console.log(this.titlePapers, event);
+    this.claimsService.getTitlePapersDropdownData().subscribe(data => {
+      this.titlePapers = data.titlePapers;
+
+      this.titlePapers = this.search(this.titlePapers, 'title', event, 'id', 'title');
+      return this.titlePapers;
+    });
+
+  }*/
+
   filterByField<T>(arr: T[], field: keyof T, query: string): T[] {
-    return arr.filter(item => {console.log(field);
+    return arr.filter(item => {//console.log(field);
       const value = item[field];
       console.log(`Filtering ${value} with query ${query}`);
       return typeof value === 'string' && (value as string).toLowerCase().includes(query.toLowerCase());
@@ -492,10 +800,16 @@ export class ClaimsCommonService {
     return a.localeCompare(b); // Default locale compare for other cases
   }
 
-  handleRoleChange(rowData:  PaperTableData | InternetTableData) {
+  handleRoleChange(rowData: PaperTableData | InternetTableData | TvTableData | RadioTableData) {
     if (rowData.role?.disableWordCount) {
       rowData.wordcount = null; // Clear word count if the role disables it
     }
   }
+
+  /*modelchange(rowData: PaperTableData ) {
+console.log('1 ', rowData);
+    rowData.titlePaper = rowData.titlePaper ? rowData.titlePaper.slice(0, 255) : ''
+    console.log('2 ', rowData);
+  }*/
 
 }

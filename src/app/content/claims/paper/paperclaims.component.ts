@@ -37,26 +37,22 @@ import {CirculationData, ClaimsCommonService, PeriodicityData, RoleData, TitlePa
   providers: [MessageService, ConfirmationService, ClaimsCommonService]
 })
 
-export class PaperClaimsComponent implements OnInit {
+export class PaperClaimsComponent {
   @ViewChild('claimsPaperForm') claimsPaperForm!: NgForm; // Reference to the form
 
   userInfo: any;
 
-  //data: TableData[] = [];
-  //isAnyRowDeleted: boolean = false;
-
   constructor(
     public claimsCommonService: ClaimsCommonService
-  ) {}
-
-  ngOnInit() {
+  ) {
     this.userInfo = this.claimsCommonService.getUserInfo();
 
-    //this.fetchData();
     this.claimsCommonService.fetchPaperClaims();
-    //this.loadDropdownData();
-    this.claimsCommonService.loadPaperDropdownData();
   }
+
+  /*ngOnInit() {
+
+  }*/
 
   /*fetchData() {
 

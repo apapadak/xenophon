@@ -1,0 +1,185 @@
+<h1>Τηλεόραση/TV</h1>
+
+<p-confirmDialog header="Επιβεβαίωση"></p-confirmDialog>
+<p-toast></p-toast>
+
+<div class="card">
+  <form #claimsTvForm="ngForm"  >
+    <p-table [value]="claimsCommonService.data" class="claims-table flexible-width p-datatable-min-height">
+      <ng-template pTemplate="header">
+        <tr class="">
+          <th class="min-width-50 header-tight-padding">Ενέργειες</th>
+          <th class="min-width-250 header-tight-padding">Κανάλι/TV Station</th>
+          <th class="min-width-150 header-tight-padding">Υπογραφή</th>
+          <th class="min-width-150 header-tight-padding">Είδος</th>
+          <th class="min-width-250 header-tight-padding">Περιοδικότητα</th>
+          <th class="min-width-250 header-tight-padding">Ιδιότητα</th>
+          <th class="min-width-50 header-tight-padding">Αριθμός λέξεων</th>
+          <th class="min-width-50 header-tight-padding">Μέση τηλεθέαση</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-i="rowIndex">
+        <tr>
+          <td class="cell-tight-padding">
+            <div class="button-container">
+              <p-button icon="pi pi-check" (click)="claimsCommonService.saveTvRow(claimsTvForm, rowData)" class="p-button-success p-mr-2" [disabled]="rowData.disabled"></p-button>
+              <p-button icon="pi pi-trash" [disabled]="!claimsCommonService.showControls()" (click)="claimsCommonService.deleteRow(i)" class="p-button-danger"></p-button>
+            </div>
+          </td>
+
+          <td class="cell-tight-padding">
+            <!-- (ngModelChange)="rowData.titleTv = rowData.titleTv ? rowData.titleTv.slice(0, 255) : ''"  -->
+            <p-autoComplete appendTo="body"
+                            required
+                            #title="ngModel"
+                            [(ngModel)]="rowData.titleTv"
+                            name="titleTv{{i}}"
+                            [dropdown]="true"
+                            [suggestions]="claimsCommonService.titleTv"
+                            (completeMethod)="claimsCommonService.titleTv = claimsCommonService.search('titleTv',  'title', $event, 'id', 'title')"
+                            field="title"
+                            class="wide-dropdown"
+                            placeholder="Εισάγετε τίτλο"
+                            pTooltip="Επιλογη από λίστα ή ελεύθερο κείμενο"
+                            tooltipPosition="top"
+
+                            [disabled]="rowData.disabled">
+            </p-autoComplete>
+
+            <div *ngIf="(title.model === '' || title.model.title === '') && (title.dirty || title.touched)" class="error-message">Το Κανάλι/TV Station είναι υποχρεωτικό</div>
+
+          </td>
+          <td class="cell-tight-padding">
+            <input type="text"
+                   pInputText
+                   required
+                   #signature="ngModel"
+                   [(ngModel)]="rowData.signature"
+                   name="signature{{i}}"
+                   placeholder="Υπογραφή"
+                   pTooltip="Ελεύθερο κείμενο"
+                   tooltipPosition="top"
+                   maxlength="255"
+
+                   [disabled]="rowData.disabled">
+
+            <div *ngIf="signature.invalid && (signature.dirty || signature.touched)" class="error-message">Η Υπογραφή είναι υποχρεωτική</div>
+          </td>
+          <td class="cell-tight-padding">
+            <p-autoComplete appendTo="body"
+                            required
+                            #tvtype="ngModel"
+                            [(ngModel)]="rowData.tvType"
+                            name="tvType{{i}}"
+                            [dropdown]="true"
+                            [suggestions]="claimsCommonService.tvtypes"
+                            (completeMethod)="claimsCommonService.tvtypes = claimsCommonService.search('tvtypes',  'type', $event, 'id', 'type')"
+                            field="type"
+                            [forceSelection]="true"
+                            placeholder="Είδος"
+                            pTooltip="Επιλογη από λίστα"
+                            tooltipPosition="top"
+
+                            [disabled]="rowData.disabled">
+            </p-autoComplete>
+
+            <div *ngIf="tvtype.invalid && (tvtype.dirty || tvtype.touched)" class="error-message">Υποχρεωτική επιλογή από λίστα</div>
+
+          </td>
+          <td class="cell-tight-padding">
+            <p-autoComplete appendTo="body"
+                            required
+                            #periodicity="ngModel"
+                            [(ngModel)]="rowData.periodicity"
+                            name="periodicity{{i}}"
+                            [dropdown]="true"
+                            [suggestions]="claimsCommonService.tvperiodicities"
+                            (completeMethod)="claimsCommonService.tvperiodicities = claimsCommonService.search('tvperiodicities',  'periodicity', $event, 'id', 'periodicity')"
+                            field="periodicity"
+                            [forceSelection]="true"
+                            placeholder="Περιοδικότητα"
+                            pTooltip="Επιλογη από λίστα"
+                            tooltipPosition="top"
+
+                            [disabled]="rowData.disabled">
+            </p-autoComplete>
+
+            <div *ngIf="periodicity.invalid && (periodicity.dirty || periodicity.touched)" class="error-message">Υποχρεωτική επιλογή από λίστα</div>
+
+          </td>
+          <td class="cell-tight-padding">
+            <p-autoComplete appendTo="body"
+                            required
+                            #role="ngModel"
+                            [(ngModel)]="rowData.role"
+                            name="role{{i}}"
+                            [dropdown]="true"
+                            [suggestions]="claimsCommonService.roles"
+                            (completeMethod)="claimsCommonService.roles = claimsCommonService.search('roles',  'role', $event, 'id', 'role')"
+                            (ngModelChange)="claimsCommonService.handleRoleChange(rowData)"
+                            field="role"
+                            [forceSelection]="true"
+                            placeholder="Ιδιότητα"
+                            pTooltip="Επιλογη από λίστα"
+                            tooltipPosition="top"
+
+                            [disabled]="rowData.disabled">
+            </p-autoComplete>
+
+            <div *ngIf="role.invalid && (role.dirty || role.touched)" class="error-message">Υποχρεωτική επιλογή από λίστα</div>
+
+          </td>
+          <td class="cell-tight-padding">
+            <p-autoComplete appendTo="body"
+                            required
+                            #wordcount="ngModel"
+                            [(ngModel)]="rowData.wordcount"
+                            name="wordCount{{i}}"
+                            [dropdown]="true"
+                            [suggestions]="claimsCommonService.wordcounts"
+                            (completeMethod)="claimsCommonService.wordcounts = claimsCommonService.search('wordcounts',  'wordcount', $event, 'id', 'wordcount')"
+                            field="wordcount"
+                            [forceSelection]="true"
+                            [placeholder]=""
+                            pTooltip="Επιλογη από λίστα"
+                            tooltipPosition="top"
+
+                            [disabled]="true">
+            </p-autoComplete>
+
+            <div *ngIf="wordcount.invalid && (wordcount.dirty || wordcount.touched)" class="error-message">Υποχρεωτική επιλογή από λίστα</div>
+
+          </td>
+          <td class="cell-tight-padding">
+            <p-autoComplete appendTo="body"
+                            required
+                            #circulation="ngModel"
+                            [(ngModel)]="rowData.circulation"
+                            name="circulation{{i}}"
+                            [dropdown]="true"
+                            [suggestions]="claimsCommonService.circulations"
+                            (completeMethod)="claimsCommonService.circulations = claimsCommonService.search('circulations',  'circulation', $event, 'id', 'circulation')"
+                            field="circulation"
+                            [forceSelection]="true"
+                            placeholder=""
+                            pTooltip="Επιλογη από λίστα"
+                            tooltipPosition="top"
+
+                            [disabled]="true">
+            </p-autoComplete>
+
+            <div *ngIf="circulation.invalid && (circulation.dirty || circulation.touched)" class="error-message">Υποχρεωτική επιλογή από λίστα</div>
+
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </form>
+
+  <div *ngIf="claimsCommonService.showControls()" id="addAndStoreControls">
+    <p-button (click)="claimsCommonService.addTvRow()" icon="pi pi-plus" aria-label="Add new row" [disabled]="claimsCommonService.isAddRowDisabled()"></p-button>
+
+    <p-button label="Προσωρινή αποθήκευση" (click)="claimsCommonService.tempStore('tv',false)" icon="pi" aria-label="Προσωρινή αποθήκευση" [disabled]="claimsCommonService.isStoreButtonsDisabled()"></p-button>
+    <p-button label="Οριστική αποθήκευση" (click)="claimsCommonService.confirmFinalStore('tv')" icon="pi" aria-label="Οριστική αποθήκευση" [disabled]="claimsCommonService.isStoreButtonsDisabled()"></p-button>
+  </div>
+</div>

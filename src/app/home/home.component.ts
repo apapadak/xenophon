@@ -6,6 +6,8 @@ import {Router, RouterOutlet} from "@angular/router";
 import {ProfileComponent} from "../content/profile/profile.component";
 import {AuthService} from "../services/AuthService";
 import {CommonModule} from "@angular/common";
+import {ClaimsCommonService} from "../helpers/common/claims-common.service";
+import {ConfirmationService, MessageService} from "primeng/api";
 
 @Component({
   selector: 'app-home',
@@ -19,11 +21,13 @@ import {CommonModule} from "@angular/common";
     NavigationComponent,
     ProfileComponent,
     CommonModule
-    // ... other imports
   ]
 })
 export class HomeComponent {
-  constructor(private router: Router, private authService: AuthService) {}
+  constructor(private router: Router, private authService: AuthService) {
+
+
+  }
 
   onNavigate(route: string): void {
     // Logic to navigate to the selected route
@@ -41,6 +45,12 @@ export class HomeComponent {
         break;
       case 'INTERNETCLAIMS':
         this.router.navigate(['internetclaims']);
+        break;
+      case 'TVCLAIMS':
+        this.router.navigate(['tvclaims']);
+        break;
+      case 'RADIOCLAIMS':
+        this.router.navigate(['radioclaims']);
         break;
       case 'PAYMENTS':
         this.router.navigate(['payments']);
