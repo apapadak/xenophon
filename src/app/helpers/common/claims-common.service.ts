@@ -16,7 +16,11 @@ export interface BaseTableData {
   wordcount: WordcountData | null;
 
   disabled: boolean; // Add this property used for disabling the whole row when needed
-  permFlag: boolean;
+  finalFlag: boolean;
+
+  created_at?: Date | null,
+  updated_at?: Date | null,
+  finalized_at?: Date | null
 }
 
 /*type PaperTableDataPreMerge = {
@@ -199,13 +203,16 @@ export class ClaimsCommonService {
   pageviews: PageviewsData[] = [];
 
   isAnyRowDeleted: boolean = false;
+  latestTimestampAt: Date | null = null;
+  latestFinalizedAt: Date | null = null;
+
 
   constructor(private http: HttpClient,
               private claimsService: ClaimsService,
               private messageService: MessageService,
               private confirmationService: ConfirmationService
   ) {
-    //this.loadDropdownData();
+
   }
 
   getUserInfo() {
@@ -289,6 +296,9 @@ export class ClaimsCommonService {
           this.addPaperRow();
         }
 
+        this.latestTimestampAt = this.findLatestTimestamp();
+        this.latestFinalizedAt = this.findLatestFinalizedAt();
+
         console.log('data:', this.data);
       },
       error: (err) => {
@@ -310,6 +320,9 @@ export class ClaimsCommonService {
         if (this.data.length === 0) {
           this.addInternetRow();
         }
+
+        this.latestTimestampAt = this.findLatestTimestamp();
+        this.latestFinalizedAt = this.findLatestFinalizedAt();
 
         console.log('data:', this.data);
       },
@@ -333,6 +346,9 @@ export class ClaimsCommonService {
           this.addTvRow();
         }
 
+        this.latestTimestampAt = this.findLatestTimestamp();
+        this.latestFinalizedAt = this.findLatestFinalizedAt();
+
         console.log('data:', this.data);
       },
       error: (err) => {
@@ -355,6 +371,9 @@ export class ClaimsCommonService {
           this.addRadioRow();
         }
 
+        this.latestTimestampAt = this.findLatestTimestamp();
+        this.latestFinalizedAt = this.findLatestFinalizedAt();
+
         console.log('data:', this.data);
       },
       error: (err) => {
@@ -376,7 +395,7 @@ export class ClaimsCommonService {
       circulation: null,
 
       disabled: false,
-      permFlag: false
+      finalFlag: false
     };
 
     this.data.push(newRow);
@@ -395,7 +414,7 @@ export class ClaimsCommonService {
       pageviews: null,
 
       disabled: false,
-      permFlag: false
+      finalFlag: false
     };
 
     this.data.push(newRow);
@@ -414,7 +433,7 @@ export class ClaimsCommonService {
       circulation: null,
 
       disabled: false,
-      permFlag: false
+      finalFlag: false
     };
 
     this.data.push(newRow);
@@ -433,7 +452,7 @@ export class ClaimsCommonService {
       circulation: null,
 
       disabled: false,
-      permFlag: false
+      finalFlag: false
     };
 
     this.data.push(newRow);
@@ -663,15 +682,15 @@ export class ClaimsCommonService {
   }
 
   showControls(): boolean {
-   // console.log(this.isAnyRowDeleted, ' ', !(this.data as BaseTableData[]).every(row => row.permFlag));
-    return this.isAnyRowDeleted || !(this.data as BaseTableData[]).every(row => row.permFlag);
+   // console.log(this.isAnyRowDeleted, ' ', !(this.data as BaseTableData[]).every(row => row.finalFlag));
+    return this.isAnyRowDeleted || !(this.data as BaseTableData[]).every(row => row.finalFlag);
   }
 
   isAddRowDisabled(): boolean {
     return (this.data.length == 0 && !this.isAnyRowDeleted) || this.data.some(row => !row.disabled);
   }
 
-  tempStore(formType: 'paper' | 'internet' | 'tv' | 'radio', permFlag: boolean) {
+  tempStore(formType: 'paper' | 'internet' | 'tv' | 'radio', finalFlag: boolean) {
     const payload = {
       userId: this.userInfo.user_id,
       claims: this.data.map(({ disabled, ...row }) => ({
@@ -681,7 +700,7 @@ export class ClaimsCommonService {
           role: row.role.role
         } : null
       })),
-      permFlag: permFlag
+      finalFlag: finalFlag
     };
 
     console.log('Data to be sent:', payload);
@@ -709,7 +728,22 @@ export class ClaimsCommonService {
         next: (response) => {
           this.messageService.add({severity: 'success', summary: 'Επιτυχία', detail: 'Επιτυχής προσωρινή αποθήκευση'});
 
-          //this.fetchData(); // refresh data array
+          switch (formType) {
+            case 'paper':
+              this.fetchPaperClaims();
+              break;
+            case 'internet':
+              this.fetchInternetClaims();
+              break;
+            case 'tv':
+              this.fetchTvClaims()
+              break;
+            case 'radio':
+              this.fetchRadioClaims()
+              break;
+            default:
+              console.error('Unknown form type');
+          }
           this.isAnyRowDeleted = false;
 
           console.log('Data successfully saved:', response);
@@ -827,10 +861,57 @@ export class ClaimsCommonService {
     }
   }
 
-  /*modelchange(rowData: PaperTableData ) {
-console.log('1 ', rowData);
-    rowData.titlePaper = rowData.titlePaper ? rowData.titlePaper.slice(0, 255) : ''
-    console.log('2 ', rowData);
-  }*/
+  findLatestTimestamp(): Date | null {
+    if (this.data.length === 0) return null;
+
+    console.log( ' pp ',
+
+      this.data
+        .filter(claim => claim.updated_at || claim.created_at) // Filter out claims where both dates are null
+        .reduce((latest: Date | null, current) => {
+          const currentDate = new Date(
+            current.updated_at && current.created_at
+              ? (new Date(current.updated_at) > new Date(current.created_at)
+                ? current.updated_at
+                : current.created_at)
+              : (current.updated_at || current.created_at)!
+          );
+
+          return !latest || currentDate > latest ? currentDate : latest;
+        }, null as Date | null)
+
+    );
+
+    return this.data
+      .filter(claim => claim.updated_at || claim.created_at) // Filter out claims where both dates are null
+      .reduce((latest: Date | null, current) => {
+        const currentDate = new Date(
+          current.updated_at && current.created_at
+            ? (new Date(current.updated_at) > new Date(current.created_at)
+              ? current.updated_at
+              : current.created_at)
+            : (current.updated_at || current.created_at)!
+        );
+
+        return !latest || currentDate > latest ? currentDate : latest;
+      }, null as Date | null);
+  }
+
+
+  findLatestFinalizedAt(): Date | null {
+    if (this.data.length === 0) return null;
+
+    // Check if all finalFlag properties are set to true
+    const allFinalized = this.data.every(claim => claim.finalFlag);
+
+    // Find the latest finalized_at date
+    return this.data
+      .filter(claim => claim.finalized_at) // Filter out null or undefined dates
+      .reduce((latest: Date | null, current) => {
+        if (!current.finalized_at) return latest;
+        const currentDate = new Date(current.finalized_at);
+        return latest && latest > currentDate ? latest : currentDate;
+      }, null as Date | null);
+  }
 
 }

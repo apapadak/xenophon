@@ -164,7 +164,10 @@ app.get('/api/claims/paper', authenticateToken, async (req, res) => {
         wc.wordcount,
         cl.id AS circulation_id,
         cl.circulation,
-        c.permflag AS "permFlag",
+        c.finalflag AS "finalFlag",
+        c.created_at AS created_at,
+        c.updated_at AS updated_at,
+        c.finalized_at AS finalized_at,
         CASE WHEN pte.id IS NOT NULL THEN true ELSE false END AS custom
       FROM claims_paper c
       LEFT JOIN claims_titles_papers pt ON c.title_paper_id = pt.id
@@ -212,7 +215,10 @@ app.get('/api/claims/paper', authenticateToken, async (req, res) => {
         id: row.circulation_id,
         circulation: row.circulation
       },
-      permFlag: row.permFlag
+      finalFlag: row.finalFlag,
+      created_at : row.created_at,
+      updated_at : row.updated_at,
+      finalized_at : row.finalized_at
     }));
 
     console.log('\n\nSuccess fetching claims: ', claims, '\n\n');
@@ -247,7 +253,10 @@ app.get('/api/claims/internet', authenticateToken, async (req, res) => {
         wc.wordcount,
         pa.id AS pageviews_id,
         pa.pageviews,
-        c.permflag AS "permFlag",
+        c.finalflag AS "finalFlag",
+        c.created_at AS created_at,
+        c.updated_at AS updated_at,
+        c.finalized_at AS finalized_at,
         CASE WHEN pte.id IS NOT NULL THEN true ELSE false END AS custom
       FROM claims_internet c
       LEFT JOIN claims_titles_internet pt ON c.title_internet_id = pt.id
@@ -296,7 +305,10 @@ app.get('/api/claims/internet', authenticateToken, async (req, res) => {
         pageviews: row.pageviews
       } : null,
       //circulation: row.circulation,
-      permFlag: row.permFlag
+      finalFlag: row.finalFlag,
+      created_at : row.created_at,
+      updated_at : row.updated_at,
+      finalized_at : row.finalized_at
     }));
 
     console.log('\n\nSuccess fetching claims: ', claims, '\n\n');
@@ -329,7 +341,10 @@ app.get('/api/claims/tv', authenticateToken, async (req, res) => {
         r.role,
         c.wordcount,
         c.circulation,
-        c.permflag AS "permFlag",
+        c.finalflag AS "finalFlag",
+        c.created_at AS created_at,
+        c.updated_at AS updated_at,
+        c.finalized_at AS finalized_at,
         CASE WHEN pte.id IS NOT NULL THEN true ELSE false END AS custom
       FROM claims_tv c
       LEFT JOIN claims_titles_tv pt ON c.title_tv_id = pt.id
@@ -371,7 +386,10 @@ app.get('/api/claims/tv', authenticateToken, async (req, res) => {
       },
       wordcount: null,
       circulation: null,
-      permFlag: row.permFlag
+      finalFlag: row.finalFlag,
+      created_at : row.created_at,
+      updated_at : row.updated_at,
+      finalized_at : row.finalized_at
     }));
 
     console.log('\n\nSuccess fetching claims: ', claims, '\n\n');
@@ -404,7 +422,10 @@ app.get('/api/claims/radio', authenticateToken, async (req, res) => {
         r.role,
         c.wordcount,
         c.circulation,
-        c.permflag AS "permFlag",
+        c.finalflag AS "finalFlag",
+        c.created_at AS created_at,
+        c.updated_at AS updated_at,
+        c.finalized_at AS finalized_at,
         CASE WHEN pte.id IS NOT NULL THEN true ELSE false END AS custom
       FROM claims_radio c
       LEFT JOIN claims_titles_radio pt ON c.title_radio_id = pt.id
@@ -446,7 +467,10 @@ app.get('/api/claims/radio', authenticateToken, async (req, res) => {
       },
       wordcount: null,
       circulation: null,
-      permFlag: row.permFlag
+      finalFlag: row.finalFlag,
+      created_at : row.created_at,
+      updated_at : row.updated_at,
+      finalized_at : row.finalized_at
     }));
 
     console.log('\n\nSuccess fetching claims: ', claims, '\n\n');
@@ -461,11 +485,11 @@ app.get('/api/claims/radio', authenticateToken, async (req, res) => {
 
 
 app.post('/api/claims/paper/saveClaims', async (req, res) => {
-  const { userId, claims, permFlag } = req.body;
+  const { userId, claims, finalFlag } = req.body;
 
   console.log('Received userId:', userId);
   console.log('Received paper claims:', JSON.stringify(claims, null, 2));
-  console.log('Received permFlag:', permFlag);
+  console.log('Received finalFlag:', finalFlag);
 
   try {
     await pool.query('BEGIN');
@@ -525,11 +549,13 @@ app.post('/api/claims/paper/saveClaims', async (req, res) => {
         await pool.query(
           `INSERT INTO claims_paper (
             user_id, signature, title_paper_id, title_paper_id_extra,
-            paper_type_id, periodicity_id, role_id, wordcount_id, circulation_id, permFlag
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+            paper_type_id, periodicity_id, role_id, wordcount_id, circulation_id, finalFlag, created_at, finalized_at
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CURRENT_TIMESTAMP,
+                    CASE WHEN $11 THEN CURRENT_TIMESTAMP ELSE NULL END)`,
           [
             userId, signature, title_paper_id, title_paper_id_extra,
-            paperType.id, periodicity.id, role.id, wordcountId, circulation.id, permFlag
+            paperType.id, periodicity.id, role.id, wordcountId, circulation.id, finalFlag,
+                    finalFlag
           ]
         );
       } else {
@@ -537,11 +563,12 @@ app.post('/api/claims/paper/saveClaims', async (req, res) => {
           `UPDATE claims_paper SET
             user_id = $1, signature = $2, title_paper_id = $3,
             title_paper_id_extra = $4, paper_type_id = $5, periodicity_id = $6,
-            role_id = $7, wordcount_id = $8, circulation_id = $9, permFlag = $10
-          WHERE id = $11`,
+            role_id = $7, wordcount_id = $8, circulation_id = $9, finalFlag = $10, updated_at = CURRENT_TIMESTAMP,
+            finalized_at = CASE WHEN $11 THEN CURRENT_TIMESTAMP ELSE finalized_at END
+          WHERE id = $12`,
           [
             userId, signature, title_paper_id, title_paper_id_extra,
-            paperType.id, periodicity.id, role.id, wordcountId, circulation.id, permFlag, claimId
+            paperType.id, periodicity.id, role.id, wordcountId, circulation.id, finalFlag, finalFlag, claimId
           ]
         );
       }
@@ -557,11 +584,11 @@ app.post('/api/claims/paper/saveClaims', async (req, res) => {
 });
 
 app.post('/api/claims/internet/saveClaims', async (req, res) => {
-  const { userId, claims, permFlag } = req.body;
+  const { userId, claims, finalFlag } = req.body;
 
   console.log('Received userId:', userId);
   console.log('Received internet claims:', JSON.stringify(claims, null, 2));
-  console.log('Received permFlag:', permFlag);
+  console.log('Received finalFlag:', finalFlag);
 
   try {
     await pool.query('BEGIN');
@@ -621,11 +648,13 @@ app.post('/api/claims/internet/saveClaims', async (req, res) => {
         await pool.query(
           `INSERT INTO claims_internet (
             user_id, signature, title_internet_id, title_internet_id_extra,
-            internet_type_id, periodicity_id, role_id, wordcount_id, pageviews_id, permFlag
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+            internet_type_id, periodicity_id, role_id, wordcount_id, pageviews_id, finalFlag, created_at, finalized_at
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CURRENT_TIMESTAMP,
+                    CASE WHEN $11 THEN CURRENT_TIMESTAMP ELSE NULL END)`,
           [
             userId, signature, title_internet_id, title_internet_id_extra,
-            internetType.id, periodicity.id, role.id, wordcountId, pageviews.id, permFlag
+            internetType.id, periodicity.id, role.id, wordcountId, pageviews.id, finalFlag,
+            finalFlag
           ]
         );
       } else {
@@ -633,11 +662,12 @@ app.post('/api/claims/internet/saveClaims', async (req, res) => {
           `UPDATE claims_internet SET
             user_id = $1, signature = $2, title_internet_id = $3,
             title_internet_id_extra = $4, internet_type_id = $5, periodicity_id = $6,
-            role_id = $7, wordcount_id = $8, pageviews_id = $9, permFlag = $10
-          WHERE id = $11`,
+            role_id = $7, wordcount_id = $8, pageviews_id = $9, finalFlag = $10, updated_at = CURRENT_TIMESTAMP,
+            finalized_at = CASE WHEN $11 THEN CURRENT_TIMESTAMP ELSE finalized_at END
+          WHERE id = $12`,
           [
             userId, signature, title_internet_id, title_internet_id_extra,
-            internetType.id, periodicity.id, role.id, wordcountId, pageviews.id, permFlag, claimId
+            internetType.id, periodicity.id, role.id, wordcountId, pageviews.id, finalFlag, finalFlag, claimId
           ]
         );
       }
@@ -653,11 +683,11 @@ app.post('/api/claims/internet/saveClaims', async (req, res) => {
 });
 
 app.post('/api/claims/tv/saveClaims', async (req, res) => {
-  const { userId, claims, permFlag } = req.body;
+  const { userId, claims, finalFlag } = req.body;
 
   console.log('Received userId:', userId);
   console.log('Received tv claims:', JSON.stringify(claims, null, 2));
-  console.log('Received permFlag:', permFlag);
+  console.log('Received finalFlag:', finalFlag);
 
   try {
     await pool.query('BEGIN');
@@ -715,11 +745,13 @@ app.post('/api/claims/tv/saveClaims', async (req, res) => {
         await pool.query(
           `INSERT INTO claims_tv (
             user_id, signature, title_tv_id, title_tv_id_extra,
-            tv_type_id, periodicity_id, role_id, wordcount, circulation, permFlag
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+            tv_type_id, periodicity_id, role_id, wordcount, circulation, finalFlag, created_at, finalized_at
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CURRENT_TIMESTAMP,
+                    CASE WHEN $11 THEN CURRENT_TIMESTAMP ELSE NULL END)`,
           [
             userId, signature, title_tv_id, title_tv_id_extra,
-            tvType.id, periodicity.id, role.id, wordcount, circulation, permFlag
+            tvType.id, periodicity.id, role.id, wordcount, circulation, finalFlag,
+            finalFlag
           ]
         );
       } else {
@@ -727,11 +759,12 @@ app.post('/api/claims/tv/saveClaims', async (req, res) => {
           `UPDATE claims_tv SET
             user_id = $1, signature = $2, title_tv_id = $3,
             title_tv_id_extra = $4, tv_type_id = $5, periodicity_id = $6,
-            role_id = $7, wordcount = $8, circulation = $9, permFlag = $10
-          WHERE id = $11`,
+            role_id = $7, wordcount = $8, circulation = $9, finalFlag = $10, updated_at = CURRENT_TIMESTAMP,
+            finalized_at = CASE WHEN $11 THEN CURRENT_TIMESTAMP ELSE finalized_at END
+          WHERE id = $12`,
           [
             userId, signature, title_tv_id, title_tv_id_extra,
-            tvType.id, periodicity.id, role.id, wordcount, circulation, permFlag, claimId
+            tvType.id, periodicity.id, role.id, wordcount, circulation, finalFlag, finalFlag, claimId
           ]
         );
       }
@@ -747,11 +780,11 @@ app.post('/api/claims/tv/saveClaims', async (req, res) => {
 });
 
 app.post('/api/claims/radio/saveClaims', async (req, res) => {
-  const { userId, claims, permFlag } = req.body;
+  const { userId, claims, finalFlag } = req.body;
 
   console.log('Received userId:', userId);
   console.log('Received radio claims:', JSON.stringify(claims, null, 2));
-  console.log('Received permFlag:', permFlag);
+  console.log('Received finalFlag:', finalFlag);
 
   try {
     await pool.query('BEGIN');
@@ -809,11 +842,13 @@ app.post('/api/claims/radio/saveClaims', async (req, res) => {
         await pool.query(
           `INSERT INTO claims_radio (
             user_id, signature, title_radio_id, title_radio_id_extra,
-            radio_type_id, periodicity_id, role_id, wordcount, circulation, permFlag
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+            radio_type_id, periodicity_id, role_id, wordcount, circulation, finalFlag, created_at, finalized_at
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CURRENT_TIMESTAMP,
+                    CASE WHEN $11 THEN CURRENT_TIMESTAMP ELSE NULL END)`,
           [
             userId, signature, title_radio_id, title_radio_id_extra,
-            radioType.id, periodicity.id, role.id, wordcount, circulation, permFlag
+            radioType.id, periodicity.id, role.id, wordcount, circulation, finalFlag,
+            finalFlag
           ]
         );
       } else {
@@ -821,11 +856,12 @@ app.post('/api/claims/radio/saveClaims', async (req, res) => {
           `UPDATE claims_radio SET
             user_id = $1, signature = $2, title_radio_id = $3,
             title_radio_id_extra = $4, radio_type_id = $5, periodicity_id = $6,
-            role_id = $7, wordcount = $8, circulation = $9, permFlag = $10
-          WHERE id = $11`,
+            role_id = $7, wordcount = $8, circulation = $9, finalFlag = $10, updated_at = CURRENT_TIMESTAMP,
+            finalized_at = CASE WHEN $11 THEN CURRENT_TIMESTAMP ELSE finalized_at END
+          WHERE id = $12`,
           [
             userId, signature, title_radio_id, title_radio_id_extra,
-            radioType.id, periodicity.id, role.id, wordcount, circulation, permFlag, claimId
+            radioType.id, periodicity.id, role.id, wordcount, circulation, finalFlag, finalFlag, claimId
           ]
         );
       }

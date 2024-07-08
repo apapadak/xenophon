@@ -40,7 +40,8 @@ CREATE TABLE users (
 	email_1     VARCHAR(255),
 	email_2     VARCHAR(255),
 
-	created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
+	created_at  TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  modified_at TIMESTAMP WITH TIME ZONE DEFAULT NULL
 );
 
 
@@ -154,9 +155,14 @@ CREATE TABLE claims_paper (
 	role_id						    INT,
 	wordcount_id				    INT,
 	circulation_id				    INT,
-	permFlag						BOOLEAN DEFAULT FALSE,
+	finalFlag						BOOLEAN DEFAULT FALSE,
 
-	FOREIGN KEY (user_id) REFERENCES users(user_id),
+  created_at  TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at  TIMESTAMP WITH TIME ZONE,
+
+  finalized_at  TIMESTAMP WITH TIME ZONE,
+
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (title_paper_id) REFERENCES claims_titles_papers(id),
     FOREIGN KEY (title_paper_id_extra) REFERENCES claims_titles_papers_extra(id),
     FOREIGN KEY (paper_type_id) REFERENCES claims_paper_types(id),
@@ -197,7 +203,12 @@ CREATE TABLE claims_internet (
 	role_id						    INT,
 	wordcount_id				    INT,
   pageviews_id					    INT,
-	permFlag						BOOLEAN DEFAULT FALSE,
+  finalFlag						BOOLEAN DEFAULT FALSE,
+
+  created_at  TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at  TIMESTAMP WITH TIME ZONE,
+
+  finalized_at  TIMESTAMP WITH TIME ZONE,
 
 	FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (title_internet_id) REFERENCES claims_titles_internet(id),
@@ -246,7 +257,12 @@ CREATE TABLE claims_tv (
 	role_id						    INT,
 	wordcount    				    INT,
 	circulation					    INT,
-	permFlag						BOOLEAN DEFAULT FALSE,
+  finalFlag						BOOLEAN DEFAULT FALSE,
+
+  created_at  TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at  TIMESTAMP WITH TIME ZONE,
+
+  finalized_at TIMESTAMP WITH TIME ZONE,
 
 	FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (title_tv_id) REFERENCES claims_titles_tv(id),
@@ -294,7 +310,12 @@ CREATE TABLE claims_radio (
 	role_id						    INT,
 	wordcount    				    INT,
 	circulation					    INT,
-	permFlag						BOOLEAN DEFAULT FALSE,
+  finalFlag						BOOLEAN DEFAULT FALSE,
+
+  created_at  TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at  TIMESTAMP WITH TIME ZONE,
+
+  finalized_at  TIMESTAMP WITH TIME ZONE,
 
 	FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (title_radio_id) REFERENCES claims_titles_radio(id),

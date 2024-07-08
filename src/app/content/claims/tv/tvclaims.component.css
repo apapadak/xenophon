@@ -6,6 +6,10 @@
   padding: 20px 0px 30px 0px;
 }
 
+.timestamp {
+  margin: 20px 0px 0px 0px;
+}
+
 .p-datatable-thead > tr > th {
   padding: 0 !important;
 }

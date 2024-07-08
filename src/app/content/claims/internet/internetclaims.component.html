@@ -187,3 +187,11 @@
     <p-button label="Οριστική αποθήκευση" (click)="claimsCommonService.confirmFinalStore('internet')" icon="pi" aria-label="Οριστική αποθήκευση" [disabled]="claimsCommonService.isStoreButtonsDisabled()"></p-button>
   </div>
 </div>
+
+<div *ngIf="claimsCommonService.latestTimestampAt" class="timestamp">
+  <span><i>Τελευταία ενημέρωση: {{ claimsCommonService.latestTimestampAt | date: 'dd/MM/yyyy HH:mm' }}</i></span>
+</div>
+
+<div *ngIf="claimsCommonService.latestFinalizedAt" class="timestamp">
+  <span><i>Οριστική ενημέρωση: {{ claimsCommonService.latestFinalizedAt | date: 'dd/MM/yyyy HH:mm' }}</i></span>
+</div>
