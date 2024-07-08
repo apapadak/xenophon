@@ -26,6 +26,7 @@ import {ConfirmationService, MessageService} from "primeng/api";
 })
 export class HomeComponent {
   isHomeRoute: boolean = false;
+  isClaimsRoute: boolean = false;
 
   constructor(
     private router: Router,
@@ -34,6 +35,9 @@ export class HomeComponent {
   ) {
     this.router.events.subscribe(() => {
       this.isHomeRoute = this.router.url === '/home';
+    });
+    this.router.events.subscribe(() => {
+      this.isClaimsRoute = this.router.url === '/claims';
     });
   }
 
@@ -47,6 +51,9 @@ export class HomeComponent {
         break;
       case 'CONTRACTS':
         this.router.navigate(['contracts']);
+        break;
+      case 'CLAIMS':
+        this.router.navigate(['claims']);
         break;
       case 'PAPERCLAIMS':
         this.router.navigate(['paperclaims']);

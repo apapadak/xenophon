@@ -6,7 +6,6 @@
     <app-header></app-header>
 
     <div *ngIf="isHomeRoute">
-
       <div class="welcome-message">
         <h1>Καλώς ήλθες!</h1>
         <p>στην πλατφόρμα <strong>myXenophon.gr</strong></p>
@@ -23,7 +22,12 @@
           <li>καθώς και τα στοιχεία επικοινωνίας στην επιλογή <strong>Προφίλ</strong> του μενού</li>
         </ul>
       </div>
+    </div>
 
+    <div *ngIf="isClaimsRoute">
+      <div class="welcome-message">
+        <a target="_blank" href="https://xenophonrights.gr/δηλωση-2023/">Οδηγίες συμπλήρωσης δηλώσεων</a>
+      </div>
     </div>
 
     <router-outlet></router-outlet>

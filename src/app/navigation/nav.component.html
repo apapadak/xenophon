@@ -6,7 +6,7 @@
     <li (click)="onNavigate('CONTRACTS')">Συμβάσεις</li>
 
     <li>
-      <a target="_blank" href="https://xenophonrights.gr/δηλωση-2023/">Δηλώσεις</a>
+      <span (click)="onNavigate('CLAIMS')">Δηλώσεις</span>
       <ul *ngIf="showSubMenu['CLAIMS']" class="sub-menu">
         <li (click)="onNavigate('PAPERCLAIMS')">Έντυπα</li>
         <li (click)="onNavigate('INTERNETCLAIMS')">Ιστοσελίδες</li>
