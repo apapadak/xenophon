@@ -35,12 +35,46 @@ const headerMapping = {
   'E-MAIL 2': 'email_2'
 };
 
+// Function to format date
+const formatDate = (dateString) => {
+  if (!dateString || dateString === '#N/A') return '';
+
+  // Check if the value is a number (Excel serial date)
+  if (typeof dateString === 'number') {
+    const date = new Date(Date.UTC(0, 0, dateString - 1)); // Adjust the serial date to maintain the correct date
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const year = date.getUTCFullYear();
+    return `${day}/${month}/${year}`;
+  }
+
+  if (typeof dateString !== 'string') {
+    dateString = dateString.toString();
+  }
+
+  const dateParts = dateString.split(/[./-]/);
+
+  if (dateParts.length !== 3) return dateString;
+
+  const [day, month, year] = dateParts.map(part => part.padStart(2, '0'));
+
+  if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+    return `${day}/${month}/${year}`;
+  }
+
+  return dateString;
+};
+
 // Create a new array for the new Excel file data
 const newData = data.map(row => {
   const newRow = {};
   for (const oldHeader in headerMapping) {
     if (row.hasOwnProperty(oldHeader)) {
-      newRow[headerMapping[oldHeader]] = row[oldHeader];
+      let value = row[oldHeader];
+      if (headerMapping[oldHeader] === 'dob' && value) {
+        value = formatDate(value);
+      }
+      newRow[headerMapping[oldHeader]] = value;
     }
   }
   // Add the 'mhtrwo' and 'password' columns with the same value from 'ΑΡ. ΜΗΤΡ.'

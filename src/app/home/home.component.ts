@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import { HeaderComponent } from "../header/header.component";
 import { FooterComponent } from "../footer/footer.component";
 import { NavigationComponent } from "../navigation/nav.component";
@@ -21,12 +21,20 @@ import {ConfirmationService, MessageService} from "primeng/api";
     NavigationComponent,
     ProfileComponent,
     CommonModule
-  ]
+  ],
+  providers: [MessageService, ConfirmationService, ClaimsCommonService]
 })
 export class HomeComponent {
-  constructor(private router: Router, private authService: AuthService) {
+  isHomeRoute: boolean = false;
 
-
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    public claimsCommonService: ClaimsCommonService
+  ) {
+    this.router.events.subscribe(() => {
+      this.isHomeRoute = this.router.url === '/home';
+    });
   }
 
   onNavigate(route: string): void {
@@ -76,6 +84,9 @@ export class HomeComponent {
       next: () => {
         localStorage.removeItem('jwt');
         localStorage.removeItem('userInfo');
+
+        this.claimsCommonService.deleteDropdownData();
+
         this.router.navigate(['login']).then(() => {
           window.location.reload();  // Optional: Force a reload to clear all data
         });

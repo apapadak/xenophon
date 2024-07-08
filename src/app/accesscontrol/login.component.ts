@@ -16,7 +16,8 @@ import {ClaimsCommonService} from "../helpers/common/claims-common.service";
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
   standalone: true,
-  imports: [FormsModule, HttpClientModule, CommonModule]
+  imports: [FormsModule, HttpClientModule, CommonModule],
+  providers: [ClaimsCommonService]
 })
 export class LoginComponent {
   username: string = '';
@@ -28,6 +29,7 @@ export class LoginComponent {
     private router: Router,
     private authService: AuthService,
     private userService: UserService,
+    public claimsCommonService: ClaimsCommonService
   ) {  }
 
   onLogin() {
@@ -40,8 +42,6 @@ export class LoginComponent {
       switchMap(response => {
         console.log('Login OK');
 
-
-
         // Fetch user details after successful login
         return this.userService.getUser(this.username);
       })
@@ -49,6 +49,8 @@ export class LoginComponent {
       user => {
         console.log('Login successful; User details fetched: ', user);
         localStorage.setItem('userInfo', JSON.stringify(user));
+
+        this.claimsCommonService.loadDropdownData();
 
         this.router.navigate(['/home']);
       },

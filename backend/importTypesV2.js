@@ -17,7 +17,7 @@ const data = xlsx.utils.sheet_to_json(sheet);
 
 // Utility to filter strings and print values
 function filterAndPrintStrings(columnValues, columnName) {
-  const validStrings = columnValues.filter(value => typeof value === 'string' && value.trim() !== '');
+  const validStrings = columnValues.filter(value => typeof value === 'string' && value.trim() !== '').map(value => value.trim());
   console.log(`Values in ${columnName}:`, validStrings);
   return validStrings;
 }
@@ -70,7 +70,7 @@ async function processTitles(columnData, columnName, tableName, dbColumnName, se
   }
 
   // Lowercase all entries
-  const lowercaseValues = values.map(value => value.toLowerCase());
+  const lowercaseValues = values.map(value => value.toLowerCase().trim());
 
   // Sort values using custom sort function
   const sortedValues = lowercaseValues.sort(customSort);
@@ -97,6 +97,9 @@ async function processColumn(columnData, columnName, tableName, dbColumnName, se
     throw new Error(`Duplicate values found in ${columnName}`);
   }
 
+  // Trim and sort values
+  const trimmedValues = values.map(value => value.trim());
+
   // Delete all rows in the table before inserting new values
   await pool.query(`DELETE FROM ${tableName}`);
 
@@ -104,7 +107,7 @@ async function processColumn(columnData, columnName, tableName, dbColumnName, se
   await pool.query(`ALTER SEQUENCE ${sequenceName} RESTART WITH 1`);
 
   // Insert values into the database
-  for (let value of values) {
+  for (let value of trimmedValues) {
     await pool.query(`INSERT INTO ${tableName} (${dbColumnName}) VALUES ($1)`, [value]);
   }
 
@@ -128,13 +131,16 @@ async function main() {
     await processTitles(data.map(row => row.claims_titles_radio), 'claims_titles_radio', 'claims_titles_radio', 'title', 'claims_titles_radio_id_seq');
 
     // Process each column with the correct database column name
-    await processColumn(data.map(row => row.claims_types), 'claims_types', 'claims_types', 'type', 'claims_types_id_seq');
+    await processColumn(data.map(row => row.claims_paper_types), 'claims_paper_types', 'claims_paper_types', 'type', 'claims_paper_types_id_seq');
+    await processColumn(data.map(row => row.claims_internet_types), 'claims_internet_types', 'claims_internet_types', 'type', 'claims_internet_types_id_seq');
     await processColumn(data.map(row => row.claims_tv_types), 'claims_tv_types', 'claims_tv_types', 'type', 'claims_tv_types_id_seq');
     await processColumn(data.map(row => row.claims_radio_types), 'claims_radio_types', 'claims_radio_types', 'type', 'claims_radio_types_id_seq');
     await processColumn(data.map(row => row.claims_periodicity), 'claims_periodicity', 'claims_periodicities', 'periodicity', 'claims_periodicities_id_seq');
     await processColumn(data.map(row => row.claims_role), 'claims_role', 'claims_roles', 'role', 'claims_roles_id_seq');
     await processColumn(data.map(row => row.claims_wordcount), 'claims_wordcount', 'claims_wordcounts', 'wordcount', 'claims_wordcounts_id_seq');
     await processColumn(data.map(row => row.claims_circulation), 'claims_circulation', 'claims_circulations', 'circulation', 'claims_circulations_id_seq');
+    await processColumn(data.map(row => row.claims_pageviews), 'claims_pageviews', 'claims_pageviews', 'pageviews', 'claims_pageviews_id_seq');
+
 
     await pool.query('COMMIT'); // Commit transaction
     console.log('All data committed successfully');

@@ -21,13 +21,13 @@ CREATE TABLE users (
 	afm         VARCHAR(255) UNIQUE NOT NULL,
 	mhtrwo      VARCHAR(255) UNIQUE NOT NULL,
 	password    VARCHAR(255) NOT NULL,
-	firstname   VARCHAR(255), 
+	firstname   VARCHAR(255),
 	surname     VARCHAR(255),
 	father_name VARCHAR(255),
 	tax_office  VARCHAR(255),
-	dob			VARCHAR(255),
-	adt			VARCHAR(255),
-	iban		VARCHAR(255),
+	dob			    DATE,
+	adt			    VARCHAR(255),
+	iban		    VARCHAR(255),
 	bank        VARCHAR(255),
 	legal_form  VARCHAR(255),
 
@@ -39,7 +39,7 @@ CREATE TABLE users (
 	mobile      VARCHAR(255),
 	email_1     VARCHAR(255),
 	email_2     VARCHAR(255),
-	
+
 	created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -90,9 +90,14 @@ CREATE TABLE claims_titles_radio_extra (
 );
 
 
-CREATE TABLE claims_types (
+CREATE TABLE claims_paper_types (
 	id 			SERIAL PRIMARY KEY,
-	type        VARCHAR(255) UNIQUE NOT NULL
+  type  VARCHAR(255) UNIQUE NOT NULL
+);
+
+CREATE TABLE claims_internet_types (
+  id    SERIAL PRIMARY KEY,
+  type  VARCHAR(255) UNIQUE NOT NULL
 );
 
 CREATE TABLE claims_tv_types (
@@ -126,6 +131,11 @@ CREATE TABLE claims_circulations (
 	circulation VARCHAR(255) UNIQUE NOT NULL
 );
 
+CREATE TABLE claims_pageviews (
+  id          SERIAL PRIMARY KEY,
+  pageviews VARCHAR(255) UNIQUE NOT NULL
+);
+
 
 --
 --	Main claims tables
@@ -145,13 +155,13 @@ CREATE TABLE claims_paper (
 	wordcount_id				    INT,
 	circulation_id				    INT,
 	permFlag						BOOLEAN DEFAULT FALSE,
-	
+
 	FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (title_paper_id) REFERENCES claims_titles_papers(id),
     FOREIGN KEY (title_paper_id_extra) REFERENCES claims_titles_papers_extra(id),
-    FOREIGN KEY (type_id) REFERENCES claims_types(id),
+    FOREIGN KEY (type_id) REFERENCES claims_paper_types(id),
     FOREIGN KEY (periodicity_id) REFERENCES claims_periodicities(id),
-	
+
 	FOREIGN KEY (role_id) REFERENCES claims_roles(id),
 	FOREIGN KEY (wordcount_id) REFERENCES claims_wordcounts(id),
 	FOREIGN KEY (circulation_id) REFERENCES claims_circulations(id)
@@ -186,18 +196,18 @@ CREATE TABLE claims_internet (
 	periodicity_id 					INT,
 	role_id						    INT,
 	wordcount_id				    INT,
-	circulation					    INT,
+  pageviews_id					    INT,
 	permFlag						BOOLEAN DEFAULT FALSE,
-	
+
 	FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (title_internet_id) REFERENCES claims_titles_internet(id),
     FOREIGN KEY (title_internet_id_extra) REFERENCES claims_titles_internet_extra(id),
-    FOREIGN KEY (type_id) REFERENCES claims_types(id),
+    FOREIGN KEY (type_id) REFERENCES claims_internet_types(id),
     FOREIGN KEY (periodicity_id) REFERENCES claims_periodicities(id),
-	
+
 	FOREIGN KEY (role_id) REFERENCES claims_roles(id),
-	FOREIGN KEY (wordcount_id) REFERENCES claims_wordcounts(id)
-	--FOREIGN KEY (circulation_id) REFERENCES claims_circulations(id) 
+	FOREIGN KEY (wordcount_id) REFERENCES claims_wordcounts(id),
+	FOREIGN KEY (pageviews_id) REFERENCES claims_pageviews(id)
 );
 
 -- Create the trigger function
@@ -222,7 +232,7 @@ EXECUTE FUNCTION delete_related_titles_internet_extra();
 -- Kanali/Tv Station
 -- Eidos : Eidiseis/ Ekpobi/ Ntokumantair
 -- Periodikotita:: Lista : Sbinoume diminiaia, triminiaia, 6miniaia, etisia
--- Idiotita: Ola 
+-- Idiotita: Ola
 -- Arithmos Leksewn, Mesi tiletheasi inactive
 
 CREATE TABLE claims_tv (
@@ -235,18 +245,18 @@ CREATE TABLE claims_tv (
 	periodicity_id 					INT,
 	role_id						    INT,
 	wordcount    				    INT,
-	circulation					    INT,       
+	circulation					    INT,
 	permFlag						BOOLEAN DEFAULT FALSE,
-	
+
 	FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (title_tv_id) REFERENCES claims_titles_tv(id),
     FOREIGN KEY (title_tv_id_extra) REFERENCES claims_titles_tv_extra(id),
     FOREIGN KEY (tv_type_id) REFERENCES claims_tv_types(id),
     FOREIGN KEY (periodicity_id) REFERENCES claims_periodicities(id),
-	
+
 	FOREIGN KEY (role_id) REFERENCES claims_roles(id)
 	--FOREIGN KEY (wordcount_id) REFERENCES claims_wordcounts(id),
-	--FOREIGN KEY (circulation_id) REFERENCES claims_circulations(id) 
+	--FOREIGN KEY (circulation_id) REFERENCES claims_circulations(id)
 );
 
 -- Create the trigger function
@@ -270,7 +280,7 @@ EXECUTE FUNCTION delete_related_titles_tv_extra();
 -- R/F stathmos
 -- Eidos : Eidiseis / Ekpobi / Podcast
 -- Periodikotita:: Lista : Sbinoume diminiaia, triminiaia, 6miniaia, etisia
--- Idiotita: Ola 
+-- Idiotita: Ola
 -- Arithmos Leksewn, Mesi akroamatikotita inactive
 
 CREATE TABLE claims_radio (
@@ -283,18 +293,18 @@ CREATE TABLE claims_radio (
 	periodicity_id 					INT,
 	role_id						    INT,
 	wordcount    				    INT,
-	circulation					    INT,  
+	circulation					    INT,
 	permFlag						BOOLEAN DEFAULT FALSE,
-	
+
 	FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (title_radio_id) REFERENCES claims_titles_radio(id),
     FOREIGN KEY (title_radio_id_extra) REFERENCES claims_titles_radio_extra(id),
     FOREIGN KEY (radio_type_id) REFERENCES claims_radio_types(id),
     FOREIGN KEY (periodicity_id) REFERENCES claims_periodicities(id),
-	
+
 	FOREIGN KEY (role_id) REFERENCES claims_roles(id)
 	--FOREIGN KEY (wordcount_id) REFERENCES claims_wordcounts(id),
-	--FOREIGN KEY (circulation_id) REFERENCES claims_circulations(id) 
+	--FOREIGN KEY (circulation_id) REFERENCES claims_circulations(id)
 );
 
 -- Create the trigger function

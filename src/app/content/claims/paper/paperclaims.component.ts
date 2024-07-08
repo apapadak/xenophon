@@ -34,7 +34,7 @@ import {CirculationData, ClaimsCommonService, PeriodicityData, RoleData, TitlePa
     ToastModule,
     ConfirmDialogModule,
   ],
-  providers: [MessageService, ConfirmationService, ClaimsCommonService]
+  providers: [ClaimsCommonService]
 })
 
 export class PaperClaimsComponent {

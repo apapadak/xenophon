@@ -3,6 +3,9 @@
 <p-confirmDialog header="Επιβεβαίωση"></p-confirmDialog>
 <p-toast></p-toast>
 
+<div class="note">
+  <span>**Σε περίπτωση συλλογικών άρθρων/ρεπορτάζ δηλώστε τον αριθμό λέξεων που έχετε συνεισφέρει εσείς.</span>
+</div>
 <div class="card">
   <form #claimsPaperForm="ngForm"  >
     <p-table [value]="claimsCommonService.data" class="claims-table flexible-width p-datatable-min-height">
@@ -38,7 +41,6 @@
                             [suggestions]="claimsCommonService.titlePapers"
                             (completeMethod)="claimsCommonService.titlePapers = claimsCommonService.search('titlePapers',  'title', $event, 'id', 'title')"
                             field="title"
-                            class="wide-dropdown"
                             placeholder="Εισάγετε τίτλο"
                             pTooltip="Επιλογη από λίστα ή ελεύθερο κείμενο"
                             tooltipPosition="top"
@@ -56,7 +58,7 @@
                    #signature="ngModel"
                    [(ngModel)]="rowData.signature"
                    name="signature{{i}}"
-                   placeholder="Υπογραφή"
+                   placeholder="Υπογραφή-Ψευδώνυμο"
                    pTooltip="Ελεύθερο κείμενο"
                    tooltipPosition="top"
                    maxlength="255"
@@ -68,12 +70,12 @@
           <td class="cell-tight-padding">
             <p-autoComplete appendTo="body"
                             required
-                            #type="ngModel"
-                            [(ngModel)]="rowData.type"
-                            name="type{{i}}"
+                            #paperType="ngModel"
+                            [(ngModel)]="rowData.paperType"
+                            name="paperType{{i}}"
                             [dropdown]="true"
-                            [suggestions]="claimsCommonService.types"
-                            (completeMethod)="claimsCommonService.types = claimsCommonService.search('types',  'type', $event, 'id', 'type')"
+                            [suggestions]="claimsCommonService.papertypes"
+                            (completeMethod)="claimsCommonService.papertypes = claimsCommonService.search('papertypes',  'type', $event, 'id', 'type')"
                             field="type"
                             [forceSelection]="true"
                             placeholder="Είδος"
@@ -83,7 +85,7 @@
                             [disabled]="rowData.disabled">
             </p-autoComplete>
 
-            <div *ngIf="type.invalid && (type.dirty || type.touched)" class="error-message">Υποχρεωτική επιλογή από λίστα</div>
+            <div *ngIf="paperType.invalid && (paperType.dirty || paperType.touched)" class="error-message">Υποχρεωτική επιλογή από λίστα</div>
 
           </td>
           <td class="cell-tight-padding">

@@ -103,8 +103,6 @@ app.post('/api/logout', authenticateToken, (req, res) => {
   res.json({ message: "Logged out successfully" });
 });
 
-
-
 // Endpoint to get user information
 app.get('/api/user', authenticateToken, async (req, res) => {
   const username = req.query.username;
@@ -119,7 +117,12 @@ app.get('/api/user', authenticateToken, async (req, res) => {
 
     if (result.rows.length > 0) {
       const user = result.rows[0];
-      const { password, created_at, ...userWithoutSensitiveInfo } = user;  // Destructure to omit the password field
+      const { password, created_at, dob, ...userWithoutSensitiveInfo } = user;  // Destructure to omit the password field
+
+      // Format the dob to DD-MM-YYYY
+      if (dob) {
+        userWithoutSensitiveInfo.dob = formatDate(dob);
+      }
 
       res.json(userWithoutSensitiveInfo);
     } else {
@@ -166,7 +169,7 @@ app.get('/api/claims/paper', authenticateToken, async (req, res) => {
       FROM claims_paper c
       LEFT JOIN claims_titles_papers pt ON c.title_paper_id = pt.id
       LEFT JOIN claims_titles_papers_extra pte ON c.title_paper_id_extra = pte.id
-      LEFT JOIN claims_types t ON c.type_id = t.id
+      LEFT JOIN claims_paper_types t ON c.type_id = t.id
       LEFT JOIN claims_periodicities p ON c.periodicity_id = p.id
       LEFT JOIN claims_roles r ON c.role_id = r.id
       LEFT JOIN claims_wordcounts wc ON c.wordcount_id = wc.id
@@ -242,16 +245,18 @@ app.get('/api/claims/internet', authenticateToken, async (req, res) => {
         r.role,
         wc.id AS wordcount_id,
         wc.wordcount,
-        c.circulation,
+        pa.id AS pageviews_id,
+        pa.pageviews,
         c.permflag AS "permFlag",
         CASE WHEN pte.id IS NOT NULL THEN true ELSE false END AS custom
       FROM claims_internet c
       LEFT JOIN claims_titles_internet pt ON c.title_internet_id = pt.id
       LEFT JOIN claims_titles_internet_extra pte ON c.title_internet_id_extra = pte.id
-      LEFT JOIN claims_types t ON c.type_id = t.id
+      LEFT JOIN claims_internet_types t ON c.type_id = t.id
       LEFT JOIN claims_periodicities p ON c.periodicity_id = p.id
       LEFT JOIN claims_roles r ON c.role_id = r.id
       LEFT JOIN claims_wordcounts wc ON c.wordcount_id = wc.id
+      LEFT JOIN claims_pageviews pa ON c.pageviews_id = pa.id
       WHERE c.user_id = $1
       ORDER BY c.id`, // Order by claimId
       [userId]
@@ -286,11 +291,11 @@ app.get('/api/claims/internet', authenticateToken, async (req, res) => {
         id: row.wordcount_id,
         wordcount: row.wordcount
       } : null,
-      /*circulation: {
-        id: row.circulation_id,
-        circulation: row.circulation
-      },*/
-      circulation: row.circulation,
+      pageviews: row.pageviews_id ? {
+        id: row.pageviews_id,
+        pageviews: row.pageviews
+      } : null,
+      //circulation: row.circulation,
       permFlag: row.permFlag
     }));
 
@@ -590,7 +595,7 @@ app.post('/api/claims/internet/saveClaims', async (req, res) => {
         periodicity,
         role,
         wordcount,
-        circulation
+        pageviews
       } = claim;
 
       let title_internet_id = null;
@@ -616,11 +621,11 @@ app.post('/api/claims/internet/saveClaims', async (req, res) => {
         await pool.query(
           `INSERT INTO claims_internet (
             user_id, signature, title_internet_id, title_internet_id_extra,
-            type_id, periodicity_id, role_id, wordcount_id, circulation, permFlag
+            type_id, periodicity_id, role_id, wordcount_id, pageviews_id, permFlag
           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
           [
             userId, signature, title_internet_id, title_internet_id_extra,
-            type.id, periodicity.id, role.id, wordcountId, circulation, permFlag
+            type.id, periodicity.id, role.id, wordcountId, pageviews_id, permFlag
           ]
         );
       } else {
@@ -628,11 +633,11 @@ app.post('/api/claims/internet/saveClaims', async (req, res) => {
           `UPDATE claims_internet SET
             user_id = $1, signature = $2, title_internet_id = $3,
             title_internet_id_extra = $4, type_id = $5, periodicity_id = $6,
-            role_id = $7, wordcount_id = $8, circulation = $9, permFlag = $10
+            role_id = $7, wordcount_id = $8, pageviews_id = $9, permFlag = $10
           WHERE id = $11`,
           [
             userId, signature, title_internet_id, title_internet_id_extra,
-            type.id, periodicity.id, role.id, wordcountId, circulation, permFlag, claimId
+            type.id, periodicity.id, role.id, wordcountId, pageviews.id, permFlag, claimId
           ]
         );
       }
@@ -844,13 +849,15 @@ app.get('/api/claims/dropdownData', authenticateToken, async (req, res) => {
     const titleInternetResult = await client.query('SELECT * FROM claims_titles_internet');
     const titleTvResult = await client.query('SELECT * FROM claims_titles_tv');
     const titleRadioResult = await client.query('SELECT * FROM claims_titles_radio');
-    const typesResult = await client.query('SELECT * FROM claims_types');
+    const papertypesResult = await client.query('SELECT * FROM claims_paper_types');
+    const internettypesResult = await client.query('SELECT * FROM claims_internet_types');
     const tvtypesResult = await client.query('SELECT * FROM claims_tv_types');
     const radiotypesResult = await client.query('SELECT * FROM claims_radio_types');
     const periodicitiesResult = await client.query('SELECT * FROM claims_periodicities');
     const rolesResult = await client.query('SELECT * FROM claims_roles');
     const wordcountsResult = await client.query('SELECT * FROM claims_wordcounts');
     const circulationsResult = await client.query('SELECT * FROM claims_circulations');
+    const pageviewsResult = await client.query('SELECT * FROM claims_pageviews');
 
     // Add disableWordCount flag to each role
     const roles = rolesResult.rows.map(role => ({
@@ -863,15 +870,19 @@ app.get('/api/claims/dropdownData', authenticateToken, async (req, res) => {
       titleInternet: titleInternetResult.rows,
       titleTv: titleTvResult.rows,
       titleRadio: titleRadioResult.rows,
-      types: typesResult.rows,
+
+      papertypes: papertypesResult.rows,
+      internettypes: internettypesResult.rows,
       tvtypes: tvtypesResult.rows,
       radiotypes: radiotypesResult.rows,
+
       periodicities: periodicitiesResult.rows,
       tvperiodicities: periodicitiesResult.rows.filter(row => !disablePeriodicitiesIdsForTvsRadios.includes(row.id)),
       radioperiodicities: periodicitiesResult.rows.filter(row => !disablePeriodicitiesIdsForTvsRadios.includes(row.id)),
       roles: roles,
       wordcounts: wordcountsResult.rows,
-      circulations: circulationsResult.rows
+      circulations: circulationsResult.rows,
+      pageviews: pageviewsResult.rows
     });
   } catch (err) {
     console.error(err);
@@ -901,3 +912,16 @@ const options = {
 https.createServer(options, app).listen(PORT, () => {
   console.log(`HTTPS server running on https://localhost:${PORT}`);
 });
+
+
+// Function to format date to DD-MM-YYYY
+const formatDate = (dateString) => {
+  if (!dateString) return null;
+
+  const date = new Date(dateString);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+  const year = date.getFullYear();
+
+  return `${day}-${month}-${year}`;
+};

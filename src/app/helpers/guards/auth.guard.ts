@@ -2,13 +2,19 @@ import { Injectable } from '@angular/core';
 import { CanActivate, Router, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import {catchError, Observable, of} from 'rxjs';
 import { map } from 'rxjs/operators';
-import { AuthService } from '../../services/AuthService'; // Update the path to your AuthService
+import { AuthService } from '../../services/AuthService';
+import {ClaimsCommonService} from "../common/claims-common.service";
+import {MessageService} from "primeng/api";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthGuard implements CanActivate {
-  constructor(private router: Router, private authService: AuthService) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    public claimsCommonService: ClaimsCommonService
+) {}
 
   canActivate(
     next: ActivatedRouteSnapshot,
@@ -20,6 +26,9 @@ export class AuthGuard implements CanActivate {
           return true;
         } else {
           this.router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
+
+          this.claimsCommonService.deleteDropdownData();
+
           return false;
         }
       }),

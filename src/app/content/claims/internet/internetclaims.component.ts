@@ -32,7 +32,7 @@ import {ClaimsCommonService} from '../../../helpers/common/claims-common.service
     ToastModule,
     ConfirmDialogModule,
   ],
-  providers: [MessageService, ConfirmationService, ClaimsCommonService]
+  providers: [ClaimsCommonService]
 })
 
 export class InternetClaimsComponent {

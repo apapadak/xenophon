@@ -33,6 +33,17 @@ async function clearTable() {
   }
 }
 
+// Function to format date
+const formatDate = (dateString) => {
+  if (!dateString || dateString === '#N/A') return null;
+
+  const dateParts = dateString.split('/');
+  if (dateParts.length !== 3) return null;
+
+  const [day, month, year] = dateParts.map(part => part.padStart(2, '0'));
+  return `${year}-${month}-${day}`; // Convert to YYYY-MM-DD format
+};
+
 async function hashPasswords(data) {
   const saltRounds = 10;
   for (const row of data) {
@@ -54,13 +65,18 @@ async function insertData(data) {
         continue;
       }
 
+      // Format the date of birth
+      if (row.dob) {
+        row.dob = formatDate(row.dob);
+      }
+
       const query = "INSERT INTO users ( afm, mhtrwo, password, firstname, surname, father_name, tax_office, dob, adt, iban, bank, legal_form, address, city, postal_code, country, telephone, mobile, email_1, email_2, created_at ) " +
         "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, CURRENT_TIMESTAMP)";
 
       const values = [
         row.afm, row.mhtrwo, row.password, row.firstname, row.surname, row.father_name, row.tax_office, row.dob, row.adt, row.iban, row.bank, row.legal_form, row.address, row.city, row.postal_code, row.country,
         row.telephone, row.mobile, row.email_1, row.email_2
-      ].map(value => value ? value.toString().replace(/^\n+|\n+$/g, '').trim() : value);
+      ].map(value => (value ? value.toString().replace(/^\n+|\n+$/g, '').trim() : null));
 
       // Print the query and values
       console.log("Executing query:", query);

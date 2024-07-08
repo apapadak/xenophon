@@ -54,13 +54,7 @@ export class ProfileComponent implements OnInit {
   }
 
   get fullName(): string {
-    return `${this.userInfo.firstName} ${this.userInfo.lastName}`;
-  }
-
-  set fullName(value: string) {
-    const [firstName, lastName] = value.split(' ');
-    this.userInfo.firstName = firstName;
-    this.userInfo.lastName = lastName;
+    return `${this.userInfo.firstname} ${this.userInfo.surname}`;
   }
 
   getUsername(): string {

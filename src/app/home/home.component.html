@@ -4,7 +4,30 @@
   </div>
   <div class="content-section">
     <app-header></app-header>
+
+    <div *ngIf="isHomeRoute">
+
+      <div class="welcome-message">
+        <h1>Καλώς ήλθες!</h1>
+        <p>στην πλατφόρμα <strong>myXenophon.gr</strong></p>
+        <p>Αυτή είναι η προσωπική σου σελίδα όπου:</p>
+        <ul>
+          <li>δηλώνεις το έργο σου</li>
+          <li>θα ενημερώνεσαι για δηλώσεις προηγούμενων ετών</li>
+          <li>για το ποσό που σου αναλογεί για κάθε έτος</li>
+          <li>καθώς και για τη Σύμβαση που έχεις με τον Οργανισμό</li>
+        </ul>
+        <p>Έλεγξε για την ακρίβεια:</p>
+        <ul>
+          <li>στα ατομικά σου στοιχεία</li>
+          <li>καθώς και τα στοιχεία επικοινωνίας στην επιλογή <strong>Προφίλ</strong> του μενού</li>
+        </ul>
+      </div>
+
+    </div>
+
     <router-outlet></router-outlet>
+
     <app-footer></app-footer>
   </div>
 </div>

@@ -14,13 +14,12 @@ export interface BaseTableData {
   periodicity: PeriodicityData | null;
   role: RoleData | null;
   wordcount: WordcountData | null;
-  circulation: CirculationData | number | null;
 
   disabled: boolean; // Add this property used for disabling the whole row when needed
   permFlag: boolean;
 }
 
-type PaperTableDataPreMerge = {
+/*type PaperTableDataPreMerge = {
   claimId: number;
   titlePaper: TitlePaperData;
 } & Omit<BaseTableData, 'claimId'>;
@@ -39,7 +38,7 @@ type RadioTableDataPreMerge = {
   claimId: number;
   titleRadio: TitleRadioData;
 } & Omit<BaseTableData, 'claimId'>;
-
+*/
 
 
 
@@ -59,33 +58,45 @@ type RadioTypeTableDataPreMerge = {
   periodicity: PeriodicityData | null;
 } & Omit<BaseTableData, 'signature'>;
 
-export interface TypeTableData extends TypeTableDataPreMerge  {
-  type: TypeData | null;
+export interface PaperTypeTableData extends TypeTableDataPreMerge  {
+  paperType: TypeData | null;
+}
+
+export interface InternetTypeTableData extends TypeTableDataPreMerge  {
+  internetType: TypeData | null;
 }
 
 export interface TvTypeTableData extends TvTypeTableDataPreMerge {
-  tvType: TvTypeData | null;
+  tvType: TypeData | null;
 }
 
 export interface RadioTypeTableData extends RadioTypeTableDataPreMerge {
-  radioType: RadioTypeData | null;
+  radioType: TypeData | null;
 }
 
 
-export interface PaperTableData extends TypeTableData  {
+export interface PaperTableData extends PaperTypeTableData  {
   titlePaper: TitlePaperData;
+
+  circulation: CirculationData | number | null;
 }
 
-export interface InternetTableData extends TypeTableData {
+export interface InternetTableData extends InternetTypeTableData {
   titleInternet: TitleInternetData;
+
+  pageviews: PageviewsData | number | null;
 }
 
 export interface TvTableData extends TvTypeTableData {
   titleTv: TitleTvData;
+
+  circulation: CirculationData | number | null;
 }
 
 export interface RadioTableData extends RadioTypeTableData {
   titleRadio: TitleRadioData;
+
+  circulation: CirculationData | number | null;
 }
 
 
@@ -124,16 +135,6 @@ export interface TypeData {
   type: string;
 }
 
-export interface TvTypeData {
-  id: number;
-  type: string;
-}
-
-export interface RadioTypeData {
-  id: number;
-  type: string;
-}
-
 export interface PeriodicityData {
   id: number;
   periodicity: string;
@@ -156,6 +157,11 @@ export interface CirculationData {
   circulation: string;
 }
 
+export interface PageviewsData {
+  id: number;
+  pageviews: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -175,7 +181,8 @@ export class ClaimsCommonService {
   //filteredTitlePapers: TitlePaperData[] = [];
   //filteredTitleInternet: TitleInternetData[] = [];
 
-  types: TypeData[] = [];
+  papertypes: TypeData[] = [];
+  internettypes: TypeData[] = [];
   tvtypes: TypeData[] = [];
   radiotypes: TypeData[] = [];
 
@@ -189,6 +196,8 @@ export class ClaimsCommonService {
 
   circulations: CirculationData[] = [];
 
+  pageviews: PageviewsData[] = [];
+
   isAnyRowDeleted: boolean = false;
 
   constructor(private http: HttpClient,
@@ -196,7 +205,7 @@ export class ClaimsCommonService {
               private messageService: MessageService,
               private confirmationService: ConfirmationService
   ) {
-    this.loadDropdownData();
+    //this.loadDropdownData();
   }
 
   getUserInfo() {
@@ -212,47 +221,59 @@ export class ClaimsCommonService {
       this.titleInternet = data.titleInternet;
       this.titleTv = data.titleTv;
       this.titleRadio = data.titleRadio;
-      this.types = data.types;
+
+      this.papertypes = data.papertypes;
+      this.internettypes = data.internettypes;
       this.tvtypes = data.tvtypes;
       this.radiotypes = data.radiotypes;
+
       this.periodicities = data.periodicities;
       this.tvperiodicities = data.tvperiodicities;
       this.radioperiodicities = data.radioperiodicities;
       this.roles = data.roles;
       this.wordcounts = data.wordcounts;
       this.circulations = data.circulations;
+      this.pageviews = data.pageviews;
 
       sessionStorage.setItem('titlePapers', JSON.stringify(this.titlePapers));
       sessionStorage.setItem('titleInternet', JSON.stringify(this.titleInternet));
       sessionStorage.setItem('titleTv', JSON.stringify(this.titleTv));
       sessionStorage.setItem('titleRadio', JSON.stringify(this.titleRadio));
-      sessionStorage.setItem('types', JSON.stringify(this.types));
+
+      sessionStorage.setItem('papertypes', JSON.stringify(this.papertypes));
+      sessionStorage.setItem('internettypes', JSON.stringify(this.internettypes));
       sessionStorage.setItem('tvtypes', JSON.stringify(this.tvtypes));
       sessionStorage.setItem('radiotypes', JSON.stringify(this.radiotypes));
+
       sessionStorage.setItem('periodicities', JSON.stringify(this.periodicities));
       sessionStorage.setItem('tvperiodicities', JSON.stringify(this.tvperiodicities));
       sessionStorage.setItem('radioperiodicities', JSON.stringify(this.radioperiodicities));
       sessionStorage.setItem('roles', JSON.stringify(this.roles));
       sessionStorage.setItem('wordcounts', JSON.stringify(this.wordcounts));
       sessionStorage.setItem('circulations', JSON.stringify(this.circulations));
+      sessionStorage.setItem('pageviews', JSON.stringify(this.pageviews));
     });
-  }
-  /*loadInternetDropdownData() {
-    this.claimsService.getTitleInternetDropdownData().subscribe(data => {
-      this.titleInternet = data.titleInternet;
-    });
-    this.loadClaimsDropdownData();
   }
 
-  loadClaimsDropdownData() {
-    this.claimsService.getClaimsDropdownData().subscribe(data => {
-      this.types = data.types;
-      this.periodicities = data.periodicities;
-      this.roles = data.roles;
-      this.wordcounts = data.wordcounts;
-      this.circulations = data.circulations;
-    });
-  }*/
+  deleteDropdownData() {
+      sessionStorage.removeItem('titlePapers');
+      sessionStorage.removeItem('titleInternet');
+      sessionStorage.removeItem('titleTv');
+      sessionStorage.removeItem('titleRadio');
+
+      sessionStorage.removeItem('papertypes');
+      sessionStorage.removeItem('internettypes');
+      sessionStorage.removeItem('tvtypes');
+      sessionStorage.removeItem('radiotypes');
+
+      sessionStorage.removeItem('periodicities');
+      sessionStorage.removeItem('tvperiodicities');
+      sessionStorage.removeItem('radioperiodicities');
+      sessionStorage.removeItem('roles');
+      sessionStorage.removeItem('wordcounts');
+      sessionStorage.removeItem('circulations');
+      sessionStorage.removeItem('pageviews');
+  }
 
   fetchPaperClaims() {
     console.log('userInfo: ', this.userInfo);
@@ -348,7 +369,7 @@ export class ClaimsCommonService {
 
       titlePaper: { id: -1, title: '', custom: false },
       signature: '',
-      type: null,
+      paperType: null,
       periodicity: null,
       role: null,
       wordcount: null,
@@ -367,11 +388,11 @@ export class ClaimsCommonService {
 
       titleInternet: { id: -1, title: '', custom: false },
       signature: '',
-      type: null,
+      internetType: null,
       periodicity: null,
       role: null,
       wordcount: null,
-      circulation: null,
+      pageviews: null,
 
       disabled: false,
       permFlag: false
@@ -561,7 +582,7 @@ export class ClaimsCommonService {
   isValidPaperRow(rowData: PaperTableData): boolean {
     return !!rowData.titlePaper &&
       !!rowData.signature &&
-      !!rowData.type &&
+      !!rowData.paperType &&
       !!rowData.periodicity &&
       !!rowData.role &&
       (rowData.role.disableWordCount || !!rowData.wordcount) &&
@@ -571,11 +592,11 @@ export class ClaimsCommonService {
   isValidInternetRow(rowData: InternetTableData): boolean {
     return !!rowData.titleInternet &&
       !!rowData.signature &&
-      !!rowData.type &&
+      !!rowData.internetType &&
       !!rowData.periodicity &&
       !!rowData.role &&
       (rowData.role.disableWordCount || !!rowData.wordcount) &&
-      !!rowData.circulation;
+      !!rowData.pageviews;
   }
 
   isValidTvRow(rowData: TvTableData): boolean {

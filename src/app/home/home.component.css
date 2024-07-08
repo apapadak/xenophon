@@ -19,3 +19,41 @@
 .content-section .app-footer {
   width: 100%;
 }
+
+.welcome-message {
+  background-color: #f8f9fa; /* Light background color */
+  border: 1px solid #dcdcdc; /* Border color */
+  border-radius: 8px; /* Rounded corners */
+  padding: 20px; /* Space inside the box */
+  margin: 20px; /* Space outside the box */
+  max-width: 600px; /* Maximum width of the box */
+  font-family: 'Arial', sans-serif; /* Font style */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Subtle shadow */
+}
+
+.welcome-message h1 {
+  color: #333; /* Dark text color */
+  font-size: 24px; /* Larger font size for the heading */
+  margin-bottom: 10px; /* Space below the heading */
+}
+
+.welcome-message p {
+  color: #555; /* Gray text color */
+  font-size: 16px; /* Font size */
+  margin-bottom: 10px; /* Space below paragraphs */
+}
+
+.welcome-message ul {
+  list-style-type: disc; /* Bulleted list */
+  margin: 10px 0 20px 20px; /* Margin and padding for list */
+}
+
+.welcome-message ul li {
+  color: #555; /* Gray text color */
+  font-size: 16px; /* Font size */
+  margin-bottom: 5px; /* Space below list items */
+}
+
+.welcome-message strong {
+  color: #333; /* Dark text color for emphasis */
+}
