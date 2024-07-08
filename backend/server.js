@@ -154,7 +154,7 @@ app.get('/api/claims/paper', authenticateToken, async (req, res) => {
         c.signature,
         COALESCE(pt.id, pte.id) AS titlepaper_id,
         COALESCE(pt.title, pte.title_extra) AS titlepaper_title,
-        t.id AS type_id,
+        t.id AS paper_type_id,
         t.type,
         p.id AS periodicity_id,
         p.periodicity,
@@ -169,7 +169,7 @@ app.get('/api/claims/paper', authenticateToken, async (req, res) => {
       FROM claims_paper c
       LEFT JOIN claims_titles_papers pt ON c.title_paper_id = pt.id
       LEFT JOIN claims_titles_papers_extra pte ON c.title_paper_id_extra = pte.id
-      LEFT JOIN claims_paper_types t ON c.type_id = t.id
+      LEFT JOIN claims_paper_types t ON c.paper_type_id = t.id
       LEFT JOIN claims_periodicities p ON c.periodicity_id = p.id
       LEFT JOIN claims_roles r ON c.role_id = r.id
       LEFT JOIN claims_wordcounts wc ON c.wordcount_id = wc.id
@@ -192,8 +192,8 @@ app.get('/api/claims/paper', authenticateToken, async (req, res) => {
         custom: row.custom
       },
       signature: row.signature,
-      type: {
-        id: row.type_id,
+      paperType: {
+        id: row.paper_type_id,
         type: row.type
       },
       periodicity: {
@@ -237,7 +237,7 @@ app.get('/api/claims/internet', authenticateToken, async (req, res) => {
         c.signature,
         COALESCE(pt.id, pte.id) AS titleinternet_id,
         COALESCE(pt.title, pte.title_extra) AS titleinternet_title,
-        t.id AS type_id,
+        t.id AS internet_type_id,
         t.type,
         p.id AS periodicity_id,
         p.periodicity,
@@ -252,7 +252,7 @@ app.get('/api/claims/internet', authenticateToken, async (req, res) => {
       FROM claims_internet c
       LEFT JOIN claims_titles_internet pt ON c.title_internet_id = pt.id
       LEFT JOIN claims_titles_internet_extra pte ON c.title_internet_id_extra = pte.id
-      LEFT JOIN claims_internet_types t ON c.type_id = t.id
+      LEFT JOIN claims_internet_types t ON c.internet_type_id = t.id
       LEFT JOIN claims_periodicities p ON c.periodicity_id = p.id
       LEFT JOIN claims_roles r ON c.role_id = r.id
       LEFT JOIN claims_wordcounts wc ON c.wordcount_id = wc.id
@@ -275,8 +275,8 @@ app.get('/api/claims/internet', authenticateToken, async (req, res) => {
         custom: row.custom
       },
       signature: row.signature,
-      type: {
-        id: row.type_id,
+      internetType: {
+        id: row.internet_type_id,
         type: row.type
       },
       periodicity: {
@@ -495,7 +495,7 @@ app.post('/api/claims/paper/saveClaims', async (req, res) => {
         claimId,
         titlePaper,
         signature,
-        type,
+        paperType,
         periodicity,
         role,
         wordcount,
@@ -525,23 +525,23 @@ app.post('/api/claims/paper/saveClaims', async (req, res) => {
         await pool.query(
           `INSERT INTO claims_paper (
             user_id, signature, title_paper_id, title_paper_id_extra,
-            type_id, periodicity_id, role_id, wordcount_id, circulation_id, permFlag
+            paper_type_id, periodicity_id, role_id, wordcount_id, circulation_id, permFlag
           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
           [
             userId, signature, title_paper_id, title_paper_id_extra,
-            type.id, periodicity.id, role.id, wordcountId, circulation.id, permFlag
+            paperType.id, periodicity.id, role.id, wordcountId, circulation.id, permFlag
           ]
         );
       } else {
         await pool.query(
           `UPDATE claims_paper SET
             user_id = $1, signature = $2, title_paper_id = $3,
-            title_paper_id_extra = $4, type_id = $5, periodicity_id = $6,
+            title_paper_id_extra = $4, paper_type_id = $5, periodicity_id = $6,
             role_id = $7, wordcount_id = $8, circulation_id = $9, permFlag = $10
           WHERE id = $11`,
           [
             userId, signature, title_paper_id, title_paper_id_extra,
-            type.id, periodicity.id, role.id, wordcountId, circulation.id, permFlag, claimId
+            paperType.id, periodicity.id, role.id, wordcountId, circulation.id, permFlag, claimId
           ]
         );
       }
@@ -591,7 +591,7 @@ app.post('/api/claims/internet/saveClaims', async (req, res) => {
         claimId,
         titleInternet,
         signature,
-        type,
+        internetType,
         periodicity,
         role,
         wordcount,
@@ -621,23 +621,23 @@ app.post('/api/claims/internet/saveClaims', async (req, res) => {
         await pool.query(
           `INSERT INTO claims_internet (
             user_id, signature, title_internet_id, title_internet_id_extra,
-            type_id, periodicity_id, role_id, wordcount_id, pageviews_id, permFlag
+            internet_type_id, periodicity_id, role_id, wordcount_id, pageviews_id, permFlag
           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
           [
             userId, signature, title_internet_id, title_internet_id_extra,
-            type.id, periodicity.id, role.id, wordcountId, pageviews_id, permFlag
+            internetType.id, periodicity.id, role.id, wordcountId, pageviews.id, permFlag
           ]
         );
       } else {
         await pool.query(
           `UPDATE claims_internet SET
             user_id = $1, signature = $2, title_internet_id = $3,
-            title_internet_id_extra = $4, type_id = $5, periodicity_id = $6,
+            title_internet_id_extra = $4, internet_type_id = $5, periodicity_id = $6,
             role_id = $7, wordcount_id = $8, pageviews_id = $9, permFlag = $10
           WHERE id = $11`,
           [
             userId, signature, title_internet_id, title_internet_id_extra,
-            type.id, periodicity.id, role.id, wordcountId, pageviews.id, permFlag, claimId
+            internetType.id, periodicity.id, role.id, wordcountId, pageviews.id, permFlag, claimId
           ]
         );
       }

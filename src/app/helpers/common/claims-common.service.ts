@@ -458,14 +458,14 @@ export class ClaimsCommonService {
   savePaperRow(form: NgForm, rowData: PaperTableData) {
     console.log(rowData);
     //console.log(form);
-    console.log(form.controls);
+   // console.log(form.controls);
 
     Object.keys(form.controls).forEach(controlName => {
       const control = form.controls[controlName];
       control.markAsTouched();
     });
 
-    console.log(form.controls);
+    //console.log(form.controls);
 
     if (this.isValidPaperRow(rowData)) {
       console.log('Saving paper row data:', rowData);
