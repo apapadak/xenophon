@@ -597,7 +597,7 @@ app.post('/api/claims/paper/saveClaims', async (req, res) => {
 
     await pool.query('COMMIT');
     if ( process.env.NODE_ENV === 'production' ) {
-      console.log(`[${new Date().toISOString()}] [SAVE (paper) EVENT] : user_id: ${userId}`);
+      console.log(`[${new Date().toISOString()}] [${finalFlag ? 'FINAL SAVE' : 'TEMP SAVE'} (paper) EVENT] : user_id: ${userId}`);
     }
     res.status(200).json({ message: 'Claims saved successfully' });
   } catch (error) {
@@ -701,7 +701,7 @@ app.post('/api/claims/internet/saveClaims', async (req, res) => {
 
     await pool.query('COMMIT');
     if ( process.env.NODE_ENV === 'production' ) {
-      console.log(`[${new Date().toISOString()}] [SAVE (internet) EVENT] : user_id: ${userId}`);
+      console.log(`[${new Date().toISOString()}] [${finalFlag ? 'FINAL SAVE' : 'TEMP SAVE'} (internet) EVENT] : user_id: ${userId}`);
     }
     res.status(200).json({ message: 'Claims saved successfully' });
   } catch (error) {
@@ -803,7 +803,7 @@ app.post('/api/claims/tv/saveClaims', async (req, res) => {
 
     await pool.query('COMMIT');
     if ( process.env.NODE_ENV === 'production' ) {
-      console.log(`[${new Date().toISOString()}] [SAVE (tv) EVENT] : user_id: ${userId}`);
+      console.log(`[${new Date().toISOString()}] [${finalFlag ? 'FINAL SAVE' : 'TEMP SAVE'} (tv) EVENT] : user_id: ${userId}`);
     }
     res.status(200).json({ message: 'Claims saved successfully' });
   } catch (error) {
@@ -905,7 +905,7 @@ app.post('/api/claims/radio/saveClaims', async (req, res) => {
 
     await pool.query('COMMIT');
     if ( process.env.NODE_ENV === 'production' ) {
-      console.log(`[${new Date().toISOString()}] [SAVE (radio) EVENT] : user_id: ${userId}`);
+      console.log(`[${new Date().toISOString()}] [${finalFlag ? 'FINAL SAVE' : 'TEMP SAVE'} (radio) EVENT] : user_id: ${userId}`);
     }
     res.status(200).json({ message: 'Claims saved successfully' });
   } catch (error) {
