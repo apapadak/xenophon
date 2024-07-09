@@ -458,21 +458,6 @@ export class ClaimsCommonService {
     this.data.push(newRow);
   }
 
-  /*isPaperTableData(data: any): data is PaperTableData {
-    return 'titlePaper' in data;
-  }
-
-  isInternetTableData(data: any): data is InternetTableData {
-    return 'titleInternet' in data;
-  }
-
-  isTvTableData(data: any): data is TvTableData {
-    return 'titleTv' in data;
-  }
-
-  isRadioTableData(data: any): data is RadioTableData {
-    return 'titleRadio' in data;
-  }*/
 
   savePaperRow(form: NgForm, rowData: PaperTableData) {
     console.log(rowData);
@@ -634,35 +619,6 @@ export class ClaimsCommonService {
       !!rowData.role
   }
 
-  /*searchTitlePaper(event: AutoCompleteCompleteEvent) {
-    console.log('hi');
-   // this.filteredTitlePapers = this.search(this.titlePapers, 'title', event, 'id', 'title');
-  }
-
-  searchTitleInternet(event: AutoCompleteCompleteEvent) {
-   // this.filteredTitleInternet = this.search(this.titleInternet, 'title', event, 'id', 'title');
-  }
-
-  searchTypes(event: AutoCompleteCompleteEvent) {
-   // this.filteredTypes = this.search(this.types, 'type', event, 'id', 'type');
-  }
-
-  searchPeriodicity(event: AutoCompleteCompleteEvent) {
-  // this.filteredPeriodicities = this.search(this.periodicities, 'periodicity', event, 'id', 'periodicity');
-  }
-
-  searchRole(event: AutoCompleteCompleteEvent) {
-  //  this.filteredRoles = this.search(this.roles, 'role', event, 'id', 'role');
-  }
-
-  searchWordcount(event: AutoCompleteCompleteEvent) {
-   // this.filteredWordcounts = this.search(this.wordcounts, 'wordcount', event, 'id', 'wordcount');
-  }
-
-  searchCirculation(event: AutoCompleteCompleteEvent) {
-  //  this.filteredCirculations = this.search(this.circulations, 'circulation', event, 'id', 'circulation');
-  }*/
-
   deleteRow(index: number) {
     this.data.splice(index, 1);
 
@@ -726,7 +682,11 @@ export class ClaimsCommonService {
     if (saveClaimsObservable) {
       saveClaimsObservable.subscribe({
         next: (response) => {
-          this.messageService.add({severity: 'success', summary: 'Επιτυχία', detail: 'Επιτυχής προσωρινή αποθήκευση'});
+          if ( !finalFlag ) {
+            this.messageService.add({severity: 'success', summary: 'Επιτυχία', detail: 'Επιτυχής προσωρινή αποθήκευση'});
+          } else {
+            this.messageService.add({severity: 'success', summary: 'Επιτυχία', detail: 'Επιτυχής οριστική αποθήκευση'});
+          }
 
           switch (formType) {
             case 'paper':
@@ -782,29 +742,10 @@ export class ClaimsCommonService {
     return this.transformAndMaintainOrder(filtered, idField, sortField);
   }
 
-  /*onSearch(event: AutoCompleteCompleteEvent) {
-    event.originalEvent..suggestions = this.search(this.titlePapers, 'title', event, 'id', 'title');
-  }*/
-
-  /*search<T>(arr: T[], field: keyof T, event: { query: string }, idField: keyof T, sortField: keyof T): T[] {
-    const filtered = this.filterByField(arr, field, event.query);
-    return this.transformAndMaintainOrder(filtered, idField, sortField);
-  }*/
-  /*searchTitlePaper(event: any) {
-    console.log(this.titlePapers, event);
-    this.claimsService.getTitlePapersDropdownData().subscribe(data => {
-      this.titlePapers = data.titlePapers;
-
-      this.titlePapers = this.search(this.titlePapers, 'title', event, 'id', 'title');
-      return this.titlePapers;
-    });
-
-  }*/
-
   filterByField<T>(arr: T[], field: keyof T, query: string): T[] {
     return arr.filter(item => {//console.log(field);
       const value = item[field];
-      console.log(`Filtering ${value} with query ${query}`);
+      //console.log(`Filtering ${value} with query ${query}`);
       return typeof value === 'string' && (value as string).toLowerCase().includes(query.toLowerCase());
     });
   }
@@ -863,24 +804,6 @@ export class ClaimsCommonService {
 
   findLatestTimestamp(): Date | null {
     if (this.data.length === 0) return null;
-
-    console.log( ' pp ',
-
-      this.data
-        .filter(claim => claim.updated_at || claim.created_at) // Filter out claims where both dates are null
-        .reduce((latest: Date | null, current) => {
-          const currentDate = new Date(
-            current.updated_at && current.created_at
-              ? (new Date(current.updated_at) > new Date(current.created_at)
-                ? current.updated_at
-                : current.created_at)
-              : (current.updated_at || current.created_at)!
-          );
-
-          return !latest || currentDate > latest ? currentDate : latest;
-        }, null as Date | null)
-
-    );
 
     return this.data
       .filter(claim => claim.updated_at || claim.created_at) // Filter out claims where both dates are null
