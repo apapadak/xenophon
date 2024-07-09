@@ -56,15 +56,15 @@ app.get('/', (req, res) => {
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
 
-  console.log("hello1");
+  //console.log("hello1");
   try {
     const client = await pool.connect();
     const result = await client.query('SELECT * FROM users WHERE afm = $1', [username]);
 
-    console.log("/api/login1: " + result.rows.length);
+    //console.log("/api/login1: " + result.rows.length);
     if (result.rows.length > 0) {
       const user = result.rows[0];
-      console.log("/api/login2");
+      //console.log("/api/login2");
       // Compare hashed password
       const isMatch = await bcrypt.compare(password, user.password);
       if (isMatch) {
@@ -76,6 +76,9 @@ app.post('/api/login', async (req, res) => {
           sameSite: 'Strict',
           maxAge: 3600000 // 1 hour
         });
+
+        console.log(`[${new Date().toISOString()}] [LOGIN EVENT] : user_id: ${user.user_id}, afm: ${user.afm}, mhtrwo: ${user.mhtrwo}`);
+
         res.json({ message: "Logged in successfully!" });
       } else {
         res.status(400).json({ message: "Invalid credentials!" });
@@ -183,9 +186,11 @@ app.get('/api/claims/paper', authenticateToken, async (req, res) => {
     );
 
     // Print each row line by line
-    result.rows.forEach(row => {
-      console.log('Row:', row);
-    });
+    if ( process.env.NODE_ENV === 'local' ) {
+      result.rows.forEach(row => {
+        console.log('Row:', row);
+      });
+    }
 
     const claims = result.rows.map(row => ({
       claimId: row.claimid,
@@ -221,7 +226,9 @@ app.get('/api/claims/paper', authenticateToken, async (req, res) => {
       finalized_at : row.finalized_at
     }));
 
-    console.log('\n\nSuccess fetching claims: ', claims, '\n\n');
+    if ( process.env.NODE_ENV === 'local' ) {
+      console.log('\n\nSuccess fetching claims: ', claims, '\n\n');
+    }
     res.status(200).json(claims);
   } catch (error) {
     console.error('Error fetching claims:', error);
@@ -272,9 +279,11 @@ app.get('/api/claims/internet', authenticateToken, async (req, res) => {
     );
 
     // Print each row line by line
-    result.rows.forEach(row => {
-      console.log('Row:', row);
-    });
+    if ( process.env.NODE_ENV === 'local' ) {
+      result.rows.forEach(row => {
+        console.log('Row:', row);
+      });
+    }
 
     const claims = result.rows.map(row => ({
       claimId: row.claimid,
@@ -311,7 +320,9 @@ app.get('/api/claims/internet', authenticateToken, async (req, res) => {
       finalized_at : row.finalized_at
     }));
 
-    console.log('\n\nSuccess fetching claims: ', claims, '\n\n');
+    if ( process.env.NODE_ENV === 'local' ) {
+      console.log('\n\nSuccess fetching claims: ', claims, '\n\n');
+    }
     res.status(200).json(claims);
   } catch (error) {
     console.error('Error fetching claims:', error);
@@ -360,9 +371,11 @@ app.get('/api/claims/tv', authenticateToken, async (req, res) => {
     //LEFT JOIN claims_circulations cl ON c.circulation_id = cl.id
 
     // Print each row line by line
-    result.rows.forEach(row => {
-      console.log('Row:', row);
-    });
+    if ( process.env.NODE_ENV === 'local' ) {
+      result.rows.forEach(row => {
+        console.log('Row:', row);
+      });
+    }
 
     const claims = result.rows.map(row => ({
       claimId: row.claimid,
@@ -392,7 +405,9 @@ app.get('/api/claims/tv', authenticateToken, async (req, res) => {
       finalized_at : row.finalized_at
     }));
 
-    console.log('\n\nSuccess fetching claims: ', claims, '\n\n');
+    if ( process.env.NODE_ENV === 'local' ) {
+      console.log('\n\nSuccess fetching claims: ', claims, '\n\n');
+    }
     res.status(200).json(claims);
   } catch (error) {
     console.error('Error fetching claims:', error);
@@ -441,9 +456,11 @@ app.get('/api/claims/radio', authenticateToken, async (req, res) => {
     //LEFT JOIN claims_circulations cl ON c.circulation_id = cl.id
 
     // Print each row line by line
-    result.rows.forEach(row => {
-      console.log('Row:', row);
-    });
+    if ( process.env.NODE_ENV === 'local' ) {
+      result.rows.forEach(row => {
+        console.log('Row:', row);
+      });
+    }
 
     const claims = result.rows.map(row => ({
       claimId: row.claimid,
@@ -473,7 +490,9 @@ app.get('/api/claims/radio', authenticateToken, async (req, res) => {
       finalized_at : row.finalized_at
     }));
 
-    console.log('\n\nSuccess fetching claims: ', claims, '\n\n');
+    if ( process.env.NODE_ENV === 'local' ) {
+      console.log('\n\nSuccess fetching claims: ', claims, '\n\n');
+    }
     res.status(200).json(claims);
   } catch (error) {
     console.error('Error fetching claims:', error);
@@ -487,9 +506,11 @@ app.get('/api/claims/radio', authenticateToken, async (req, res) => {
 app.post('/api/claims/paper/saveClaims', async (req, res) => {
   const { userId, claims, finalFlag } = req.body;
 
-  console.log('Received userId:', userId);
-  console.log('Received paper claims:', JSON.stringify(claims, null, 2));
-  console.log('Received finalFlag:', finalFlag);
+  if ( process.env.NODE_ENV === 'local' ) {
+    console.log('Received userId:', userId);
+    console.log('Received paper claims:', JSON.stringify(claims, null, 2));
+    console.log('Received finalFlag:', finalFlag);
+  }
 
   try {
     await pool.query('BEGIN');
@@ -575,6 +596,9 @@ app.post('/api/claims/paper/saveClaims', async (req, res) => {
     }
 
     await pool.query('COMMIT');
+    if ( process.env.NODE_ENV === 'production' ) {
+      console.log(`[${new Date().toISOString()}] [SAVE (paper) EVENT] : user_id: ${userId}`);
+    }
     res.status(200).json({ message: 'Claims saved successfully' });
   } catch (error) {
     await pool.query('ROLLBACK');
@@ -586,9 +610,11 @@ app.post('/api/claims/paper/saveClaims', async (req, res) => {
 app.post('/api/claims/internet/saveClaims', async (req, res) => {
   const { userId, claims, finalFlag } = req.body;
 
-  console.log('Received userId:', userId);
-  console.log('Received internet claims:', JSON.stringify(claims, null, 2));
-  console.log('Received finalFlag:', finalFlag);
+  if ( process.env.NODE_ENV === 'local' ) {
+    console.log('Received userId:', userId);
+    console.log('Received internet claims:', JSON.stringify(claims, null, 2));
+    console.log('Received finalFlag:', finalFlag);
+  }
 
   try {
     await pool.query('BEGIN');
@@ -674,6 +700,9 @@ app.post('/api/claims/internet/saveClaims', async (req, res) => {
     }
 
     await pool.query('COMMIT');
+    if ( process.env.NODE_ENV === 'production' ) {
+      console.log(`[${new Date().toISOString()}] [SAVE (internet) EVENT] : user_id: ${userId}`);
+    }
     res.status(200).json({ message: 'Claims saved successfully' });
   } catch (error) {
     await pool.query('ROLLBACK');
@@ -685,9 +714,11 @@ app.post('/api/claims/internet/saveClaims', async (req, res) => {
 app.post('/api/claims/tv/saveClaims', async (req, res) => {
   const { userId, claims, finalFlag } = req.body;
 
-  console.log('Received userId:', userId);
-  console.log('Received tv claims:', JSON.stringify(claims, null, 2));
-  console.log('Received finalFlag:', finalFlag);
+  if ( process.env.NODE_ENV === 'local' ) {
+    console.log('Received userId:', userId);
+    console.log('Received tv claims:', JSON.stringify(claims, null, 2));
+    console.log('Received finalFlag:', finalFlag);
+  }
 
   try {
     await pool.query('BEGIN');
@@ -771,6 +802,9 @@ app.post('/api/claims/tv/saveClaims', async (req, res) => {
     }
 
     await pool.query('COMMIT');
+    if ( process.env.NODE_ENV === 'production' ) {
+      console.log(`[${new Date().toISOString()}] [SAVE (tv) EVENT] : user_id: ${userId}`);
+    }
     res.status(200).json({ message: 'Claims saved successfully' });
   } catch (error) {
     await pool.query('ROLLBACK');
@@ -782,9 +816,11 @@ app.post('/api/claims/tv/saveClaims', async (req, res) => {
 app.post('/api/claims/radio/saveClaims', async (req, res) => {
   const { userId, claims, finalFlag } = req.body;
 
-  console.log('Received userId:', userId);
-  console.log('Received radio claims:', JSON.stringify(claims, null, 2));
-  console.log('Received finalFlag:', finalFlag);
+  if ( process.env.NODE_ENV === 'local' ) {
+    console.log('Received userId:', userId);
+    console.log('Received radio claims:', JSON.stringify(claims, null, 2));
+    console.log('Received finalFlag:', finalFlag);
+  }
 
   try {
     await pool.query('BEGIN');
@@ -868,6 +904,9 @@ app.post('/api/claims/radio/saveClaims', async (req, res) => {
     }
 
     await pool.query('COMMIT');
+    if ( process.env.NODE_ENV === 'production' ) {
+      console.log(`[${new Date().toISOString()}] [SAVE (radio) EVENT] : user_id: ${userId}`);
+    }
     res.status(200).json({ message: 'Claims saved successfully' });
   } catch (error) {
     await pool.query('ROLLBACK');
