@@ -57,7 +57,7 @@ CREATE TABLE claims_titles_papers (
 
 CREATE TABLE claims_titles_papers_extra (
 	id		 				SERIAL PRIMARY KEY,
-	title_extra				VARCHAR(255) UNIQUE NOT NULL
+	title_extra				VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE claims_titles_internet (
@@ -67,7 +67,7 @@ CREATE TABLE claims_titles_internet (
 
 CREATE TABLE claims_titles_internet_extra (
 	id		 				SERIAL PRIMARY KEY,
-	title_extra				VARCHAR(255) UNIQUE NOT NULL
+	title_extra				VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE claims_titles_tv (
@@ -77,7 +77,7 @@ CREATE TABLE claims_titles_tv (
 
 CREATE TABLE claims_titles_tv_extra (
 	id		 				SERIAL PRIMARY KEY,
-	title_extra				VARCHAR(255) UNIQUE NOT NULL
+	title_extra				VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE claims_titles_radio (
@@ -87,7 +87,7 @@ CREATE TABLE claims_titles_radio (
 
 CREATE TABLE claims_titles_radio_extra (
 	id		 				SERIAL PRIMARY KEY,
-	title_extra				VARCHAR(255) UNIQUE NOT NULL
+	title_extra				VARCHAR(255) NOT NULL
 );
 
 
