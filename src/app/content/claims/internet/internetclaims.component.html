@@ -181,7 +181,7 @@
   </form>
 
   <div *ngIf="claimsCommonService.showControls()" id="addAndStoreControls" class="addAndStoreControls">
-    <p-button (click)="claimsCommonService.addInternetRow()" icon="pi pi-plus" aria-label="Add new row" [disabled]="claimsCommonService.isAddRowDisabled()"></p-button>
+    <p-button label="Προσθήκη μέσου" (click)="claimsCommonService.addInternetRow()" icon="pi pi-plus" aria-label="Add new row" [disabled]="claimsCommonService.isAddRowDisabled()"></p-button>
 
     <p-button label="Προσωρινή αποθήκευση" (click)="claimsCommonService.tempStore('internet', false)" icon="pi" aria-label="Προσωρινή αποθήκευση" [disabled]="claimsCommonService.isStoreButtonsDisabled()"></p-button>
     <p-button label="Οριστική αποθήκευση" (click)="claimsCommonService.confirmFinalStore('internet')" icon="pi" aria-label="Οριστική αποθήκευση" [disabled]="claimsCommonService.isStoreButtonsDisabled()"></p-button>

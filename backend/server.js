@@ -19,6 +19,8 @@ const DNS_SITE = process.env.DNS_SITE;
 const disableWordCountRoleIds = [1, 3, 4, 5, 7, 8, 9];
 const disablePeriodicitiesIdsForTvsRadios = [5, 6, 7, 8];
 
+const saltRounds = 10;
+
 const corsOptions = {
   origin: process.env.DNS_SITE,
   credentials: true
@@ -122,12 +124,104 @@ app.get('/api/user', authenticateToken, async (req, res) => {
       const user = result.rows[0];
       const { password, created_at, dob, ...userWithoutSensitiveInfo } = user;  // Destructure to omit the password field
 
-      // Format the dob to DD-MM-YYYY
+      // Format the dob to dd-mm-yyyy
       if (dob) {
-        userWithoutSensitiveInfo.dob = formatDate(dob);
+        userWithoutSensitiveInfo.dob = formatToGRDate(dob);
       }
 
       res.json(userWithoutSensitiveInfo);
+    } else {
+      res.status(404).json({ message: "User not found" });
+    }
+
+    client.release();
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Endpoint to persist user information
+app.post('/api/user', authenticateToken, async (req, res) => {
+  const user = req.body;
+
+  if (!user || !user.afm || !user.mhtrwo) {
+    return res.status(400).json({ message: "User data, AFM, and Mhtrwo are required" });
+  }
+
+  try {
+    const client = await pool.connect();
+
+    const passwordString = user.mhtrwo.toString().replace(/^\n+|\n+$/g, '').trim();
+    const hashedPassword = await bcrypt.hash(passwordString, saltRounds);
+
+    const formattedDob = user.dob ? formatToPostgresDate(user.dob) : null;
+
+    if (user.user_id === -1) {
+      // Check if a user with the provided AFM already exists
+      const checkAfmQuery = 'SELECT * FROM users WHERE afm = $1';
+      const checkAfmResult = await client.query(checkAfmQuery, [user.afm]);
+
+      if (checkAfmResult.rows.length > 0) {
+        client.release();
+        return res.status(409).json({ message: "User with this AFM already exists" });
+      }
+
+      // Check if a user with the provided Mhtrwo already exists
+      const checkMhtrwoQuery = 'SELECT * FROM users WHERE mhtrwo = $1';
+      const checkMhtrwoResult = await client.query(checkMhtrwoQuery, [user.mhtrwo]);
+
+      if (checkMhtrwoResult.rows.length > 0) {
+        client.release();
+        return res.status(410).json({ message: "User with this Mhtrwo already exists" });
+      }
+
+      const insertQuery = `
+        INSERT INTO users (afm, mhtrwo, password, firstname, surname, father_name, tax_office, dob, adt, iban, bank, legal_form, address, city, postal_code, country, telephone, mobile, email_1, email_2, created_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, CURRENT_TIMESTAMP)
+        RETURNING user_id`;
+      const values = [
+        user.afm, user.mhtrwo, hashedPassword, user.firstname, user.surname, user.father_name, user.tax_office, formattedDob, user.adt, user.iban, user.bank, user.legal_form, user.address, user.city, user.postal_code, user.country, user.telephone, user.mobile, user.email_1, user.email_2
+      ];
+      const result = await client.query(insertQuery, values);
+      user.user_id = result.rows[0].user_id; // Get the new user_id
+      res.status(201).json({ message: "User created successfully", user_id: user.user_id });
+    } else {
+      // Update existing user
+      const updateQuery = `
+        UPDATE users
+        SET afm = $1, mhtrwo = $2, password = $3, firstname = $4, surname = $5, father_name = $6, tax_office = $7, dob = $8, adt = $9, iban = $10, bank = $11, legal_form = $12, address = $13, city = $14, postal_code = $15, country = $16, telephone = $17, mobile = $18, email_1 = $19, email_2 = $20, modified_at = CURRENT_TIMESTAMP
+        WHERE user_id = $21`;
+      const values = [
+        user.afm, user.mhtrwo, hashedPassword, user.firstname, user.surname, user.father_name, user.tax_office, formattedDob, user.adt, user.iban, user.bank, user.legal_form, user.address, user.city, user.postal_code, user.country, user.telephone, user.mobile, user.email_1, user.email_2, user.user_id
+      ];
+      await client.query(updateQuery, values);
+      res.status(200).json({ message: "User updated successfully" });
+    }
+
+    client.release();
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Endpoint to get user information
+app.get('/api/user/checkCredentials', authenticateToken, async (req, res) => {
+  const username = req.query.username;
+
+  if (!username) {
+    return res.status(400).json({ message: "Username is required" });
+  }
+
+  try {
+    const client = await pool.connect();
+    const result = await client.query('SELECT admin FROM users WHERE afm = $1', [username]);
+
+    if (result.rows.length > 0) {
+      const user = result.rows[0];
+      const isAdmin = user.admin;
+      res.json({ isAdmin });
     } else {
       res.status(404).json({ message: "User not found" });
     }
@@ -989,8 +1083,8 @@ https.createServer(options, app).listen(PORT, () => {
 });
 
 
-// Function to format date to DD-MM-YYYY
-const formatDate = (dateString) => {
+// Function to format date to dd/mm/yyyy
+const formatToGRDate = (dateString) => {
   if (!dateString) return null;
 
   const date = new Date(dateString);
@@ -998,5 +1092,13 @@ const formatDate = (dateString) => {
   const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
   const year = date.getFullYear();
 
-  return `${day}-${month}-${year}`;
+  return `${day}/${month}/${year}`;
 };
+
+// Utility function to convert date to Postgres yyyy-mm-dd
+function formatToPostgresDate(dateString) {
+  if (!dateString) return null;
+
+  const [day, month, year] = dateString.split('/');
+  return `${year}-${month}-${day}`;
+}

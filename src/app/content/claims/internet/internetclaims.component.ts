@@ -10,7 +10,6 @@ import {PanelMenuModule} from "primeng/panelmenu";
 import {CommonModule} from "@angular/common";
 import {ToastModule} from "primeng/toast";
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import {MessageService, ConfirmationService} from "primeng/api";
 import {ClaimsCommonService} from '../../../helpers/common/claims-common.service';
 
 @Component({

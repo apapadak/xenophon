@@ -18,6 +18,9 @@
     <li class="disabled" (click)="onNavigate('DISTRIBUTIONS')">Διανομές</li>
     <li (click)="onNavigate('PAYMENTS')">Είσπραξη</li>
     <li (click)="onNavigate('PROFILE')">Προφίλ</li>
+
+    <li *ngIf="isAdmin" (click)="onNavigate('ADMIN')">Διαχείριση</li>
+
     <li class="disabled" (click)="onNavigate('LOGOUT')">Έξοδος</li>
   </ul>
 </nav>

@@ -1,0 +1,122 @@
+<p-toast></p-toast>
+<p-confirmDialog header="Επιβεβαίωση"></p-confirmDialog>
+
+<div class="container">
+
+  <p-toolbar>
+    <div class="p-toolbar-group-start">
+        <p-button label="Εισαγωγή νέου χρήστη" (click)="registerUser()" icon="pi" aria-label="Εισαγωγή νέου χρήστη" class="margin-right-20" [disabled]="registerMode || editMode"></p-button>
+        <p-button label="Μεταβολή στοιχείων χρήστη" (click)="editUser()" icon="pi" aria-label="Μεταβολή στοιχείων χρήστη" class="margin-right-20" [disabled]="registerMode || editMode"></p-button>
+    </div>
+
+    <div *ngIf="registerMode">
+      <button  pButton pRipple label="Επιβεβαίωση" (click)="doRegister()" icon="pi pi-check" aria-label="Επιβεβαίωση" class="p-button-success margin-right-20"></button>
+      <p-button label="Ακύρωση" (click)="cancelRegister()" icon="pi" aria-label="Ακύρωση"></p-button>
+    </div>
+
+    <div *ngIf="editMode" class="p-toolbar-group-center">
+      <label for="afm_edit" class="margin-right-20">ΑΦΜ:</label>
+      <input type="text" id="afm_edit" [(ngModel)]="username" class="margin-right-10">
+      <p-button (click)="searchAfm()" icon="pi pi-search" [rounded]="true" severity="success" [outlined]="true" />
+    </div>
+
+    <div *ngIf="editMode">
+      <button pButton pRipple label="Μεταβολή στοιχείων" (click)="doEdit()" icon="pi pi-check" aria-label="Μεταβολή στοιχείων" class="p-button-success margin-right-20" [disabled]="editMode && !retrievedMode"></button>
+      <p-button label="Ακύρωση" (click)="cancelEdit()" icon="pi" aria-label="Ακύρωση"></p-button>
+    </div>
+
+  </p-toolbar>
+
+  <div class="sections">
+    <div *ngIf="registerMode || (editMode && retrievedMode)" class="personal-info section">
+      <h3>(1) Προσωπικά Στοιχεία</h3>
+
+      <!-- Pink Panel - Προσωπικά Στοιχεία -->
+      <div class="form-group">
+        <label for="afm">ΑΦΜ:</label>
+        <input type="text" id="afm" [(ngModel)]="user.afm" [disabled]="!registerMode">
+      </div>
+      <div class="form-group">
+        <label for="mhtrwo">Μητρώο:</label>
+        <input type="text" id="mhtrwo" [(ngModel)]="user.mhtrwo" [disabled]="!registerMode">
+      </div>
+      <div class="form-group">
+        <label for="legal_form">Νομική μορφή:</label>
+        <input type="text" id="legal_form" [(ngModel)]="user.legal_form" [disabled]="!registerMode && (!editMode && !retrievedMode)">
+      </div>
+      <div class="form-group">
+        <label for="tax_office">ΔΟΥ:</label>
+        <input type="text" id="tax_office" [(ngModel)]="user.tax_office" [disabled]="!registerMode && (!editMode && !retrievedMode)">
+      </div>
+      <div class="form-group">
+        <label for="firstname">Όνομα:</label>
+        <input type="text" id="firstname" [(ngModel)]="user.firstname" [disabled]="!registerMode && (!editMode && !retrievedMode)">
+      </div>
+      <div class="form-group">
+        <label for="surname">Επώνυμο:</label>
+        <input type="text" id="surname" [(ngModel)]="user.surname" [disabled]="!registerMode && (!editMode && !retrievedMode)">
+      </div>
+      <div class="form-group">
+        <label for="father_name">Όνομα Πατρός:</label>
+        <input type="text" id="father_name" [(ngModel)]="user.father_name" [disabled]="!registerMode && (!editMode && !retrievedMode)">
+      </div>
+      <div class="form-group">
+        <label for="dob">Ημ/νία Γέννησης:</label>
+        <input type="text" id="dob" [(ngModel)]="user.dob" placeholder="dd/mm/yyyy" [disabled]="!registerMode && (!editMode && !retrievedMode)">
+        <div *ngIf="dobErrorMessage" class="error-message">{{ dobErrorMessage }}</div>
+      </div>
+      <div class="form-group">
+        <label for="adt">ΑΔΤ:</label>
+        <input type="text" id="adt" [(ngModel)]="user.adt" [disabled]="!registerMode && (!editMode && !retrievedMode)">
+      </div>
+      <div class="form-group">
+        <label for="iban">Τραπεζικός Λογαριασμός:</label>
+        <input type="text" id="iban" [(ngModel)]="user.iban" [disabled]="!registerMode && (!editMode && !retrievedMode)">
+      </div>
+      <div class="form-group">
+        <label for="bank">ΤΡΑΠΕΖΑ:</label>
+        <input type="text" id="bank" [(ngModel)]="user.bank" [disabled]="!registerMode && (!editMode && !retrievedMode)">
+      </div>
+    </div>
+
+
+    <div *ngIf="registerMode || (editMode && retrievedMode)" class="contact-info section">
+      <h3>(2) Στοιχεία Επικοινωνίας</h3>
+
+      <!-- Green Panel - Στοιχεία Επικοινωνίας -->
+      <div class="form-group">
+        <label for="address">Διεύθυνση:</label>
+        <input type="text" id="address" [(ngModel)]="user.address" [disabled]="!registerMode && (!editMode && !retrievedMode)">
+      </div>
+      <div class="form-group">
+        <label for="city">Πόλη:</label>
+        <input type="text" id="city" [(ngModel)]="user.city" [disabled]="!registerMode && (!editMode && !retrievedMode)">
+      </div>
+      <div class="form-group">
+        <label for="postal_code">Τ.Κ.:</label>
+        <input type="text" id="postal_code" [(ngModel)]="user.postal_code" [disabled]="!registerMode && (!editMode && !retrievedMode)">
+      </div>
+      <div class="form-group">
+        <label for="country">Χώρα:</label>
+        <input type="text" id="country" [(ngModel)]="user.country" [disabled]="!registerMode && (!editMode && !retrievedMode)">
+      </div>
+      <div class="form-group">
+        <label for="telephone">Τηλ:</label>
+        <input type="text" id="telephone" [(ngModel)]="user.telephone" [disabled]="!registerMode && (!editMode && !retrievedMode)">
+      </div>
+      <div class="form-group">
+        <label for="mobile">Κινητό:</label>
+        <input type="text" id="mobile" [(ngModel)]="user.mobile" [disabled]="!registerMode && (!editMode && !retrievedMode)">
+      </div>
+      <div class="form-group">
+        <label for="email_1">email1:</label>
+        <input type="text" id="email_1" [(ngModel)]="user.email_1" [disabled]="!registerMode && (!editMode && !retrievedMode)">
+      </div>
+      <div class="form-group">
+        <label for="email_2">email2:</label>
+        <input type="text" id="email_2" [(ngModel)]="user.email_2" [disabled]="!registerMode && (!editMode && !retrievedMode)">
+      </div>
+    </div>
+  </div>
+
+</div>

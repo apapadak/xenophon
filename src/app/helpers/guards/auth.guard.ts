@@ -4,7 +4,6 @@ import {catchError, Observable, of} from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AuthService } from '../../services/AuthService';
 import {ClaimsCommonService} from "../common/claims-common.service";
-import {MessageService} from "primeng/api";
 
 @Injectable({
   providedIn: 'root',

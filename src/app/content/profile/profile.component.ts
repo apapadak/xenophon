@@ -1,8 +1,10 @@
 import {Component, OnInit} from '@angular/core';
-import { HeaderComponent } from "../../header/header.component";
-import { FooterComponent } from "../../footer/footer.component";
+import {HeaderComponent} from "../../header/header.component";
+import {FooterComponent} from "../../footer/footer.component";
 import {RouterOutlet} from "@angular/router";
 import {FormsModule} from "@angular/forms";
+import {UserService} from "../../services/UserService";
+import {ClaimsCommonService} from "../../helpers/common/claims-common.service";
 
 @Component({
   selector: 'app-home',
@@ -13,52 +15,24 @@ import {FormsModule} from "@angular/forms";
     RouterOutlet,
     HeaderComponent,
     FooterComponent,
-    FormsModule
-  ]
+    FormsModule,
+  ],
+  providers: [UserService]
 })
 export class ProfileComponent implements OnInit {
-  userInfo: any;
 
-  ngOnInit() {
-    this.loadProfileData();
-  }
+  constructor(
+    public userService: UserService
+  ) {  }
 
-  loadProfileData() {
-    const userInfo = localStorage.getItem('userInfo');
-
-    this.userInfo = userInfo ? JSON.parse(userInfo) : this.initializePersonalInfo();
-    console.log('this.userInfo: ', userInfo);
-  }
-
-  initializePersonalInfo() {
-    return {
-      "afm": '',
-      "firstname": '',
-      "surname": '',
-      "father_name": '',
-      "tax_office": '',
-      "dob": '',
-      "adt": '',
-      "iban": '',
-      "bank": '',
-      "legal_form": '',
-      "address": '',
-      "city": '',
-      "postal_code": '',
-      "country": '',
-      "telephone": '',
-      "mobile": '',
-      "email_1": '',
-      "email_2": '',
-    };
-  }
+  ngOnInit() { }
 
   get fullName(): string {
-    return `${this.userInfo.firstname} ${this.userInfo.surname}`;
+    return `${this.userService.userInfo.firstname} ${this.userService.userInfo.surname}`;
   }
 
   getUsername(): string {
-    return this.userInfo.afm;
+    return this.userService.userInfo.afm;
   }
 
 }

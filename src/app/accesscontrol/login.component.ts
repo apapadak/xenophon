@@ -51,6 +51,7 @@ export class LoginComponent {
         localStorage.setItem('userInfo', JSON.stringify(user));
 
         this.claimsCommonService.loadDropdownData();
+        this.userService.loadProfileData();
 
         this.router.navigate(['/home']);
       },

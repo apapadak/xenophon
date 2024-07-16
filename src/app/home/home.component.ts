@@ -76,6 +76,9 @@ export class HomeComponent {
       case 'PROFILE':
         this.router.navigate(['profile']);
         break;
+      case 'ADMIN':
+        this.router.navigate(['admin']);
+        break;
       case 'LOGOUT':
         this.performLogout();
         break;

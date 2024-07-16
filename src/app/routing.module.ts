@@ -12,6 +12,7 @@ import {PageNotFoundComponent} from "./helpers/notfound/page-not-found.component
 import {InternetClaimsComponent} from "./content/claims/internet/internetclaims.component";
 import {TvClaimsComponent} from "./content/claims/tv/tvclaims.component";
 import {RadioClaimsComponent} from "./content/claims/radio/radioclaims.component";
+import {AdminComponent} from "./admin/admin.component";
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -31,6 +32,7 @@ export const routes: Routes = [
       { path: 'payments', component: PaymentsComponent, canActivate: [AuthGuard] },
       { path: 'distributions', component: DistributionsComponent, canActivate: [AuthGuard] },
       { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
+      { path: 'admin', component: AdminComponent, canActivate: [AuthGuard] },
       // ... other child routes
     ]
   },

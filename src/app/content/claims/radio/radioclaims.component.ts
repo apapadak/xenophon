@@ -1,6 +1,6 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
-import { HeaderComponent } from "../../../header/header.component";
-import { FooterComponent } from "../../../footer/footer.component";
+import {Component, ViewChild} from '@angular/core';
+import {HeaderComponent} from "../../../header/header.component";
+import {FooterComponent} from "../../../footer/footer.component";
 import {FormsModule, NgForm} from "@angular/forms";
 import {TableModule} from "primeng/table";
 import {ButtonModule} from "primeng/button";
@@ -9,8 +9,7 @@ import {AutoCompleteModule} from "primeng/autocomplete";
 import {PanelMenuModule} from "primeng/panelmenu";
 import {CommonModule} from "@angular/common";
 import {ToastModule} from "primeng/toast";
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import {MessageService, ConfirmationService} from "primeng/api";
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {ClaimsCommonService} from '../../../helpers/common/claims-common.service';
 
 @Component({

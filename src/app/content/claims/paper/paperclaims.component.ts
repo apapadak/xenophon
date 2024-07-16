@@ -1,18 +1,16 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import { HeaderComponent } from "../../../header/header.component";
 import { FooterComponent } from "../../../footer/footer.component";
-import {ClaimsService} from "../../../services/ClaimsService";
 import {FormsModule, NgForm} from "@angular/forms";
 import {TableModule} from "primeng/table";
 import {ButtonModule} from "primeng/button";
 import {InputTextModule} from "primeng/inputtext";
-import {AutoCompleteCompleteEvent, AutoCompleteModule} from "primeng/autocomplete";
+import {AutoCompleteModule} from "primeng/autocomplete";
 import {PanelMenuModule} from "primeng/panelmenu";
 import {CommonModule} from "@angular/common";
 import {ToastModule} from "primeng/toast";
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import {MessageService, ConfirmationService} from "primeng/api";
-import {CirculationData, ClaimsCommonService, PeriodicityData, RoleData, TitlePaperData, TypeData, WordcountData,} from '../../../helpers/common/claims-common.service';
+import {ClaimsCommonService} from '../../../helpers/common/claims-common.service';
 
 @Component({
   selector: 'app-home',
