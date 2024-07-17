@@ -1,6 +1,30 @@
 import {HttpClient} from '@angular/common/http';
 import {Injectable} from '@angular/core';
-import {UserData} from "../admin/admin.component";
+
+export interface UserData {
+  user_id:        number;
+  afm:            string | null;
+  mhtrwo:         string | null;
+  legal_form:     string | null;
+  tax_office:     string | null;
+  firstname:      string | null;
+  surname:        string | null;
+  father_name:    string | null;
+  dob:            string | null;
+  adt:            string | null;
+  iban:           string | null;
+  bank:           string | null;
+
+  address:        string | null;
+  city:           string | null;
+  postal_code:    string | null;
+  country:        string | null;
+  telephone:      string | null;
+  mobile:         string | null;
+  email_1:        string | null;
+  email_2:        string | null;
+  notes:          string | null;
+}
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
@@ -26,7 +50,7 @@ export class UserService {
     const userInfo = localStorage.getItem('userInfo');
 
     this.userInfo = userInfo ? JSON.parse(userInfo) : this.initializeUserData();
-    console.log('this.userInfo: ', userInfo);
+    //console.log('this.userInfo: ', userInfo);
   }
 
   initializeUserData(): UserData {
@@ -51,6 +75,8 @@ export class UserService {
       mobile: null,
       email_1: null,
       email_2: null,
+
+      notes: null,
     };
   }
 }

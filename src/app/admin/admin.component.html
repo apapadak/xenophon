@@ -119,4 +119,18 @@
     </div>
   </div>
 
+  <div *ngIf="registerMode || (editMode && retrievedMode)" class="notes-info section">
+    <h3>Σημειώσεις</h3>
+
+    <div class="large-textarea">
+    <textarea
+      rows="14"
+      cols="200"
+      pInputTextarea
+      [(ngModel)]="user.notes"
+      [disabled]="!registerMode && (!editMode && !retrievedMode)">
+      </textarea>
+    </div>
+  </div>
+
 </div>

@@ -32,7 +32,7 @@ export class NavigationComponent {
   }
 
   checkAdminStatus() {
-    console.log(this.userService.userInfo);
+    //console.log(this.userService.userInfo);
     const username = this.userService.userInfo.afm;
     this.userService.checkCredentials(username).subscribe(
       (response) => {

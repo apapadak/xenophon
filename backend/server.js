@@ -177,11 +177,11 @@ app.post('/api/user', authenticateToken, async (req, res) => {
       }
 
       const insertQuery = `
-        INSERT INTO users (afm, mhtrwo, password, firstname, surname, father_name, tax_office, dob, adt, iban, bank, legal_form, address, city, postal_code, country, telephone, mobile, email_1, email_2, created_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, CURRENT_TIMESTAMP)
+        INSERT INTO users (afm, mhtrwo, password, firstname, surname, father_name, tax_office, dob, adt, iban, bank, legal_form, address, city, postal_code, country, telephone, mobile, email_1, email_2, created_at, notes)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, CURRENT_TIMESTAMP, $21)
         RETURNING user_id`;
       const values = [
-        user.afm, user.mhtrwo, hashedPassword, user.firstname, user.surname, user.father_name, user.tax_office, formattedDob, user.adt, user.iban, user.bank, user.legal_form, user.address, user.city, user.postal_code, user.country, user.telephone, user.mobile, user.email_1, user.email_2
+        user.afm, user.mhtrwo, hashedPassword, user.firstname, user.surname, user.father_name, user.tax_office, formattedDob, user.adt, user.iban, user.bank, user.legal_form, user.address, user.city, user.postal_code, user.country, user.telephone, user.mobile, user.email_1, user.email_2, user.notes
       ];
       const result = await client.query(insertQuery, values);
       user.user_id = result.rows[0].user_id; // Get the new user_id
@@ -190,10 +190,10 @@ app.post('/api/user', authenticateToken, async (req, res) => {
       // Update existing user
       const updateQuery = `
         UPDATE users
-        SET afm = $1, mhtrwo = $2, password = $3, firstname = $4, surname = $5, father_name = $6, tax_office = $7, dob = $8, adt = $9, iban = $10, bank = $11, legal_form = $12, address = $13, city = $14, postal_code = $15, country = $16, telephone = $17, mobile = $18, email_1 = $19, email_2 = $20, modified_at = CURRENT_TIMESTAMP
-        WHERE user_id = $21`;
+        SET afm = $1, mhtrwo = $2, password = $3, firstname = $4, surname = $5, father_name = $6, tax_office = $7, dob = $8, adt = $9, iban = $10, bank = $11, legal_form = $12, address = $13, city = $14, postal_code = $15, country = $16, telephone = $17, mobile = $18, email_1 = $19, email_2 = $20, modified_at = CURRENT_TIMESTAMP, notes = $21
+        WHERE user_id = $22`;
       const values = [
-        user.afm, user.mhtrwo, hashedPassword, user.firstname, user.surname, user.father_name, user.tax_office, formattedDob, user.adt, user.iban, user.bank, user.legal_form, user.address, user.city, user.postal_code, user.country, user.telephone, user.mobile, user.email_1, user.email_2, user.user_id
+        user.afm, user.mhtrwo, hashedPassword, user.firstname, user.surname, user.father_name, user.tax_office, formattedDob, user.adt, user.iban, user.bank, user.legal_form, user.address, user.city, user.postal_code, user.country, user.telephone, user.mobile, user.email_1, user.email_2, user.notes, user.user_id
       ];
       await client.query(updateQuery, values);
       res.status(200).json({ message: "User updated successfully" });

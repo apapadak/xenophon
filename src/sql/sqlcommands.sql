@@ -350,7 +350,7 @@ EXECUTE FUNCTION delete_related_titles_radio_extra();
 --  ALTER TABLE users ADD COLUMN admin BOOLEAN DEFAULT false;
 --  UPDATE users SET admin = false;
 --
---
+--  ALTER TABLE users ADD COLUMN notes TEXT;
 --
 
 

@@ -8,33 +8,8 @@ import {ConfirmationService, MessageService} from "primeng/api";
 import {ToastModule} from "primeng/toast";
 import {HeaderComponent} from "../header/header.component";
 import {FooterComponent} from "../footer/footer.component";
-import {UserService} from "../services/UserService";
+import {UserData, UserService} from "../services/UserService";
 import {ConfirmDialogModule} from 'primeng/confirmdialog';
-
-
-export interface UserData {
-  user_id:        number;
-  afm:            string | null;
-  mhtrwo:         string | null;
-  legal_form:     string | null;
-  tax_office:     string | null;
-  firstname:      string | null;
-  surname:        string | null;
-  father_name:    string | null;
-  dob:            string | null;
-  adt:            string | null;
-  iban:           string | null;
-  bank:           string | null;
-
-  address:        string | null;
-  city:           string | null;
-  postal_code:    string | null;
-  country:        string | null;
-  telephone:      string | null;
-  mobile:         string | null;
-  email_1:        string | null;
-  email_2:        string | null;
-}
 
 @Component({
   selector: 'app-home',
