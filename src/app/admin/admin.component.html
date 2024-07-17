@@ -49,12 +49,12 @@
         <input type="text" id="tax_office" [(ngModel)]="user.tax_office" [disabled]="!registerMode && (!editMode && !retrievedMode)">
       </div>
       <div class="form-group">
-        <label for="firstname">Όνομα:</label>
-        <input type="text" id="firstname" [(ngModel)]="user.firstname" [disabled]="!registerMode && (!editMode && !retrievedMode)">
-      </div>
-      <div class="form-group">
         <label for="surname">Επώνυμο:</label>
         <input type="text" id="surname" [(ngModel)]="user.surname" [disabled]="!registerMode && (!editMode && !retrievedMode)">
+      </div>
+      <div class="form-group">
+        <label for="firstname">Όνομα:</label>
+        <input type="text" id="firstname" [(ngModel)]="user.firstname" [disabled]="!registerMode && (!editMode && !retrievedMode)">
       </div>
       <div class="form-group">
         <label for="father_name">Όνομα Πατρός:</label>
