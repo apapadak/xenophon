@@ -16,7 +16,7 @@ const DBURL = process.env.DATABASE_URL;
 const JWTSECRET = process.env.JWT_SECRET;
 const DNS_SITE = process.env.DNS_SITE;
 
-const disableWordCountRoleIds = [1, 3, 4, 5, 7, 8, 9];
+const disableWordCountRoleIds = [1, 3, 4, 5, 6, 8, 9];
 const disablePeriodicitiesIdsForTvsRadios = [5, 6, 7, 8];
 
 const saltRounds = 10;
