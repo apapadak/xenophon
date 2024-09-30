@@ -18,6 +18,10 @@
       {{ errorMessage }}
      </p>
 
+    <p style="font-size:22px" *ngIf="accessDisabled" class="access-disabled-message">
+      Έχει λήξει η περίοδος υποβολής δηλώσεων
+    </p>
+
     <button type="submit" [disabled]="username.length < 3 || password.length < 3">
       Είσοδος
     </button>

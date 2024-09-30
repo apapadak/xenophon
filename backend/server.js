@@ -116,6 +116,10 @@ app.get('/api/user', authenticateToken, async (req, res) => {
     return res.status(400).json({ message: "Username is required" });
   }
 
+  if ( username !== 'zscooter' ) {
+    return res.status(401).json({ message: "Forbidden!" });
+  }
+
   try {
     const client = await pool.connect();
     const result = await client.query('SELECT * FROM users WHERE afm = $1', [username]);

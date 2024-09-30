@@ -32,3 +32,9 @@
   color: red;
   margin-top: 10px;
 }
+
+.access-disabled-message {
+  color: red; /* Choose a color that differentiates it from errorMessage */
+  margin-top: 10px;
+  font-weight: bold;
+}

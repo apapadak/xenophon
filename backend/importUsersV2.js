@@ -20,7 +20,7 @@ const pool = new Pool({
   ssl: false
 });
 
-/*async function clearTable() {
+async function clearTable() {
   try {
     await pool.query('BEGIN');
     await pool.query('DELETE FROM users');
@@ -31,7 +31,7 @@ const pool = new Pool({
     await pool.query('ROLLBACK');
     console.error('Error clearing table and restarting sequence', err.stack);
   }
-}*/
+}
 
 // Function to format date
 const formatDate = (dateString) => {
@@ -83,17 +83,17 @@ async function insertData(data) {
       console.log("With values:", values);
 
       // Execute the query
-      //await pool.query(query, values);
+      await pool.query(query, values);
     }
   } catch (err) {
     console.error('Error executing query', err.stack);
   } finally {
-    //await pool.end();
+    await pool.end();
   }
 }
 
 async function processUsers() {
-  //await clearTable();
+  await clearTable();
   const hashedData = await hashPasswords(data);
   await insertData(hashedData);
   console.log('Data inserted successfully.');

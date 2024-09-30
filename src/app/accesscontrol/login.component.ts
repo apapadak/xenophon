@@ -24,6 +24,7 @@ export class LoginComponent {
   password: string = '';
 
   errorMessage: string = '';
+  accessDisabled: boolean = true;
 
   constructor(
     private router: Router,
@@ -66,7 +67,10 @@ export class LoginComponent {
     // Example error handling
     if (error.status === 400 || error.status === 404) {
       this.errorMessage = "Invalid username or password.";
-    } else {
+    } else if (error.status === 401) {
+      this.errorMessage = "Δεν είναι δυνατή η είδοδος στην πλατφόρμα. Καλέστε την γραμματεία.";
+    }
+    else {
       this.errorMessage = "An unexpected error occurred.";
     }
   }
