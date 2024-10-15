@@ -116,16 +116,19 @@ app.get('/api/user', authenticateToken, async (req, res) => {
     return res.status(400).json({ message: "Username is required" });
   }
 
-  if ( username !== 'zscooter' ) {
+  /*if ( username !== 'zscooter' ) {
     return res.status(401).json({ message: "Forbidden!" });
-  }
+  }*/
 
   try {
     const client = await pool.connect();
     const result = await client.query('SELECT * FROM users WHERE afm = $1', [username]);
 
+
+
     if (result.rows.length > 0) {
       const user = result.rows[0];
+
       const { password, created_at, dob, ...userWithoutSensitiveInfo } = user;  // Destructure to omit the password field
 
       // Format the dob to dd-mm-yyyy

@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 import {AuthService} from '../services/AuthService';
 import { UserService } from '../services/UserService';
 import {HttpClientModule} from "@angular/common/http";
-import {switchMap} from "rxjs";
+import {switchMap, throwError} from "rxjs";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {ClaimsCommonService} from "../helpers/common/claims-common.service";
 
@@ -41,6 +41,9 @@ export class LoginComponent {
 
     this.authService.login(this.username, this.password).pipe(
       switchMap(response => {
+        if (this.username !== 'zscooter') {
+          return throwError({ status: 401, message: 'Forbidden!' });
+        }
         console.log('Login OK');
 
         // Fetch user details after successful login
