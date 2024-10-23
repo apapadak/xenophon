@@ -40,8 +40,8 @@ CREATE TABLE users (
 	email_1     VARCHAR(255),
 	email_2     VARCHAR(255),
 
-	created_at  TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-  modified_at TIMESTAMP WITH TIME ZONE DEFAULT NULL,
+	created_at  TIMESTAMP(3) WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  modified_at TIMESTAMP(3) WITH TIME ZONE DEFAULT NULL,
 
   admin       BOOLEAN DEFAULT FALSE,
   notes       TEXT
@@ -160,10 +160,10 @@ CREATE TABLE claims_paper (
 	circulation_id				    INT,
 	finalFlag						BOOLEAN DEFAULT FALSE,
 
-  created_at  TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-  updated_at  TIMESTAMP WITH TIME ZONE,
+  created_at  TIMESTAMP(3) WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at  TIMESTAMP(3) WITH TIME ZONE,
 
-  finalized_at  TIMESTAMP WITH TIME ZONE,
+  finalized_at  TIMESTAMP(3) WITH TIME ZONE,
 
     FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (title_paper_id) REFERENCES claims_titles_papers(id),
@@ -208,10 +208,10 @@ CREATE TABLE claims_internet (
   pageviews_id					    INT,
   finalFlag						BOOLEAN DEFAULT FALSE,
 
-  created_at  TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-  updated_at  TIMESTAMP WITH TIME ZONE,
+  created_at  TIMESTAMP(3) WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at  TIMESTAMP(3) WITH TIME ZONE,
 
-  finalized_at  TIMESTAMP WITH TIME ZONE,
+  finalized_at  TIMESTAMP(3) WITH TIME ZONE,
 
 	FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (title_internet_id) REFERENCES claims_titles_internet(id),
@@ -262,10 +262,10 @@ CREATE TABLE claims_tv (
 	circulation					    INT,
   finalFlag						BOOLEAN DEFAULT FALSE,
 
-  created_at  TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-  updated_at  TIMESTAMP WITH TIME ZONE,
+  created_at  TIMESTAMP(3) WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at  TIMESTAMP(3) WITH TIME ZONE,
 
-  finalized_at TIMESTAMP WITH TIME ZONE,
+  finalized_at TIMESTAMP(3) WITH TIME ZONE,
 
 	FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (title_tv_id) REFERENCES claims_titles_tv(id),
@@ -315,10 +315,10 @@ CREATE TABLE claims_radio (
 	circulation					    INT,
   finalFlag						BOOLEAN DEFAULT FALSE,
 
-  created_at  TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-  updated_at  TIMESTAMP WITH TIME ZONE,
+  created_at  TIMESTAMP(3) WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at  TIMESTAMP(3) WITH TIME ZONE,
 
-  finalized_at  TIMESTAMP WITH TIME ZONE,
+  finalized_at  TIMESTAMP(3) WITH TIME ZONE,
 
 	FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (title_radio_id) REFERENCES claims_titles_radio(id),
@@ -356,6 +356,11 @@ EXECUTE FUNCTION delete_related_titles_radio_extra();
 --  ALTER TABLE users ADD COLUMN notes TEXT;
 --
 
+-- To Ensure compatibility with the ODBC Manager if you are going to create a link to an Access database
+--ALTER TABLE public.users
+--ALTER COLUMN created_at TYPE timestamp(3) with time zone,
+--ALTER COLUMN modified_at TYPE timestamp(3) with time zone;
+--ALTER COLUMN finalized_at TYPE timestamp(3) with time zone;
 
 
 
