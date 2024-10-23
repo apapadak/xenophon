@@ -76,3 +76,8 @@ th {
   color: red;
   font-size: 0.875em;
 }
+
+:host ::ng-deep .custom-access-button {
+  background-color: limegreen !important;
+  color: white !important;
+}

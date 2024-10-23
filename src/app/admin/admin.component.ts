@@ -110,7 +110,8 @@ export class AdminComponent implements OnInit {
             }
           }
         );
-      }
+      },
+      acceptButtonStyleClass: 'custom-access-button'
     });
   }
 
