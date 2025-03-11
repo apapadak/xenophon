@@ -9,6 +9,10 @@ tmp/
 /out-tsc
 /bazel-out
 
+# Ignore all PDF files in assets/2023_distribution/
+assets/2023_distribution/
+
+
 # Environment variables
 .env
 

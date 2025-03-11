@@ -1,1 +1,150 @@
-<h1> DISTRIBUTIONS </h1>
+<h1>ΔΗΛΩΣΗ ΕΡΓΩΝ 2023</h1>
+
+<p-toast></p-toast>
+
+<p-panel>
+  <ng-template pTemplate="header">
+    <div class="panel-header">
+      <span>Διανομή 2023</span>
+      <img src="assets/pdf.png"
+           alt="Κατέβασμα PDF"
+           (click)="downloadPDF(userInfo.mhtrwo)"
+           style="cursor: pointer; width: 32px; height: 32px;"
+           title="Κατέβασμα PDF">
+    </div>
+  </ng-template>
+
+  <p-accordion>
+    <!-- Paper Claims -->
+    <p-accordionTab header="Έντυπα">
+      <div class="table-container">
+        <p-table [value]="claimsCommonService.paperData" class="claims-table flexible-width p-datatable-min-height">
+          <ng-template pTemplate="header">
+            <tr>
+              <th class="min-width-150 header-tight-padding">Έντυπο</th>
+              <th class="min-width-150 header-tight-padding">Υπογραφή</th>
+              <th class="min-width-150 header-tight-padding">Είδος</th>
+              <th class="min-width-150 header-tight-padding">Περιοδικότητα</th>
+              <th class="min-width-150 header-tight-padding">Ιδιότητα</th>
+              <th class="min-width-150 header-tight-padding">Αριθμός λέξεων</th>
+              <th class="min-width-150 header-tight-padding">Μέση κυκλοφορία</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rowData>
+            <tr>
+              <!-- For objects, we display the inner property (e.g. titlePaper.title) -->
+              <td class="cell-tight-padding">{{ rowData.titlePaper?.title }}</td>
+              <td class="cell-tight-padding">{{ rowData.signature }}</td>
+              <td class="cell-tight-padding">{{ rowData.paperType?.type }}</td>
+              <td class="cell-tight-padding">{{ rowData.periodicity?.periodicity }}</td>
+              <td class="cell-tight-padding">{{ rowData.role?.role }}</td>
+              <td class="cell-tight-padding">{{ rowData.wordcount?.wordcount }}</td>
+              <td class="cell-tight-padding">
+                {{ rowData.circulation?.circulation || rowData.circulation }}
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </p-accordionTab>
+
+    <!-- Internet Claims -->
+    <p-accordionTab header="Ιστοσελίδες">
+      <div class="table-container">
+        <p-table [value]="claimsCommonService.internetData" class="claims-table flexible-width p-datatable-min-height">
+          <ng-template pTemplate="header">
+            <tr>
+              <th class="min-width-150 header-tight-padding">Ιστοσελίδα</th>
+              <th class="min-width-150 header-tight-padding">Υπογραφή</th>
+              <th class="min-width-150 header-tight-padding">Είδος</th>
+              <th class="min-width-150 header-tight-padding">Περιοδικότητα</th>
+              <th class="min-width-150 header-tight-padding">Ιδιότητα</th>
+              <th class="min-width-150 header-tight-padding">Αριθμός λέξεων</th>
+              <th class="min-width-150 header-tight-padding">Εμφανίσεις σελίδας</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rowData>
+            <tr>
+              <td class="cell-tight-padding">{{ rowData.titleInternet?.title }}</td>
+              <td class="cell-tight-padding">{{ rowData.signature }}</td>
+              <td class="cell-tight-padding">{{ rowData.internetType?.type }}</td>
+              <td class="cell-tight-padding">{{ rowData.periodicity?.periodicity }}</td>
+              <td class="cell-tight-padding">{{ rowData.role?.role }}</td>
+              <td class="cell-tight-padding">{{ rowData.wordcount?.wordcount }}</td>
+              <td class="cell-tight-padding">
+                {{ rowData.pageviews?.pageviews || rowData.pageviews }}
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </p-accordionTab>
+
+    <!-- TV Claims -->
+    <p-accordionTab header="TV">
+      <div class="table-container">
+        <p-table [value]="claimsCommonService.tvData" class="claims-table flexible-width p-datatable-min-height">
+          <ng-template pTemplate="header">
+            <tr>
+              <th class="min-width-150 header-tight-padding">Κανάλι</th>
+              <th class="min-width-150 header-tight-padding">Υπογραφή</th>
+              <th class="min-width-150 header-tight-padding">Είδος</th>
+              <th class="min-width-150 header-tight-padding">Περιοδικότητα</th>
+              <th class="min-width-150 header-tight-padding">Ιδιότητα</th>
+              <th class="min-width-150 header-tight-padding">Αριθμός λέξεων</th>
+              <th class="min-width-150 header-tight-padding">Μέση τηλεθέαση</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rowData>
+            <tr>
+              <td class="cell-tight-padding">{{ rowData.titleTv?.title }}</td>
+              <td class="cell-tight-padding">{{ rowData.signature }}</td>
+              <td class="cell-tight-padding">{{ rowData.tvType?.type }}</td>
+              <td class="cell-tight-padding">{{ rowData.periodicity?.periodicity }}</td>
+              <td class="cell-tight-padding">{{ rowData.role?.role }}</td>
+              <td class="cell-tight-padding">{{ rowData.wordcount?.wordcount }}</td>
+              <td class="cell-tight-padding">
+                {{ rowData.circulation?.circulation || rowData.circulation }}
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </p-accordionTab>
+
+
+    <!-- Radio Claims -->
+    <p-accordionTab header="Radio">
+      <div class="table-container">
+        <p-table [value]="claimsCommonService.radioData" class="claims-table flexible-width p-datatable-min-height">
+          <ng-template pTemplate="header">
+            <tr>
+              <th class="min-width-150 header-tight-padding">Ρ/Φ σταθμός</th>
+              <th class="min-width-150 header-tight-padding">Υπογραφή</th>
+              <th class="min-width-150 header-tight-padding">Είδος</th>
+              <th class="min-width-150 header-tight-padding">Περιοδικότητα</th>
+              <th class="min-width-150 header-tight-padding">Ιδιότητα</th>
+              <th class="min-width-150 header-tight-padding">Αριθμός λέξεων</th>
+              <th class="min-width-150 header-tight-padding">Μέση ακροαματικότητα</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rowData>
+            <tr>
+              <td class="cell-tight-padding">{{ rowData.titleRadio?.title }}</td>
+              <td class="cell-tight-padding">{{ rowData.signature }}</td>
+              <td class="cell-tight-padding">{{ rowData.radioType?.type }}</td>
+              <td class="cell-tight-padding">{{ rowData.periodicity?.periodicity }}</td>
+              <td class="cell-tight-padding">{{ rowData.role?.role }}</td>
+              <td class="cell-tight-padding">{{ rowData.wordcount?.wordcount }}</td>
+              <td class="cell-tight-padding">
+                {{ rowData.circulation?.circulation || rowData.circulation }}
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </p-accordionTab>
+
+  </p-accordion>
+
+</p-panel>

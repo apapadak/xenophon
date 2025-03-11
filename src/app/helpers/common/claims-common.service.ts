@@ -5,6 +5,7 @@ import {ClaimsService} from "../../services/ClaimsService";
 import {AutoCompleteCompleteEvent} from "primeng/autocomplete";
 import {NgForm, NgModel} from "@angular/forms";
 import {ConfirmationService, MessageService} from "primeng/api";
+import {UserService} from '../../services/UserService';
 
 export interface BaseTableData {
   claimId: number;
@@ -176,7 +177,11 @@ export class ClaimsCommonService {
   //paperData: PaperTableData[] = [];
   //internetData: InternetTableData[] = [];
 
-  data: (PaperTableData | InternetTableData | TvTableData | RadioTableData)[] = [];
+  //data: (PaperTableData | InternetTableData | TvTableData | RadioTableData)[] = [];
+  paperData: PaperTableData[] = [];
+  internetData: InternetTableData[] = [];
+  tvData: TvTableData[] = [];
+  radioData: RadioTableData[] = [];
 
   titlePapers: TitlePaperData[] = [];
   titleInternet: TitleInternetData[] = [];
@@ -210,17 +215,19 @@ export class ClaimsCommonService {
   constructor(private http: HttpClient,
               private claimsService: ClaimsService,
               private messageService: MessageService,
-              private confirmationService: ConfirmationService
-  ) {
+              private confirmationService: ConfirmationService,
 
+              private userService: UserService
+  ) {
+    this.userInfo = userService.getUserInfo();
   }
 
-  getUserInfo() {
+  /*getUserInfo() {
     const userInfoString = localStorage.getItem('userInfo');
     this.userInfo = userInfoString ? JSON.parse(userInfoString) : '';
 
     return this.userInfo;
-  }
+  }*/
 
   loadDropdownData() {
     this.claimsService.getDropdownData().subscribe(data => {
@@ -282,24 +289,24 @@ export class ClaimsCommonService {
       sessionStorage.removeItem('pageviews');
   }
 
-  fetchPaperClaims() {
+  fetchPaperClaims(distributionYear?: number) {
     console.log('userInfo: ', this.userInfo);
 
-    this.claimsService.getPaperClaims(this.userInfo.user_id).subscribe({
+    this.claimsService.getPaperClaims(this.userInfo.user_id, distributionYear ? distributionYear.toString() : undefined).subscribe({
       next: (data) => {
-        this.data = data.map((row: PaperTableData) => ({  // Add disabled flag to each row in the fetched data
+        this.paperData = data.map((row: PaperTableData) => ({  // Add disabled flag to each row in the fetched data
           ...row,
           disabled: true
         }));
 
-        if (this.data.length === 0) {
+        if (this.paperData.length === 0) {
           this.addPaperRow();
         }
 
-        this.latestTimestampAt = this.findLatestTimestamp();
-        this.latestFinalizedAt = this.findLatestFinalizedAt();
+        this.latestTimestampAt = this.findLatestTimestamp(this.paperData);
+        this.latestFinalizedAt = this.findLatestFinalizedAt(this.paperData);
 
-        console.log('data:', this.data);
+        console.log('data:', this.paperData);
       },
       error: (err) => {
         console.error('Failed to fetch paper claims:', err);
@@ -307,24 +314,24 @@ export class ClaimsCommonService {
     });
   }
 
-  fetchInternetClaims() {
+  fetchInternetClaims(distributionYear?: number) {
     console.log('userInfo: ', this.userInfo);
 
-    this.claimsService.getInternetClaims(this.userInfo.user_id).subscribe({
+    this.claimsService.getInternetClaims(this.userInfo.user_id, distributionYear ? distributionYear.toString() : undefined).subscribe({
       next: (data) => {
-        this.data = data.map((row: PaperTableData) => ({ // Add disabled flag to each row in the fetched data
+        this.internetData = data.map((row: PaperTableData) => ({ // Add disabled flag to each row in the fetched data
           ...row,
           disabled: true
         }));
 
-        if (this.data.length === 0) {
+        if (this.internetData.length === 0) {
           this.addInternetRow();
         }
 
-        this.latestTimestampAt = this.findLatestTimestamp();
-        this.latestFinalizedAt = this.findLatestFinalizedAt();
+        this.latestTimestampAt = this.findLatestTimestamp(this.internetData);
+        this.latestFinalizedAt = this.findLatestFinalizedAt(this.internetData);
 
-        console.log('data:', this.data);
+        console.log('data:', this.internetData);
       },
       error: (err) => {
         console.error('Failed to fetch paper claims:', err);
@@ -332,24 +339,24 @@ export class ClaimsCommonService {
     });
   }
 
-  fetchTvClaims() {
+  fetchTvClaims(distributionYear?: number) {
     console.log('userInfo: ', this.userInfo);
 
-    this.claimsService.getTvClaims(this.userInfo.user_id).subscribe({
+    this.claimsService.getTvClaims(this.userInfo.user_id, distributionYear ? distributionYear.toString() : undefined).subscribe({
       next: (data) => {
-        this.data = data.map((row: TvTableData) => ({ // Add disabled flag to each row in the fetched data
+        this.tvData = data.map((row: TvTableData) => ({ // Add disabled flag to each row in the fetched data
           ...row,
           disabled: true
         }));
 
-        if (this.data.length === 0) {
+        if (this.tvData.length === 0) {
           this.addTvRow();
         }
 
-        this.latestTimestampAt = this.findLatestTimestamp();
-        this.latestFinalizedAt = this.findLatestFinalizedAt();
+        this.latestTimestampAt = this.findLatestTimestamp(this.tvData);
+        this.latestFinalizedAt = this.findLatestFinalizedAt(this.tvData);
 
-        console.log('data:', this.data);
+        console.log('data:', this.tvData);
       },
       error: (err) => {
         console.error('Failed to fetch paper claims:', err);
@@ -357,24 +364,24 @@ export class ClaimsCommonService {
     });
   }
 
-  fetchRadioClaims() {
+  fetchRadioClaims(distributionYear?: number) {
     console.log('userInfo: ', this.userInfo);
 
-    this.claimsService.getRadioClaims(this.userInfo.user_id).subscribe({
+    this.claimsService.getRadioClaims(this.userInfo.user_id, distributionYear ? distributionYear.toString() : undefined).subscribe({
       next: (data) => {
-        this.data = data.map((row: RadioTableData) => ({ // Add disabled flag to each row in the fetched data
+        this.radioData = data.map((row: RadioTableData) => ({ // Add disabled flag to each row in the fetched data
           ...row,
           disabled: true
         }));
 
-        if (this.data.length === 0) {
+        if (this.radioData.length === 0) {
           this.addRadioRow();
         }
 
-        this.latestTimestampAt = this.findLatestTimestamp();
-        this.latestFinalizedAt = this.findLatestFinalizedAt();
+        this.latestTimestampAt = this.findLatestTimestamp(this.radioData);
+        this.latestFinalizedAt = this.findLatestFinalizedAt(this.radioData);
 
-        console.log('data:', this.data);
+        console.log('data:', this.radioData);
       },
       error: (err) => {
         console.error('Failed to fetch paper claims:', err);
@@ -398,7 +405,7 @@ export class ClaimsCommonService {
       finalFlag: false
     };
 
-    this.data.push(newRow);
+    this.paperData.push(newRow);
   }
 
   addInternetRow() {
@@ -417,7 +424,7 @@ export class ClaimsCommonService {
       finalFlag: false
     };
 
-    this.data.push(newRow);
+    this.internetData.push(newRow);
   }
 
   addTvRow() {
@@ -436,7 +443,7 @@ export class ClaimsCommonService {
       finalFlag: false
     };
 
-    this.data.push(newRow);
+    this.tvData.push(newRow);
   }
 
   addRadioRow() {
@@ -455,7 +462,7 @@ export class ClaimsCommonService {
       finalFlag: false
     };
 
-    this.data.push(newRow);
+    this.radioData.push(newRow);
   }
 
 
@@ -485,7 +492,7 @@ export class ClaimsCommonService {
       }
 
       rowData.disabled = true; // Ensure the row is disabled after saving
-      console.log('paper row data prepared for saving:', this.data);
+      console.log('paper row data prepared for saving:', this.paperData);
     } else {
       console.error('Validation failed for paper row data:', rowData);
     }
@@ -514,7 +521,7 @@ export class ClaimsCommonService {
       }
 
       rowData.disabled = true; // Ensure the row is disabled after saving
-      console.log('internet row data prepared for saving:', this.data);
+      console.log('internet row data prepared for saving:', this.internetData);
     } else {
       console.error('Validation failed for internet row data:', rowData);
     }
@@ -543,7 +550,7 @@ export class ClaimsCommonService {
       }
 
       rowData.disabled = true; // Ensure the row is disabled after saving
-      console.log('tv row data prepared for saving:', this.data);
+      console.log('tv row data prepared for saving:', this.tvData);
     } else {
       console.error('Validation failed for tv row data:', rowData);
     }
@@ -572,7 +579,7 @@ export class ClaimsCommonService {
       }
 
       rowData.disabled = true; // Ensure the row is disabled after saving
-      console.log('radio row data prepared for saving:', this.data);
+      console.log('radio row data prepared for saving:', this.radioData);
     } else {
       console.error('Validation failed for radio row data:', rowData);
     }
@@ -619,37 +626,37 @@ export class ClaimsCommonService {
       !!rowData.role
   }
 
-  deleteRow(index: number) {
-    this.data.splice(index, 1);
+  deleteRow(index: number, data: PaperTableData[] | InternetTableData[] | TvTableData[] | RadioTableData[]) {
+    data.splice(index, 1);
 
     this.isAnyRowDeleted = true;
-    console.log('1 ', this.data);
-    if (this.data.length === 0 && !this.isAnyRowDeleted) {
+    console.log('1 ', data);
+    if (data.length === 0 && !this.isAnyRowDeleted) {
       this.addPaperRow();
     }
 
-    console.log('2 ', this.data);
+    console.log('2 ', data);
   }
 
-  isStoreButtonsDisabled(): boolean {
-    //console.log(this.data);
-    //console.log('this.data.length ', this.data.length, ' this.isAnyRowDeleted:', this.isAnyRowDeleted, ' ', this.data.every(row => row.disabled === true));
-    return (this.data.length == 0 && !this.isAnyRowDeleted) || (this.data.length > 0 && !(this.data as BaseTableData[]).every(row => row.disabled));
+  isStoreButtonsDisabled(data: PaperTableData[] | InternetTableData[] | TvTableData[] | RadioTableData[]): boolean {
+    //console.log(data);
+    //console.log('data.length ', data.length, ' this.isAnyRowDeleted:', this.isAnyRowDeleted, ' ', data.every(row => row.disabled === true));
+    return (data.length == 0 && !this.isAnyRowDeleted) || (data.length > 0 && !(data as BaseTableData[]).every(row => row.disabled));
   }
 
-  showControls(): boolean {
-   // console.log(this.isAnyRowDeleted, ' ', !(this.data as BaseTableData[]).every(row => row.finalFlag));
-    return this.isAnyRowDeleted || !(this.data as BaseTableData[]).every(row => row.finalFlag);
+  showControls(data: PaperTableData[] | InternetTableData[] | TvTableData[] | RadioTableData[]): boolean {
+   // console.log(this.isAnyRowDeleted, ' ', !(data as BaseTableData[]).every(row => row.finalFlag));
+    return this.isAnyRowDeleted || !(data as BaseTableData[]).every(row => row.finalFlag);
   }
 
-  isAddRowDisabled(): boolean {
-    return (this.data.length == 0 && !this.isAnyRowDeleted) || this.data.some(row => !row.disabled);
+  isAddRowDisabled(data: PaperTableData[] | InternetTableData[] | TvTableData[] | RadioTableData[]): boolean {
+    return (data.length == 0 && !this.isAnyRowDeleted) || data.some(row => !row.disabled);
   }
 
-  tempStore(formType: 'paper' | 'internet' | 'tv' | 'radio', finalFlag: boolean) {
+  tempStore(formType: 'paper' | 'internet' | 'tv' | 'radio', data: PaperTableData[] | InternetTableData[] | TvTableData[] | RadioTableData[], finalFlag: boolean) {
     const payload = {
       userId: this.userInfo.user_id,
-      claims: this.data.map(({ disabled, ...row }) => ({
+      claims: data.map(({ disabled, ...row }) => ({
         ...row,
         role: row.role ? {
           id: row.role.id,
@@ -717,17 +724,17 @@ export class ClaimsCommonService {
     }
   }
 
-  confirmFinalStore(formType: 'paper' | 'internet' | 'tv' | 'radio') {
+  confirmFinalStore(formType: 'paper' | 'internet' | 'tv' | 'radio', data: PaperTableData[] | InternetTableData[] | TvTableData[] | RadioTableData[]) {
     this.confirmationService.confirm({
       message: 'Είστε σίγουροι ότι θέλετε να προχωρήσετε?\nΔεν επιτρέπονται άλλες αλλαγές μετά την Οριστική Αποθήκευση.',
       accept: () => {
-        this.finalStore(formType);
+        this.finalStore(formType, data);
       }
     });
   }
 
-  finalStore(formType: 'paper' | 'internet' | 'tv' | 'radio') {
-    this.tempStore(formType, true);
+  finalStore(formType: 'paper' | 'internet' | 'tv' | 'radio', data: PaperTableData[] | InternetTableData[] | TvTableData[] | RadioTableData[]) {
+    this.tempStore(formType, data, true);
   }
 
   search<T>(hash: string, field: keyof T, event: AutoCompleteCompleteEvent, idField: keyof T, sortField: keyof T): T[] {
@@ -802,10 +809,10 @@ export class ClaimsCommonService {
     }
   }
 
-  findLatestTimestamp(): Date | null {
-    if (this.data.length === 0) return null;
+  findLatestTimestamp(data: PaperTableData[] | InternetTableData[] | TvTableData[] | RadioTableData[]): Date | null {
+    if (data.length === 0) return null;
 
-    return this.data
+    return data
       .filter(claim => claim.updated_at || claim.created_at) // Filter out claims where both dates are null
       .reduce((latest: Date | null, current) => {
         const currentDate = new Date(
@@ -821,14 +828,14 @@ export class ClaimsCommonService {
   }
 
 
-  findLatestFinalizedAt(): Date | null {
-    if (this.data.length === 0) return null;
+  findLatestFinalizedAt(data: PaperTableData[] | InternetTableData[] | TvTableData[] | RadioTableData[]): Date | null {
+    if (data.length === 0) return null;
 
     // Check if all finalFlag properties are set to true
-    const allFinalized = this.data.every(claim => claim.finalFlag);
+    const allFinalized = data.every(claim => claim.finalFlag);
 
     // Find the latest finalized_at date
-    return this.data
+    return data
       .filter(claim => claim.finalized_at) // Filter out null or undefined dates
       .reduce((latest: Date | null, current) => {
         if (!current.finalized_at) return latest;

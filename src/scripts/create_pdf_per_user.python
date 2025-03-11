@@ -1,0 +1,131 @@
+import os
+import pandas as pd
+from fpdf import FPDF
+
+# Define sheet names and corresponding titles
+sheets = {
+    "2023press-decL": "ΕΦΗΜΕΡΙΔΕΣ",
+    "2023www-decL": "ΙΝΤΕΡΝΕΤ",
+    "2023tv-decL": "ΤΗΛΕΟΡΑΣΗ",
+    "2023radio-decL": "ΡΑΔΙΟΦΩΝΟ"
+}
+
+# Define column name replacements
+column_replacements = {
+    "AM": "Αριθμός Μητρώου",
+    "surname": "Επώνυμο",
+    "name": "Όνομα",
+    "signature": "Υπογραφή",
+    "type": "Είδος",
+    "title": "Έντυπο",
+    "wordcount": "Αριθμός λέξεων",
+    "periodicity": "Περιοδικότητα",
+    "role": "Ιδιότητα",
+    "circulation": "Μέση κυκλοφορία",
+    "pageviews": "Εμφανίσεις σελίδας"
+}
+
+# Set output directory to '../assets/2023_distribution/' relative to the script location
+output_dir = os.path.join(os.path.dirname(__file__), '../assets/2023_distribution/')
+os.makedirs(output_dir, exist_ok=True)  # Ensure the directory exists
+
+def load_data(file_path):
+    """Load data from the Excel file."""
+    xls = pd.ExcelFile(file_path)
+    data = {}
+    unique_am_values = set()
+    
+    for sheet in sheets.keys():
+        if sheet in xls.sheet_names:
+            df = pd.read_excel(xls, sheet_name=sheet, dtype=str)
+            if "user_id" in df.columns:
+                df = df.drop(columns=["user_id"], errors='ignore')  # Remove user_id column if exists
+            if sheet == "2023www-decL" and "title_internet_id" in df.columns:
+                df = df.drop(columns=["title_internet_id"], errors='ignore')  # Remove title_internet_id if exists
+            df.rename(columns=column_replacements, inplace=True)  # Rename columns
+            unique_am_values.update(df["Αριθμός Μητρώου"].dropna().unique())
+            data[sheet] = df
+    
+    unique_am_list = sorted(unique_am_values)
+    print(f"Total unique AM values: {len(unique_am_list)}")
+    return data, unique_am_list
+
+def generate_pdfs(data, unique_am_list):
+    """Generate PDF files from extracted data."""
+    
+    for am in unique_am_list:
+        pdf = FPDF(orientation='L')
+        pdf.set_auto_page_break(auto=True, margin=10)
+        pdf.add_page()
+        pdf.add_font("ArialUnicode", "", "C:/Windows/Fonts/arialuni.ttf", uni=True)
+
+        # Add grey gradient banner
+        pdf.set_fill_color(200, 200, 200)
+        pdf.rect(10, 10, 270, 15, 'F')
+        pdf.set_xy(10, 10)
+        
+        # Add logo on the left
+        logo_path = os.path.join(os.path.dirname(__file__), "xenophonBIG.png")
+        if os.path.exists(logo_path):
+            pdf.image(logo_path, x=12, y=12, w=30)
+        
+        # Extract name and surname
+        name, surname = "", ""
+        for sheet in data.values():
+            match = sheet[sheet["Αριθμός Μητρώου"] == am]
+            if not match.empty:
+                surname = match.iloc[0].get("Επώνυμο", "").upper()
+                name = match.iloc[0].get("Όνομα", "").upper()
+                break
+        
+        # Add center title
+        pdf.set_font("ArialUnicode", "", 12)
+        pdf.set_xy(50, 14)
+        pdf.cell(170, 5, f"ΔΗΛΩΣΗ ΕΡΓΩΝ 2023: {surname} {name}", align="C")
+        
+        # Add right-aligned AM value
+        pdf.set_xy(230, 14)
+        pdf.cell(40, 5, f"A/M: {am}", align="R")
+        pdf.ln(15)
+        
+        for sheet, title in sheets.items():
+            df_filtered = data[sheet][data[sheet]["Αριθμός Μητρώου"] == am]
+            if df_filtered.empty:
+                continue
+            
+            pdf.set_font("ArialUnicode", "", 12)
+            pdf.cell(270, 10, title, ln=True, align="C")
+            pdf.ln(3)
+            
+            pdf.set_font("ArialUnicode", "", 6)
+            col_names = df_filtered.columns.tolist()
+            col_widths = [270 // len(col_names)] * len(col_names)  # Adjust to fit all columns
+            
+            for i, col in enumerate(col_names):
+                pdf.cell(col_widths[i], 4, col[:20], border=1, align="C")
+            pdf.ln()
+            
+            for _, row in df_filtered.iterrows():
+                for i, col in enumerate(col_names):
+                    pdf.cell(col_widths[i], 3, str(row[col])[:20], border=1, align="C")
+                pdf.ln()
+            pdf.ln(3)
+        
+        pdf_filename = os.path.join(output_dir, f"{am}_distribution_2023.pdf")
+        pdf.output(pdf_filename, "F")
+        print(f"Generated: {pdf_filename}")
+
+if __name__ == "__main__":
+    import sys
+
+    if len(sys.argv) != 2:
+        print("Usage: python create_pdf_per_user.py <xls_file>")
+        sys.exit(1)
+    
+    excel_file = sys.argv[1]
+    if not os.path.exists(excel_file):
+        print(f"Error: File '{excel_file}' not found.")
+        sys.exit(1)
+    
+    data, unique_am_list = load_data(excel_file)
+    generate_pdfs(data, unique_am_list)

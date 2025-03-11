@@ -41,9 +41,7 @@ export class LoginComponent {
 
     this.authService.login(this.username, this.password).pipe(
       switchMap(response => {
-        if (this.username !== 'zscooter') {
-          return throwError({ status: 401, message: 'Forbidden!' });
-        }
+
         console.log('Login OK');
 
         // Fetch user details after successful login

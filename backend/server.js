@@ -10,11 +10,18 @@ const https = require('https');
 const cors = require('cors');
 const pg = require('pg');
 
+const path = require('path');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const DBURL = process.env.DATABASE_URL;
 const JWTSECRET = process.env.JWT_SECRET;
 const DNS_SITE = process.env.DNS_SITE;
+
+const distributionMapping = {
+      '2023': 'archive_2023',
+      '2024': 'archive_2024'
+};
 
 const disableWordCountRoleIds = [1, 3, 4, 5, 6, 8, 9];
 const disablePeriodicitiesIdsForTvsRadios = [5, 6, 7, 8];
@@ -69,6 +76,7 @@ app.post('/api/login', async (req, res) => {
       //console.log("/api/login2");
       // Compare hashed password
       const isMatch = await bcrypt.compare(password, user.password);
+
       if (isMatch) {
         // Generate JWT
         const token = jwt.sign({ id: user.id }, JWTSECRET, { expiresIn: '1h' });
@@ -244,8 +252,10 @@ app.get('/api/user/checkCredentials', authenticateToken, async (req, res) => {
 
 
 
-app.get('/api/claims/paper', authenticateToken, async (req, res) => {
+app.get('/api/claims/:distributionYear?/paper', authenticateToken, async (req, res) => {
   const { userId } = req.query;
+  const distributionYear = req.params.distributionYear;
+  const schema = distributionYear ? (distributionMapping[distributionYear] || 'public') : 'public';
 
   if (!userId) {
     return res.status(400).json({ message: "userId is required" });
@@ -273,14 +283,14 @@ app.get('/api/claims/paper', authenticateToken, async (req, res) => {
         c.updated_at AS updated_at,
         c.finalized_at AS finalized_at,
         CASE WHEN pte.id IS NOT NULL THEN true ELSE false END AS custom
-      FROM claims_paper c
-      LEFT JOIN claims_titles_papers pt ON c.title_paper_id = pt.id
-      LEFT JOIN claims_titles_papers_extra pte ON c.title_paper_id_extra = pte.id
-      LEFT JOIN claims_paper_types t ON c.paper_type_id = t.id
-      LEFT JOIN claims_periodicities p ON c.periodicity_id = p.id
-      LEFT JOIN claims_roles r ON c.role_id = r.id
-      LEFT JOIN claims_wordcounts wc ON c.wordcount_id = wc.id
-      LEFT JOIN claims_circulations cl ON c.circulation_id = cl.id
+      FROM "${schema}".claims_paper c
+      LEFT JOIN "${schema}".claims_titles_papers pt ON c.title_paper_id = pt.id
+      LEFT JOIN "${schema}".claims_titles_papers_extra pte ON c.title_paper_id_extra = pte.id
+      LEFT JOIN "${schema}".claims_paper_types t ON c.paper_type_id = t.id
+      LEFT JOIN "${schema}".claims_periodicities p ON c.periodicity_id = p.id
+      LEFT JOIN "${schema}".claims_roles r ON c.role_id = r.id
+      LEFT JOIN "${schema}".claims_wordcounts wc ON c.wordcount_id = wc.id
+      LEFT JOIN "${schema}".claims_circulations cl ON c.circulation_id = cl.id
       WHERE c.user_id = $1
       ORDER BY c.id`, // Order by claimId
       [userId]
@@ -337,8 +347,10 @@ app.get('/api/claims/paper', authenticateToken, async (req, res) => {
   }
 });
 
-app.get('/api/claims/internet', authenticateToken, async (req, res) => {
+app.get('/api/claims/:distributionYear?/internet', authenticateToken, async (req, res) => {
   const { userId } = req.query;
+  const distributionYear = req.params.distributionYear;
+  const schema = distributionYear ? (distributionMapping[distributionYear] || 'public') : 'public';
 
   if (!userId) {
     return res.status(400).json({ message: "userId is required" });
@@ -366,14 +378,14 @@ app.get('/api/claims/internet', authenticateToken, async (req, res) => {
         c.updated_at AS updated_at,
         c.finalized_at AS finalized_at,
         CASE WHEN pte.id IS NOT NULL THEN true ELSE false END AS custom
-      FROM claims_internet c
-      LEFT JOIN claims_titles_internet pt ON c.title_internet_id = pt.id
-      LEFT JOIN claims_titles_internet_extra pte ON c.title_internet_id_extra = pte.id
-      LEFT JOIN claims_internet_types t ON c.internet_type_id = t.id
-      LEFT JOIN claims_periodicities p ON c.periodicity_id = p.id
-      LEFT JOIN claims_roles r ON c.role_id = r.id
-      LEFT JOIN claims_wordcounts wc ON c.wordcount_id = wc.id
-      LEFT JOIN claims_pageviews pa ON c.pageviews_id = pa.id
+      FROM "${schema}".claims_internet c
+      LEFT JOIN "${schema}".claims_titles_internet pt ON c.title_internet_id = pt.id
+      LEFT JOIN "${schema}".claims_titles_internet_extra pte ON c.title_internet_id_extra = pte.id
+      LEFT JOIN "${schema}".claims_internet_types t ON c.internet_type_id = t.id
+      LEFT JOIN "${schema}".claims_periodicities p ON c.periodicity_id = p.id
+      LEFT JOIN "${schema}".claims_roles r ON c.role_id = r.id
+      LEFT JOIN "${schema}".claims_wordcounts wc ON c.wordcount_id = wc.id
+      LEFT JOIN "${schema}".claims_pageviews pa ON c.pageviews_id = pa.id
       WHERE c.user_id = $1
       ORDER BY c.id`, // Order by claimId
       [userId]
@@ -431,8 +443,10 @@ app.get('/api/claims/internet', authenticateToken, async (req, res) => {
   }
 });
 
-app.get('/api/claims/tv', authenticateToken, async (req, res) => {
+app.get('/api/claims/:distributionYear?/tv', authenticateToken, async (req, res) => {
   const { userId } = req.query;
+  const distributionYear = req.params.distributionYear;
+  const schema = distributionYear ? (distributionMapping[distributionYear] || 'public') : 'public';
 
   if (!userId) {
     return res.status(400).json({ message: "userId is required" });
@@ -458,12 +472,12 @@ app.get('/api/claims/tv', authenticateToken, async (req, res) => {
         c.updated_at AS updated_at,
         c.finalized_at AS finalized_at,
         CASE WHEN pte.id IS NOT NULL THEN true ELSE false END AS custom
-      FROM claims_tv c
-      LEFT JOIN claims_titles_tv pt ON c.title_tv_id = pt.id
-      LEFT JOIN claims_titles_tv_extra pte ON c.title_tv_id_extra = pte.id
-      LEFT JOIN claims_tv_types t ON c.tv_type_id = t.id
-      LEFT JOIN claims_periodicities p ON c.periodicity_id = p.id
-      LEFT JOIN claims_roles r ON c.role_id = r.id
+      FROM "${schema}".claims_tv c
+      LEFT JOIN "${schema}".claims_titles_tv pt ON c.title_tv_id = pt.id
+      LEFT JOIN "${schema}".claims_titles_tv_extra pte ON c.title_tv_id_extra = pte.id
+      LEFT JOIN "${schema}".claims_tv_types t ON c.tv_type_id = t.id
+      LEFT JOIN "${schema}".claims_periodicities p ON c.periodicity_id = p.id
+      LEFT JOIN "${schema}".claims_roles r ON c.role_id = r.id
       WHERE c.user_id = $1
       ORDER BY c.id`, // Order by claimId
       [userId]
@@ -516,8 +530,10 @@ app.get('/api/claims/tv', authenticateToken, async (req, res) => {
   }
 });
 
-app.get('/api/claims/radio', authenticateToken, async (req, res) => {
+app.get('/api/claims/:distributionYear?/radio', authenticateToken, async (req, res) => {
   const { userId } = req.query;
+  const distributionYear = req.params.distributionYear;
+  const schema = distributionYear ? (distributionMapping[distributionYear] || 'public') : 'public';
 
   if (!userId) {
     return res.status(400).json({ message: "userId is required" });
@@ -543,12 +559,12 @@ app.get('/api/claims/radio', authenticateToken, async (req, res) => {
         c.updated_at AS updated_at,
         c.finalized_at AS finalized_at,
         CASE WHEN pte.id IS NOT NULL THEN true ELSE false END AS custom
-      FROM claims_radio c
-      LEFT JOIN claims_titles_radio pt ON c.title_radio_id = pt.id
-      LEFT JOIN claims_titles_radio_extra pte ON c.title_radio_id_extra = pte.id
-      LEFT JOIN claims_radio_types t ON c.radio_type_id = t.id
-      LEFT JOIN claims_periodicities p ON c.periodicity_id = p.id
-      LEFT JOIN claims_roles r ON c.role_id = r.id
+      FROM "${schema}".claims_radio c
+      LEFT JOIN "${schema}".claims_titles_radio pt ON c.title_radio_id = pt.id
+      LEFT JOIN "${schema}".claims_titles_radio_extra pte ON c.title_radio_id_extra = pte.id
+      LEFT JOIN "${schema}".claims_radio_types t ON c.radio_type_id = t.id
+      LEFT JOIN "${schema}".claims_periodicities p ON c.periodicity_id = p.id
+      LEFT JOIN "${schema}".claims_roles r ON c.role_id = r.id
       WHERE c.user_id = $1
       ORDER BY c.id`, // Order by claimId
       [userId]
@@ -1067,6 +1083,62 @@ app.get('/api/claims/dropdownData', authenticateToken, async (req, res) => {
     client.release();
   }
 });
+
+
+
+
+
+
+
+
+// Serve PDF distribution files
+app.get('/api/download/distributions', authenticateToken, async (req, res) => {
+
+  const { am } = req.query;
+  const pdfPath = path.join(__dirname, '..', '..', 'xenophon', 'src', 'assets', '2023_distribution', `${am}_distribution_2023.pdf`);
+console.log('Distribution path: ' + pdfPath);
+  if (!fs.existsSync(pdfPath)) {
+    return res.status(404).json({ message: "PDF file not found" });
+  }
+
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `attachment; filename="${am}_distribution_2023.pdf"`);
+
+  const fileStream = fs.createReadStream(pdfPath);
+  fileStream.pipe(res);
+});
+
+// Serve PDF distribution files
+app.get('/api/download/contracts', authenticateToken, async (req, res) => {
+
+  const { am } = req.query;
+  const contractsDir = path.join(__dirname, '..', '..', 'xenophon', 'src', 'assets', '2023_contracts');
+
+  let fileName;
+  try {
+    const files = fs.readdirSync(contractsDir);
+    fileName = files.find(f => f.startsWith(`${am}_`));
+  } catch (err) {
+    console.error('Error reading contracts directory:', err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+
+  if (!fileName) {
+    return res.status(404).json({ message: "PDF file not found" });
+  }
+
+  const pdfPath = path.join(contractsDir, fileName);
+console.log('Contract path: ' + pdfPath);
+
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `attachment; filename="${am}_contract_2023.pdf"`);
+
+  const fileStream = fs.createReadStream(pdfPath);
+  fileStream.pipe(res);
+});
+
+
+
 
 
 

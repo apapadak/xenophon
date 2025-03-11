@@ -9,7 +9,7 @@
 
 <div class="card">
   <form #claimsInternetForm="ngForm"  >
-    <p-table [value]="claimsCommonService.data" class="claims-table flexible-width p-datatable-min-height">
+    <p-table [value]="claimsCommonService.internetData" class="claims-table flexible-width p-datatable-min-height">
       <ng-template pTemplate="header">
         <tr class="">
           <th class="min-width-150 header-tight-padding">Ενέργειες</th>
@@ -27,7 +27,7 @@
           <td class="cell-tight-padding">
             <div class="button-container">
               <p-button icon="pi pi-check" (click)="claimsCommonService.saveInternetRow(claimsInternetForm, rowData)" class="p-button-success p-mr-2" [disabled]="rowData.disabled"></p-button>
-              <p-button icon="pi pi-trash" [disabled]="!claimsCommonService.showControls()" (click)="claimsCommonService.deleteRow(i)" class="p-button-danger"></p-button>
+              <p-button icon="pi pi-trash" [disabled]="!claimsCommonService.showControls(claimsCommonService.internetData)" (click)="claimsCommonService.deleteRow(i, claimsCommonService.internetData)" class="p-button-danger"></p-button>
             </div>
           </td>
 
@@ -180,11 +180,11 @@
     </p-table>
   </form>
 
-  <div *ngIf="claimsCommonService.showControls()" id="addAndStoreControls" class="addAndStoreControls">
-    <p-button label="Προσθήκη μέσου" (click)="claimsCommonService.addInternetRow()" icon="pi pi-plus" aria-label="Add new row" [disabled]="claimsCommonService.isAddRowDisabled()"></p-button>
+  <div *ngIf="claimsCommonService.showControls(claimsCommonService.internetData)" id="addAndStoreControls" class="addAndStoreControls">
+    <p-button label="Προσθήκη μέσου" (click)="claimsCommonService.addInternetRow()" icon="pi pi-plus" aria-label="Add new row" [disabled]="claimsCommonService.isAddRowDisabled(claimsCommonService.internetData)"></p-button>
 
-    <p-button label="Προσωρινή αποθήκευση" (click)="claimsCommonService.tempStore('internet', false)" icon="pi" aria-label="Προσωρινή αποθήκευση" [disabled]="claimsCommonService.isStoreButtonsDisabled()"></p-button>
-    <p-button label="Οριστική αποθήκευση" (click)="claimsCommonService.confirmFinalStore('internet')" icon="pi" aria-label="Οριστική αποθήκευση" [disabled]="claimsCommonService.isStoreButtonsDisabled()"></p-button>
+    <p-button label="Προσωρινή αποθήκευση" (click)="claimsCommonService.tempStore('internet', claimsCommonService.internetData, false)" icon="pi" aria-label="Προσωρινή αποθήκευση" [disabled]="claimsCommonService.isStoreButtonsDisabled(claimsCommonService.internetData)"></p-button>
+    <p-button label="Οριστική αποθήκευση" (click)="claimsCommonService.confirmFinalStore('internet', claimsCommonService.internetData)" icon="pi" aria-label="Οριστική αποθήκευση" [disabled]="claimsCommonService.isStoreButtonsDisabled(claimsCommonService.internetData)"></p-button>
   </div>
 </div>
 

@@ -9,8 +9,9 @@ import {AutoCompleteModule} from "primeng/autocomplete";
 import {PanelMenuModule} from "primeng/panelmenu";
 import {CommonModule} from "@angular/common";
 import {ToastModule} from "primeng/toast";
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {ClaimsCommonService} from '../../../helpers/common/claims-common.service';
+import {UserService} from '../../../services/UserService';
 
 @Component({
   selector: 'app-home',
@@ -41,9 +42,10 @@ export class PaperClaimsComponent {
   userInfo: any;
 
   constructor(
-    public claimsCommonService: ClaimsCommonService
+    public claimsCommonService: ClaimsCommonService,
+    public userService: UserService
   ) {
-    this.userInfo = this.claimsCommonService.getUserInfo();
+    this.userInfo = userService.getUserInfo();
 
     this.claimsCommonService.fetchPaperClaims();
   }

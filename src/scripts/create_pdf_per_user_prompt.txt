@@ -1,0 +1,68 @@
+here's an .xls file and we will create together a python script where the input is this .xls file and the output is 10 pdf files.
+
+Identify the sheets named 
+
+'2023press-decL'
+'2023www-decL'
+'2023tv-decL'
+'2023radio-decL'
+
+The 2nd column in all these sheets is named 'AM'.
+
+Identify all unique (not duplicate) values of the 'AM' column in all the sheets 
+and print their count as output
+store them in a list
+and continue on the script
+
+The algorithm is as follows:
+
+Start from the top of the '2023press-decL' sheet and per each individual value in the unique AM list (defined previously), find all the respective lines (in the same sheet) that have this value in the 'AM' column.
+Keep them somewhere temporary but remove the 'user_id' column in your stored value.
+Per individual value, after you've found all the lines in the '2023press-decL' sheet, continue to the '2023www-decL' sheet to find all lines that have this same individual value in the 'AM' column. There may be many, there may none.
+Again, keep them but remove the 'title_internet_id' column in your stored value.
+Do the same for '2023tv-decL' sheet and '2023radio-decL' sheet.
+
+Per individual value, I want you to output every finding from all the sheets into a pdf file. 
+Keep all information in one page and in 4 different tables, one per each sheet.
+Use font size 6 in the table contents and 12 in the title of the table. 
+Use small cells so that all the information of every line can fit in the page from left to right.
+
+Put the respective title into each table:
+For sheet '2023press-decL': ΕΦΗΜΕΡΙΔΕΣ
+For sheet '2023www-decL': ΙΝΤΕΡΝΕΤ
+For sheet '2023tv-decL': ΤΗΛΕΟΡΑΣΗ
+For sheet '2023radio-decL': ΡΑΔΙΟΦΩΝΟ
+
+Per header of the every table, replace as follows:
+For header 'AM' : Αριθμός Μητρώου
+For header 'surname' : Επώνυμο
+For header 'name' : Όνομα
+For header 'signature' : Υπογραφή
+For header 'type' : Είδος
+For header 'title' : Έντυπο
+For header 'wordcount' : 	Αριθμός λέξεων
+For header 'periodicity' : Περιοδικότητα
+For header 'role' : Ιδιότητα
+For header 'circulation' : 	Μέση κυκλοφορία
+For header 'pageviews' : Εμφανίσεις σελίδας
+
+
+Always use ArialUnicode font.
+
+
+Put as title on top of each pdf a grey gradient of about 30 pixels in height.
+This has 3 distinct parts.
+Left: Use the logo in the xenophonBIG.png image found in the same directory as the script
+Center: In bold: 'ΔΗΛΩΣΗ ΕΡΓΩΝ 2023: ' and after that concat the actual value of the 'surname' and 'name' columns, with a space in between them and in capital.
+Right: 'A/M: ' and concat the unique value of the 'AM' column .
+
+Now name each individual pdf as follows:
+
+the value in the 'AM' column_distribution_2023.pdf  
+
+Don't do this -> And for now, limit the number of pdfs that the script generates to 30.
+
+Generate such a script in python and I'll run it locally.
+
+The script is located inside the directory scripts/ but the output directory '2023_distribution' inside assets/ which is on the same level which scripts/.
+So you should output to ../scripts/2023_distribution or something.
