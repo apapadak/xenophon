@@ -10,11 +10,11 @@ import {UserService} from '../../services/UserService';
 export interface BaseTableData {
   claimId: number;
 
-  signature: string;
+  signature?: string | null;
 
-  periodicity: PeriodicityData | null;
-  role: RoleData | null;
-  wordcount: WordcountData | null;
+  periodicity?: PeriodicityData | null;
+  role?: RoleData | null;
+  wordcount?: WordcountData | null;
 
   disabled: boolean; // Add this property used for disabling the whole row when needed
   finalFlag: boolean;
@@ -49,12 +49,12 @@ type RadioTableDataPreMerge = {
 
 
 type TypeTableDataPreMerge = {
-  signature: string;
-  periodicity: PeriodicityData | null;
+  signature?: string | null;
+  periodicity?: PeriodicityData | null;
 } & Omit<BaseTableData, 'signature'>;
 
 type TvTypeTableDataPreMerge = {
-  signature: string;
+  signature: string | null;
   periodicity: PeriodicityData | null;
 } & Omit<BaseTableData, 'signature'>;
 
@@ -69,6 +69,10 @@ export interface PaperTypeTableData extends TypeTableDataPreMerge  {
 
 export interface InternetTypeTableData extends TypeTableDataPreMerge  {
   internetType: TypeData | null;
+}
+
+export interface OtherTypeTableData extends TypeTableDataPreMerge  {
+  titleOther: TitleOtherData | null;
 }
 
 export interface TvTypeTableData extends TvTypeTableDataPreMerge {
@@ -104,6 +108,12 @@ export interface RadioTableData extends RadioTypeTableData {
   circulation: CirculationData | number | null;
 }
 
+export interface OtherTableData extends OtherTypeTableData {
+  otherType: OtherTypeData;
+
+
+}
+
 
 
 
@@ -135,10 +145,23 @@ export interface TitleRadioData {
   custom: boolean;
 }
 
+export interface TitleOtherData {
+  id: number;
+  title: string;
+}
+
 export interface TypeData {
   id: number;
   type: string;
 }
+
+export interface OtherTypeData {
+  id: number;
+  type: string;
+
+  custom: boolean;
+}
+
 
 export interface PeriodicityData {
   id: number;
@@ -182,11 +205,13 @@ export class ClaimsCommonService {
   internetData: InternetTableData[] = [];
   tvData: TvTableData[] = [];
   radioData: RadioTableData[] = [];
+  otherData: OtherTableData[] = [];
 
   titlePapers: TitlePaperData[] = [];
   titleInternet: TitleInternetData[] = [];
   titleTv: TitleTvData[] = [];
   titleRadio: TitleRadioData[] = [];
+  titleOther: TitleOtherData[] = [];
   //filteredTitlePapers: TitlePaperData[] = [];
   //filteredTitleInternet: TitleInternetData[] = [];
 
@@ -194,12 +219,15 @@ export class ClaimsCommonService {
   internettypes: TypeData[] = [];
   tvtypes: TypeData[] = [];
   radiotypes: TypeData[] = [];
+  othertypes: OtherTypeData[] = [];
 
   periodicities: PeriodicityData[] = [];
   tvperiodicities: PeriodicityData[] = [];
   radioperiodicities: PeriodicityData[] = [];
 
-  roles: RoleData[] = [];
+  //roles: RoleData[] = [];
+  paperInternetRoles: RoleData[] = [];
+  tvRadioRoles: RoleData[] = [];
 
   wordcounts: WordcountData[] = [];
 
@@ -235,16 +263,21 @@ export class ClaimsCommonService {
       this.titleInternet = data.titleInternet;
       this.titleTv = data.titleTv;
       this.titleRadio = data.titleRadio;
+      this.titleOther = data.titleOther;
 
       this.papertypes = data.papertypes;
       this.internettypes = data.internettypes;
       this.tvtypes = data.tvtypes;
       this.radiotypes = data.radiotypes;
+      this.othertypes = data.othertypes;
 
       this.periodicities = data.periodicities;
       this.tvperiodicities = data.tvperiodicities;
       this.radioperiodicities = data.radioperiodicities;
-      this.roles = data.roles;
+      //this.roles = data.roles;
+      this.paperInternetRoles = data.paperInternetRoles;
+      this.tvRadioRoles = data.tvRadioRoles;
+
       this.wordcounts = data.wordcounts;
       this.circulations = data.circulations;
       this.pageviews = data.pageviews;
@@ -253,16 +286,20 @@ export class ClaimsCommonService {
       sessionStorage.setItem('titleInternet', JSON.stringify(this.titleInternet));
       sessionStorage.setItem('titleTv', JSON.stringify(this.titleTv));
       sessionStorage.setItem('titleRadio', JSON.stringify(this.titleRadio));
+      sessionStorage.setItem('titleOther', JSON.stringify(this.titleOther));
 
       sessionStorage.setItem('papertypes', JSON.stringify(this.papertypes));
       sessionStorage.setItem('internettypes', JSON.stringify(this.internettypes));
       sessionStorage.setItem('tvtypes', JSON.stringify(this.tvtypes));
       sessionStorage.setItem('radiotypes', JSON.stringify(this.radiotypes));
+      sessionStorage.setItem('othertypes', JSON.stringify(this.othertypes));
 
       sessionStorage.setItem('periodicities', JSON.stringify(this.periodicities));
       sessionStorage.setItem('tvperiodicities', JSON.stringify(this.tvperiodicities));
       sessionStorage.setItem('radioperiodicities', JSON.stringify(this.radioperiodicities));
-      sessionStorage.setItem('roles', JSON.stringify(this.roles));
+      //sessionStorage.setItem('roles', JSON.stringify(this.roles));
+      sessionStorage.setItem('paperInternetRoles', JSON.stringify(this.paperInternetRoles));
+      sessionStorage.setItem('tvRadioRoles', JSON.stringify(this.tvRadioRoles));
       sessionStorage.setItem('wordcounts', JSON.stringify(this.wordcounts));
       sessionStorage.setItem('circulations', JSON.stringify(this.circulations));
       sessionStorage.setItem('pageviews', JSON.stringify(this.pageviews));
@@ -274,16 +311,20 @@ export class ClaimsCommonService {
       sessionStorage.removeItem('titleInternet');
       sessionStorage.removeItem('titleTv');
       sessionStorage.removeItem('titleRadio');
+      sessionStorage.removeItem('titleOther');
 
       sessionStorage.removeItem('papertypes');
       sessionStorage.removeItem('internettypes');
       sessionStorage.removeItem('tvtypes');
       sessionStorage.removeItem('radiotypes');
+      sessionStorage.removeItem('othertypes');
 
       sessionStorage.removeItem('periodicities');
       sessionStorage.removeItem('tvperiodicities');
       sessionStorage.removeItem('radioperiodicities');
-      sessionStorage.removeItem('roles');
+      //sessionStorage.removeItem('roles');
+      sessionStorage.removeItem('paperInternetRoles');
+      sessionStorage.removeItem('tvRadioRoles');
       sessionStorage.removeItem('wordcounts');
       sessionStorage.removeItem('circulations');
       sessionStorage.removeItem('pageviews');
@@ -389,6 +430,31 @@ export class ClaimsCommonService {
     });
   }
 
+  fetchOtherClaims(distributionYear?: number) {
+    console.log('userInfo: ', this.userInfo);
+
+    this.claimsService.getOtherClaims(this.userInfo.user_id, distributionYear ? distributionYear.toString() : undefined).subscribe({
+      next: (data) => {
+        this.otherData = data.map((row: OtherTableData) => ({  // Add disabled flag to each row in the fetched data
+          ...row,
+          disabled: true
+        }));
+
+        if (this.otherData.length === 0) {
+          this.addOtherRow();
+        }
+
+        this.latestTimestampAt = this.findLatestTimestamp(this.otherData);
+        this.latestFinalizedAt = this.findLatestFinalizedAt(this.otherData);
+
+        console.log('data:', this.otherData);
+      },
+      error: (err) => {
+        console.error('Failed to fetch other claims:', err);
+      }
+    });
+  }
+
   addPaperRow() {
     const newRow: PaperTableData = {
       claimId: -1,
@@ -464,6 +530,21 @@ export class ClaimsCommonService {
 
     this.radioData.push(newRow);
   }
+
+  addOtherRow() {
+    const newRow: OtherTableData = {
+      claimId: -1,
+
+      titleOther: null,
+      otherType: { id: -1, type: '', custom: false },
+
+      disabled: false,
+      finalFlag: false
+    };
+
+    this.otherData.push(newRow);
+  }
+
 
 
   savePaperRow(form: NgForm, rowData: PaperTableData) {
@@ -585,6 +666,35 @@ export class ClaimsCommonService {
     }
   }
 
+  saveOtherRow(form: NgForm, rowData: OtherTableData) {
+    console.log(rowData);
+
+    console.log(form.controls);
+    Object.keys(form.controls).forEach(controlName => {
+      const control = form.controls[controlName];
+      control.markAsTouched();
+    });
+
+    if (this.isValidOtherRow(rowData)) {
+      console.log('Saving other row data:', rowData);
+
+      if (typeof rowData.otherType === 'string') {
+        rowData.otherType = {
+          id: -1,
+          type: rowData.otherType,
+          custom: true
+        };
+      } else {
+        rowData.otherType.custom = false;
+      }
+
+      rowData.disabled = true; // Ensure the row is disabled after saving
+      console.log('other row data prepared for saving:', this.otherData);
+    } else {
+      console.error('Validation failed for other row data:', rowData);
+    }
+  }
+
   value(control: NgModel): boolean {
     console.log(control);
     return true;//control.invalid && (control.dirty || control.touched);
@@ -626,7 +736,12 @@ export class ClaimsCommonService {
       !!rowData.role
   }
 
-  deleteRow(index: number, data: PaperTableData[] | InternetTableData[] | TvTableData[] | RadioTableData[]) {
+  isValidOtherRow(rowData: OtherTableData): boolean {
+    return !!rowData.titleOther &&
+      !!rowData.otherType
+  }
+
+  deleteRow(index: number, data: PaperTableData[] | InternetTableData[] | TvTableData[] | RadioTableData[] | OtherTableData[]) {
     data.splice(index, 1);
 
     this.isAnyRowDeleted = true;
@@ -638,22 +753,22 @@ export class ClaimsCommonService {
     console.log('2 ', data);
   }
 
-  isStoreButtonsDisabled(data: PaperTableData[] | InternetTableData[] | TvTableData[] | RadioTableData[]): boolean {
+  isStoreButtonsDisabled(data: PaperTableData[] | InternetTableData[] | TvTableData[] | RadioTableData[] | OtherTableData[]): boolean {
     //console.log(data);
     //console.log('data.length ', data.length, ' this.isAnyRowDeleted:', this.isAnyRowDeleted, ' ', data.every(row => row.disabled === true));
     return (data.length == 0 && !this.isAnyRowDeleted) || (data.length > 0 && !(data as BaseTableData[]).every(row => row.disabled));
   }
 
-  showControls(data: PaperTableData[] | InternetTableData[] | TvTableData[] | RadioTableData[]): boolean {
+  showControls(data: PaperTableData[] | InternetTableData[] | TvTableData[] | RadioTableData[] | OtherTableData[]): boolean {
    // console.log(this.isAnyRowDeleted, ' ', !(data as BaseTableData[]).every(row => row.finalFlag));
     return this.isAnyRowDeleted || !(data as BaseTableData[]).every(row => row.finalFlag);
   }
 
-  isAddRowDisabled(data: PaperTableData[] | InternetTableData[] | TvTableData[] | RadioTableData[]): boolean {
+  isAddRowDisabled(data: PaperTableData[] | InternetTableData[] | TvTableData[] | RadioTableData[] | OtherTableData[]): boolean {
     return (data.length == 0 && !this.isAnyRowDeleted) || data.some(row => !row.disabled);
   }
 
-  tempStore(formType: 'paper' | 'internet' | 'tv' | 'radio', data: PaperTableData[] | InternetTableData[] | TvTableData[] | RadioTableData[], finalFlag: boolean) {
+  tempStore(formType: 'paper' | 'internet' | 'tv' | 'radio' | 'other', data: PaperTableData[] | InternetTableData[] | TvTableData[] | RadioTableData[] | OtherTableData[], finalFlag: boolean) {
     const payload = {
       userId: this.userInfo.user_id,
       claims: data.map(({ disabled, ...row }) => ({
@@ -683,6 +798,9 @@ export class ClaimsCommonService {
       case 'radio':
         saveClaimsObservable = this.claimsService.saveRadioClaims(payload);
         break;
+      case 'other':
+        saveClaimsObservable = this.claimsService.saveOtherClaims(payload);
+        break;
       default:
         console.error('Unknown form type');
     }
@@ -708,6 +826,9 @@ export class ClaimsCommonService {
             case 'radio':
               this.fetchRadioClaims()
               break;
+            case 'other':
+              this.fetchOtherClaims()
+              break;
             default:
               console.error('Unknown form type');
           }
@@ -724,7 +845,7 @@ export class ClaimsCommonService {
     }
   }
 
-  confirmFinalStore(formType: 'paper' | 'internet' | 'tv' | 'radio', data: PaperTableData[] | InternetTableData[] | TvTableData[] | RadioTableData[]) {
+  confirmFinalStore(formType: 'paper' | 'internet' | 'tv' | 'radio' | 'other', data: PaperTableData[] | InternetTableData[] | TvTableData[] | RadioTableData[] | OtherTableData[]) {
     this.confirmationService.confirm({
       message: 'Είστε σίγουροι ότι θέλετε να προχωρήσετε?\nΔεν επιτρέπονται άλλες αλλαγές μετά την Οριστική Αποθήκευση.',
       accept: () => {
@@ -733,7 +854,7 @@ export class ClaimsCommonService {
     });
   }
 
-  finalStore(formType: 'paper' | 'internet' | 'tv' | 'radio', data: PaperTableData[] | InternetTableData[] | TvTableData[] | RadioTableData[]) {
+  finalStore(formType: 'paper' | 'internet' | 'tv' | 'radio' | 'other', data: PaperTableData[] | InternetTableData[] | TvTableData[] | RadioTableData[] | OtherTableData[]) {
     this.tempStore(formType, data, true);
   }
 
@@ -809,7 +930,7 @@ export class ClaimsCommonService {
     }
   }
 
-  findLatestTimestamp(data: PaperTableData[] | InternetTableData[] | TvTableData[] | RadioTableData[]): Date | null {
+  findLatestTimestamp(data: PaperTableData[] | InternetTableData[] | TvTableData[] | RadioTableData[] | OtherTableData[]): Date | null {
     if (data.length === 0) return null;
 
     return data
@@ -828,7 +949,7 @@ export class ClaimsCommonService {
   }
 
 
-  findLatestFinalizedAt(data: PaperTableData[] | InternetTableData[] | TvTableData[] | RadioTableData[]): Date | null {
+  findLatestFinalizedAt(data: PaperTableData[] | InternetTableData[] | TvTableData[] | RadioTableData[] | OtherTableData[]): Date | null {
     if (data.length === 0) return null;
 
     // Check if all finalFlag properties are set to true

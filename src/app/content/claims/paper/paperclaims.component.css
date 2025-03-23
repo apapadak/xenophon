@@ -112,6 +112,11 @@ p-button {
   max-width: 100%; /* Ensure it doesn't exceed the container's width */
 }
 
+.notes {
+  color: red;
+  font-weight: bold;
+}
+
 /*.custom-autocomplete {
   display: block;
   width: 250px; // Adjust the width as needed

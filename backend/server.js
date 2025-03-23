@@ -23,8 +23,11 @@ const distributionMapping = {
       '2024': 'archive_2024'
 };
 
-const disableWordCountRoleIds = [1, 3, 4, 5, 6, 8, 9];
+const disableWordCountRoleIds = [1, 3, 4, 6, 7];
 const disablePeriodicitiesIdsForTvsRadios = [5, 6, 7, 8];
+
+const disableRolesIdsForPaperInternet = [6];
+const disableRolesIdsForTvRadio = [4];
 
 const saltRounds = 10;
 
@@ -617,6 +620,85 @@ app.get('/api/claims/:distributionYear?/radio', authenticateToken, async (req, r
   }
 });
 
+app.get('/api/claims/:distributionYear?/other', authenticateToken, async (req, res) => {
+  const { userId } = req.query;
+  const distributionYear = req.params.distributionYear;
+  const schema = distributionYear ? (distributionMapping[distributionYear] || 'public') : 'public';
+
+  if (!userId) {
+    return res.status(400).json({ message: "userId is required" });
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT
+        c.id AS claimId,
+        ot.id AS title_other_id,
+        ot.title AS title,
+        COALESCE(t.id, te.id) AS typeother_id,
+        COALESCE(t.type, te.type_extra) AS typeother_type,
+/*        p.id AS periodicity_id,
+        p.periodicity,
+        r.id AS role_id,
+        r.role,
+        wc.id AS wordcount_id,
+        wc.wordcount,
+        cl.id AS circulation_id,
+        cl.circulation,*/
+        c.finalflag AS "finalFlag",
+        c.created_at AS created_at,
+        c.updated_at AS updated_at,
+        c.finalized_at AS finalized_at,
+        CASE WHEN te.id IS NOT NULL THEN true ELSE false END AS custom
+      FROM "${schema}".claims_other c
+      LEFT JOIN "${schema}".claims_titles_other ot ON c.title_other_id = ot.id
+      LEFT JOIN "${schema}".claims_other_types t ON c.other_type_id = t.id
+      LEFT JOIN "${schema}".claims_other_types_extra te ON c.other_type_id_extra = te.id
+      /*LEFT JOIN "${schema}".claims_periodicities p ON c.periodicity_id = p.id
+      LEFT JOIN "${schema}".claims_roles r ON c.role_id = r.id
+      LEFT JOIN "${schema}".claims_wordcounts wc ON c.wordcount_id = wc.id
+      LEFT JOIN "${schema}".claims_circulations cl ON c.circulation_id = cl.id*/
+      WHERE c.user_id = $1
+      ORDER BY c.id`, // Order by claimId
+      [userId]
+    );
+
+    // Print each row line by line
+    if ( process.env.NODE_ENV === 'local' ) {
+      result.rows.forEach(row => {
+        console.log('Row:', row);
+      });
+    }
+
+    const claims = result.rows.map(row => ({
+      claimId: row.claimid,
+      titleOther: {
+        id: row.title_other_id,
+        title: row.title
+      },
+      otherType: {
+        id: row.typeother_id,
+        type: row.typeother_type,
+        custom: row.custom
+      },
+      finalFlag: row.finalFlag,
+      created_at : row.created_at,
+      updated_at : row.updated_at,
+      finalized_at : row.finalized_at
+    }));
+
+    if ( process.env.NODE_ENV === 'local' ) {
+      console.log('\n\nSuccess fetching claims: ', claims, '\n\n');
+    }
+    res.status(200).json(claims);
+  } catch (error) {
+    console.error('Error fetching claims:', error);
+    res.status(500).send('Error fetching claims');
+  }
+});
+
+
+
 
 
 
@@ -1032,19 +1114,118 @@ app.post('/api/claims/radio/saveClaims', async (req, res) => {
   }
 });
 
+app.post('/api/claims/other/saveClaims', async (req, res) => {
+  const { userId, claims, finalFlag } = req.body;
+
+  if ( process.env.NODE_ENV === 'local' ) {
+    console.log('Received userId:', userId);
+    console.log('Received other claims:', JSON.stringify(claims, null, 2));
+    console.log('Received finalFlag:', finalFlag);
+  }
+
+  try {
+    await pool.query('BEGIN');
+
+    // Fetch all existing claims for the user
+    const existingClaimsResult = await pool.query(
+      'SELECT id FROM claims_other WHERE user_id = $1',
+      [userId]
+    );
+    const existingClaims = existingClaimsResult.rows;
+
+    // Identify claims to delete
+    const existingClaimIds = existingClaims.map(claim => claim.id);
+    const incomingClaimIds = claims.map(claim => claim.claimId);
+    const claimsToDelete = existingClaimIds.filter(id => !incomingClaimIds.includes(id));
+
+    // Delete the claims that are no longer present in the request
+    if (claimsToDelete.length > 0) {
+      await pool.query(
+        'DELETE FROM claims_other WHERE id = ANY($1::int[])',
+        [claimsToDelete]
+      );
+    }
+
+    for (const claim of claims) {
+      const {
+        claimId,
+        titleOther,
+        otherType,
+      } = claim;
+
+      let other_type_id = null;
+      let other_type_id_extra = null;
+
+      if (otherType.custom) {
+        if (otherType.id === -1) {
+          const result = await pool.query(
+            'INSERT INTO claims_other_types_extra (type_extra) VALUES ($1) RETURNING id',
+            [otherType.type]
+          );
+          other_type_id_extra = result.rows[0].id;
+        } else {
+          other_type_id_extra = otherType.id;
+        }
+      } else {
+        other_type_id = otherType.id;
+      }
+
+      if (claimId === -1) {
+        await pool.query(
+          `INSERT INTO claims_other (
+            user_id, title_other_id, other_type_id, other_type_id_extra,
+            finalFlag, created_at, finalized_at
+          ) VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP,
+                    CASE WHEN $6 THEN CURRENT_TIMESTAMP ELSE NULL END)`,
+          [
+            userId, titleOther.id, other_type_id, other_type_id_extra,
+            finalFlag, finalFlag
+          ]
+        );
+      } else {
+        await pool.query(
+          `UPDATE claims_other SET
+            user_id = $1, title_other_id = $2,
+            other_type_id = $3, other_type_id_extra = $4, finalFlag = $5, updated_at = CURRENT_TIMESTAMP,
+            finalized_at = CASE WHEN $6 THEN CURRENT_TIMESTAMP ELSE finalized_at END
+          WHERE id = $7`,
+          [
+            userId, titleOther.id, other_type_id, other_type_id_extra,
+            finalFlag, finalFlag, claimId
+          ]
+        );
+      }
+    }
+
+    await pool.query('COMMIT');
+    if ( process.env.NODE_ENV === 'production' ) {
+      console.log(`[${new Date().toISOString()}] [${finalFlag ? 'FINAL SAVE' : 'TEMP SAVE'} (other) EVENT] : user_id: ${userId}`);
+    }
+    res.status(200).json({ message: 'Claims saved successfully' });
+  } catch (error) {
+    await pool.query('ROLLBACK');
+    console.error('Error saving claims:', error);
+    res.status(500).send('Error saving claims');
+  }
+});
+
+
+
 
 app.get('/api/claims/dropdownData', authenticateToken, async (req, res) => {
   const client = await pool.connect();
-//disablePeriodicitiesIdsForTvsRadios
+
   try {
     const titlePapersResult = await client.query('SELECT * FROM claims_titles_papers');
     const titleInternetResult = await client.query('SELECT * FROM claims_titles_internet');
     const titleTvResult = await client.query('SELECT * FROM claims_titles_tv');
     const titleRadioResult = await client.query('SELECT * FROM claims_titles_radio');
+    const titleOtherResult = await client.query('SELECT * FROM claims_titles_other');
     const papertypesResult = await client.query('SELECT * FROM claims_paper_types');
     const internettypesResult = await client.query('SELECT * FROM claims_internet_types');
     const tvtypesResult = await client.query('SELECT * FROM claims_tv_types');
     const radiotypesResult = await client.query('SELECT * FROM claims_radio_types');
+    const othertypesResult = await client.query('SELECT * FROM claims_other_types');
     const periodicitiesResult = await client.query('SELECT * FROM claims_periodicities');
     const rolesResult = await client.query('SELECT * FROM claims_roles');
     const wordcountsResult = await client.query('SELECT * FROM claims_wordcounts');
@@ -1062,16 +1243,21 @@ app.get('/api/claims/dropdownData', authenticateToken, async (req, res) => {
       titleInternet: titleInternetResult.rows,
       titleTv: titleTvResult.rows,
       titleRadio: titleRadioResult.rows,
+      titleOther: titleOtherResult.rows,
 
       papertypes: papertypesResult.rows,
       internettypes: internettypesResult.rows,
       tvtypes: tvtypesResult.rows,
       radiotypes: radiotypesResult.rows,
+      othertypes: othertypesResult.rows,
 
       periodicities: periodicitiesResult.rows,
       tvperiodicities: periodicitiesResult.rows.filter(row => !disablePeriodicitiesIdsForTvsRadios.includes(row.id)),
       radioperiodicities: periodicitiesResult.rows.filter(row => !disablePeriodicitiesIdsForTvsRadios.includes(row.id)),
-      roles: roles,
+//      roles: roles,
+      paperInternetRoles: roles.filter(row => !disableRolesIdsForPaperInternet.includes(row.id)),
+      tvRadioRoles:       roles.filter(row => !disableRolesIdsForTvRadio.includes(row.id)),
+
       wordcounts: wordcountsResult.rows,
       circulations: circulationsResult.rows,
       pageviews: pageviewsResult.rows

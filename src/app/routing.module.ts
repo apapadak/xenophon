@@ -12,6 +12,7 @@ import {PageNotFoundComponent} from "./helpers/notfound/page-not-found.component
 import {InternetClaimsComponent} from "./content/claims/internet/internetclaims.component";
 import {TvClaimsComponent} from "./content/claims/tv/tvclaims.component";
 import {RadioClaimsComponent} from "./content/claims/radio/radioclaims.component";
+import {OtherClaimsComponent} from "./content/claims/other/otherclaims.component";
 import {AdminComponent} from "./admin/admin.component";
 
 export const routes: Routes = [
@@ -29,6 +30,7 @@ export const routes: Routes = [
       { path: 'internetclaims', component: InternetClaimsComponent, canActivate: [AuthGuard] },
       { path: 'tvclaims', component: TvClaimsComponent, canActivate: [AuthGuard] },
       { path: 'radioclaims', component: RadioClaimsComponent, canActivate: [AuthGuard] },
+      { path: 'otherclaims', component: OtherClaimsComponent, canActivate: [AuthGuard] },
       { path: 'payments', component: PaymentsComponent, canActivate: [AuthGuard] },
       { path: 'distributions', component: DistributionsComponent, canActivate: [AuthGuard] },
       { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },

@@ -24,6 +24,10 @@ export class ClaimsService {
      return this.http.get<any>(`${this.apiClaimsUrl}/${distributionYear ? distributionYear + '/' : ''}radio/?userId=${userId}`);
   }
 
+  getOtherClaims(userId: string, distributionYear?: string) {
+     return this.http.get<any>(`${this.apiClaimsUrl}/${distributionYear ? distributionYear + '/' : ''}other/?userId=${userId}`);
+  }
+
   savePaperClaims(payload: any): Observable<any> {
     return this.http.post<any>(`${this.apiClaimsUrl}/paper/saveClaims`, payload);
   }
@@ -38,6 +42,10 @@ export class ClaimsService {
 
   saveRadioClaims(payload: any): Observable<any> {
     return this.http.post<any>(`${this.apiClaimsUrl}/radio/saveClaims`, payload);
+  }
+
+  saveOtherClaims(payload: any): Observable<any> {
+    return this.http.post<any>(`${this.apiClaimsUrl}/other/saveClaims`, payload);
   }
 
   getDropdownData(): Observable<any> {

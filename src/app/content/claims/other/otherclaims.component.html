@@ -1,0 +1,86 @@
+<h1>ΑΛΛΟ</h1>
+
+<p-confirmDialog header="Επιβεβαίωση"></p-confirmDialog>
+<p-toast></p-toast>
+
+<div class="card">
+  <form #claimsOtherForm="ngForm"  >
+    <p-table [value]="claimsCommonService.otherData" class="claims-table flexible-width p-datatable-min-height">
+      <ng-template pTemplate="header">
+        <tr class="">
+          <th class="min-width-150 header-tight-padding">Ενέργειες</th>
+          <th class="min-width-150 header-tight-padding">Άλλο</th>
+          <th class="min-width-150 header-tight-padding">Ιδιότητα</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-i="rowIndex">
+        <tr>
+          <td class="cell-tight-padding">
+            <div class="button-container">
+              <p-button icon="pi pi-check" (click)="claimsCommonService.saveOtherRow(claimsOtherForm, rowData)" class="p-button-success p-mr-2" [disabled]="rowData.disabled"></p-button>
+              <p-button icon="pi pi-trash" [disabled]="!claimsCommonService.showControls(claimsCommonService.otherData)" (click)="claimsCommonService.deleteRow(i, claimsCommonService.otherData)" class="p-button-danger"></p-button>
+            </div>
+          </td>
+
+          <td class="cell-tight-padding">
+            <p-autoComplete appendTo="body"
+                            required
+                            #title="ngModel"
+                            [(ngModel)]="rowData.titleOther"
+                            name="titleOther{{i}}"
+                            [dropdown]="true"
+                            [suggestions]="claimsCommonService.titleOther"
+                            (completeMethod)="claimsCommonService.titleOther = claimsCommonService.search('titleOther',  'title', $event, 'id', 'title')"
+                            field="title"
+                            [forceSelection]="true"
+                            placeholder="Εισάγετε τίτλο"
+                            pTooltip="Επιλογη από λίστα"
+                            tooltipPosition="top"
+
+                            [disabled]="rowData.disabled">
+            </p-autoComplete>
+
+            <div *ngIf="title.invalid && (title.dirty || title.touched)" class="error-message">Υποχρεωτική επιλογή από λίστα</div>
+          </td>
+
+          <td class="cell-tight-padding">
+            <p-autoComplete appendTo="body"
+                            required
+                            #otherType="ngModel"
+                            [(ngModel)]="rowData.otherType"
+                            name="otherType{{i}}"
+                            [dropdown]="true"
+                            [suggestions]="claimsCommonService.othertypes"
+                            (completeMethod)="claimsCommonService.othertypes = claimsCommonService.search('othertypes',  'type', $event, 'id', 'type')"
+                            field="type"
+                            class="wide-dropdown"
+                            placeholder="Είδος"
+                            pTooltip="Επιλογη από λίστα ή ελεύθερο κείμενο"
+                            tooltipPosition="top"
+
+                            [disabled]="rowData.disabled">
+            </p-autoComplete>
+
+            <div *ngIf="(otherType.model === '' || otherType.model.type === '') && (otherType.dirty || otherType.touched)" class="error-message">Ο τίτλος είναι υποχρεωτικός</div>
+          </td>
+
+        </tr>
+      </ng-template>
+    </p-table>
+  </form>
+
+  <div *ngIf="claimsCommonService.showControls(claimsCommonService.otherData)" id="addAndStoreControls" class="addAndStoreControls">
+    <p-button label="Προσθήκη μέσου" (click)="claimsCommonService.addOtherRow()" icon="pi pi-plus" aria-label="Add new row" [disabled]="claimsCommonService.isAddRowDisabled(claimsCommonService.otherData)"></p-button>
+
+    <p-button label="Προσωρινή αποθήκευση" (click)="claimsCommonService.tempStore('other', claimsCommonService.otherData, false)" icon="pi" aria-label="Προσωρινή αποθήκευση" [disabled]="claimsCommonService.isStoreButtonsDisabled(claimsCommonService.otherData)"></p-button>
+    <p-button label="Οριστική αποθήκευση" (click)="claimsCommonService.confirmFinalStore('other', claimsCommonService.otherData)" icon="pi" aria-label="Οριστική αποθήκευση" [disabled]="claimsCommonService.isStoreButtonsDisabled(claimsCommonService.otherData)"></p-button>
+  </div>
+</div>
+
+<div *ngIf="claimsCommonService.latestTimestampAt" class="timestamp">
+  <span><i>Τελευταία ενημέρωση: {{ claimsCommonService.latestTimestampAt | date: 'dd/MM/yyyy HH:mm' }}</i></span>
+</div>
+
+<div *ngIf="claimsCommonService.latestFinalizedAt" class="timestamp">
+  <span><i>Οριστική ενημέρωση: {{ claimsCommonService.latestFinalizedAt | date: 'dd/MM/yyyy HH:mm' }}</i></span>
+</div>

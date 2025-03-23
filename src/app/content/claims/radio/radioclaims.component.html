@@ -14,8 +14,10 @@
           <th class="min-width-150 header-tight-padding">Είδος</th>
           <th class="min-width-150 header-tight-padding">Περιοδικότητα</th>
           <th class="min-width-150 header-tight-padding">Ιδιότητα</th>
+          <!-- 2025 changes, for 2024 distribution
           <th class="min-width-150 header-tight-padding">Αριθμός λέξεων</th>
           <th class="min-width-150 header-tight-padding">Μέση ακροαματικότητα</th>
+          2025 changes, for 2024 distribution -->
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-rowData let-i="rowIndex">
@@ -114,8 +116,8 @@
                             [(ngModel)]="rowData.role"
                             name="role{{i}}"
                             [dropdown]="true"
-                            [suggestions]="claimsCommonService.roles"
-                            (completeMethod)="claimsCommonService.roles = claimsCommonService.search('roles',  'role', $event, 'id', 'role')"
+                            [suggestions]="claimsCommonService.tvRadioRoles"
+                            (completeMethod)="claimsCommonService.tvRadioRoles = claimsCommonService.search('tvRadioRoles',  'role', $event, 'id', 'role')"
                             (ngModelChange)="claimsCommonService.handleRoleChange(rowData)"
                             field="role"
                             [forceSelection]="true"
@@ -129,6 +131,8 @@
             <div *ngIf="role.invalid && (role.dirty || role.touched)" class="error-message">Υποχρεωτική επιλογή από λίστα</div>
 
           </td>
+
+          <!-- 2025 changes, for 2024 distribution
           <td class="cell-tight-padding">
             <p-autoComplete appendTo="body"
                             required
@@ -169,8 +173,9 @@
             </p-autoComplete>
 
             <div *ngIf="circulation.invalid && (circulation.dirty || circulation.touched)" class="error-message">Υποχρεωτική επιλογή από λίστα</div>
-
           </td>
+          2025 changes, for 2024 distribution -->
+
         </tr>
       </ng-template>
     </p-table>

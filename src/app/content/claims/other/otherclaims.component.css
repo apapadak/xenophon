@@ -1,0 +1,133 @@
+.table-container {
+  position: relative;
+}
+
+.note {
+  padding: 20px 0px 30px 0px;
+}
+
+.timestamp {
+  margin: 20px 0px 0px 0px;
+}
+
+.p-datatable-thead > tr > th {
+  padding: 0 !important;
+}
+
+.claims-table .p-datatable .p-datatable-tbody > tr > td {
+  padding: 0 !important;
+}
+
+/* Force left alignment for all table headers and cells in the claims table
+.claims-table th,
+.claims-table td {
+  text-align: left !important;
+}
+*/
+/* Tighter padding for specific headers with dropdowns */
+th.header-tight-padding {
+  padding: 2px 10px 8px 0px;  /* Reduced top/bottom padding */
+}
+
+/* Tighter padding for specific headers with dropdowns */
+td.cell-tight-padding {
+  padding: 10px 4px 20px 0px;  /* Reduced top/bottom padding */
+}
+
+/* Add your own width, padding, margin, etc., as needed */
+th, td {
+  text-align: left;
+  vertical-align: middle;
+}
+
+/* Styling for the action buttons */
+.action-buttons {
+  display: flex;
+  align-items: center;
+}
+
+p-button {
+  margin-right: 0.5rem;
+}
+
+/* Positioning the add row button */
+.add-row-button {
+  position: absolute;
+  bottom: -40px;
+  left: 16px;
+}
+
+/* In your component's CSS file */
+.wide-dropdown {
+  width: 100%; /* or any specific width */
+  z-index:99999;
+}
+
+
+.flexible-width {
+  width: 100%; /* Example to make table use full container width */
+}
+.flex {
+  display: flex;
+}
+
+.flex-1 {
+  flex: 1; /* Columns grow and shrink as needed */
+}
+
+.flex-2 {
+  flex: 2; /* Columns grow and shrink as needed */
+}
+
+.flex-3 {
+  flex: 3; /* Columns grow and shrink as needed */
+}
+
+.min-width-50 {
+  min-width: 50px;
+}
+
+
+.min-width-150 {
+  min-width: 150px;
+  max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.button-container {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+}
+
+.error-message {
+  color: red;
+  font-size: 0.8em;
+  padding-top: 10px;
+}
+
+.addAndStoreControls {
+  padding: 10px 0px 0px 0px;
+}
+
+.custom-input {
+  min-width: 150px;
+  width: 200px; /* Adjust the width as needed */
+  max-width: 100%; /* Ensure it doesn't exceed the container's width */
+}
+
+/*.custom-autocomplete {
+  display: block;
+  width: 250px; // Adjust the width as needed
+  max-width: 100%; // Ensure it doesn't exceed the container's width
+}
+
+.custom-autocomplete .ui-autocomplete-panel {
+  width: 250px; // Ensure the dropdown panel matches the input width
+}
+
+.custom-autocomplete .ui-inputtext {
+  width: 100%; // Ensure the input text takes up the full width of the component
+}*/

@@ -67,6 +67,9 @@ export class HomeComponent {
       case 'RADIOCLAIMS':
         this.router.navigate(['radioclaims']);
         break;
+      case 'OTHERCLAIMS':
+        this.router.navigate(['otherclaims']);
+        break;
       case 'PAYMENTS':
         this.router.navigate(['payments']);
         break;

@@ -70,7 +70,7 @@ CREATE TABLE claims_titles_internet (
 
 CREATE TABLE claims_titles_internet_extra (
 	id		 				SERIAL PRIMARY KEY,
-	title_extra				VARCHAR(255) NOT NULL
+	title_extra		VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE claims_titles_tv (
@@ -80,7 +80,7 @@ CREATE TABLE claims_titles_tv (
 
 CREATE TABLE claims_titles_tv_extra (
 	id		 				SERIAL PRIMARY KEY,
-	title_extra				VARCHAR(255) NOT NULL
+	title_extra		VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE claims_titles_radio (
@@ -90,8 +90,14 @@ CREATE TABLE claims_titles_radio (
 
 CREATE TABLE claims_titles_radio_extra (
 	id		 				SERIAL PRIMARY KEY,
-	title_extra				VARCHAR(255) NOT NULL
+	title_extra		VARCHAR(255) NOT NULL
 );
+
+CREATE TABLE claims_titles_other (
+	id		 				SERIAL PRIMARY KEY,
+	title					VARCHAR(255) UNIQUE NOT NULL
+);
+
 
 
 CREATE TABLE claims_paper_types (
@@ -112,6 +118,16 @@ CREATE TABLE claims_tv_types (
 CREATE TABLE claims_radio_types (
 	id 			SERIAL PRIMARY KEY,
 	type        VARCHAR(255) UNIQUE NOT NULL
+);
+
+CREATE TABLE claims_other_types (
+	id 			SERIAL PRIMARY KEY,
+	type        VARCHAR(255) UNIQUE NOT NULL
+);
+
+CREATE TABLE claims_other_types_extra (
+	id		 				SERIAL PRIMARY KEY,
+	type_extra		VARCHAR(255) UNIQUE NOT NULL
 );
 
 
@@ -346,6 +362,48 @@ CREATE TRIGGER delete_title_radio_extra
 AFTER DELETE ON claims_radio
 FOR EACH ROW
 EXECUTE FUNCTION delete_related_titles_radio_extra();
+
+
+--	Main claims OTHER
+
+-- Other
+-- Kathgoria : Grafeio Typoy / G.G.E.E. / Youtube
+-- Onomasia:: Politiki Grafeio Eurwbouleuti / Grafeio Typou EUDAP
+
+CREATE TABLE claims_other (
+	id 		 						SERIAL PRIMARY KEY,
+	user_id							INT,
+	title_other_id 					INT,
+	other_type_id 					INT,
+	other_type_id_extra     INT,
+  finalFlag						BOOLEAN DEFAULT FALSE,
+
+  created_at  TIMESTAMP(3) WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at  TIMESTAMP(3) WITH TIME ZONE,
+
+  finalized_at  TIMESTAMP(3) WITH TIME ZONE,
+
+	FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (title_other_id) REFERENCES claims_titles_other(id),
+    FOREIGN KEY (other_type_id) REFERENCES claims_other_types(id),
+    FOREIGN KEY (other_type_id_extra) REFERENCES claims_other_types_extra(id)
+);
+
+-- Create the trigger function
+CREATE OR REPLACE FUNCTION delete_related_titles_other_extra()
+RETURNS TRIGGER AS $$
+BEGIN
+    DELETE FROM claims_other_types_extra
+    WHERE id = OLD.other_type_id_extra;
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create the trigger
+CREATE TRIGGER delete_title_other_extra
+AFTER DELETE ON claims_other
+FOR EACH ROW
+EXECUTE FUNCTION delete_related_titles_other_extra();
 
 
 
