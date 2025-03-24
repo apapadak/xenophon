@@ -112,3 +112,6 @@ p-button {
   max-width: 100%; /* Ensure it doesn't exceed the container's width */
 }
 
+.notes-text {
+  color: black;
+}

@@ -331,7 +331,7 @@ export class ClaimsCommonService {
   }
 
   fetchPaperClaims(distributionYear?: number) {
-    console.log('userInfo: ', this.userInfo);
+//    console.log('userInfo: ', this.userInfo);
 
     this.claimsService.getPaperClaims(this.userInfo.user_id, distributionYear ? distributionYear.toString() : undefined).subscribe({
       next: (data) => {
@@ -356,7 +356,7 @@ export class ClaimsCommonService {
   }
 
   fetchInternetClaims(distributionYear?: number) {
-    console.log('userInfo: ', this.userInfo);
+//    console.log('userInfo: ', this.userInfo);
 
     this.claimsService.getInternetClaims(this.userInfo.user_id, distributionYear ? distributionYear.toString() : undefined).subscribe({
       next: (data) => {
@@ -381,7 +381,7 @@ export class ClaimsCommonService {
   }
 
   fetchTvClaims(distributionYear?: number) {
-    console.log('userInfo: ', this.userInfo);
+//    console.log('userInfo: ', this.userInfo);
 
     this.claimsService.getTvClaims(this.userInfo.user_id, distributionYear ? distributionYear.toString() : undefined).subscribe({
       next: (data) => {
@@ -406,7 +406,7 @@ export class ClaimsCommonService {
   }
 
   fetchRadioClaims(distributionYear?: number) {
-    console.log('userInfo: ', this.userInfo);
+//    console.log('userInfo: ', this.userInfo);
 
     this.claimsService.getRadioClaims(this.userInfo.user_id, distributionYear ? distributionYear.toString() : undefined).subscribe({
       next: (data) => {
@@ -431,7 +431,7 @@ export class ClaimsCommonService {
   }
 
   fetchOtherClaims(distributionYear?: number) {
-    console.log('userInfo: ', this.userInfo);
+//    console.log('userInfo: ', this.userInfo);
 
     this.claimsService.getOtherClaims(this.userInfo.user_id, distributionYear ? distributionYear.toString() : undefined).subscribe({
       next: (data) => {

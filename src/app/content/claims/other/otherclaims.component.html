@@ -9,8 +9,8 @@
       <ng-template pTemplate="header">
         <tr class="">
           <th class="min-width-150 header-tight-padding">Ενέργειες</th>
-          <th class="min-width-150 header-tight-padding">Άλλο</th>
-          <th class="min-width-150 header-tight-padding">Ιδιότητα</th>
+          <th class="min-width-150 header-tight-padding">Κατηγορία</th>
+          <th class="min-width-150 header-tight-padding">Ονομασία</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-rowData let-i="rowIndex">
@@ -33,7 +33,7 @@
                             (completeMethod)="claimsCommonService.titleOther = claimsCommonService.search('titleOther',  'title', $event, 'id', 'title')"
                             field="title"
                             [forceSelection]="true"
-                            placeholder="Εισάγετε τίτλο"
+                            placeholder="Επιλογή από λίστα"
                             pTooltip="Επιλογη από λίστα"
                             tooltipPosition="top"
 
@@ -54,7 +54,7 @@
                             (completeMethod)="claimsCommonService.othertypes = claimsCommonService.search('othertypes',  'type', $event, 'id', 'type')"
                             field="type"
                             class="wide-dropdown"
-                            placeholder="Είδος"
+                            placeholder="Εισάγετε τίτλο"
                             pTooltip="Επιλογη από λίστα ή ελεύθερο κείμενο"
                             tooltipPosition="top"
 
@@ -83,4 +83,15 @@
 
 <div *ngIf="claimsCommonService.latestFinalizedAt" class="timestamp">
   <span><i>Οριστική ενημέρωση: {{ claimsCommonService.latestFinalizedAt | date: 'dd/MM/yyyy HH:mm' }}</i></span>
+</div>
+
+<br/><br/>
+
+<hr>
+<br/>
+
+<div>
+  <span class="notes-text">
+    Συμπληρώνουμε στο πρώτο πεδίο την κατηγορία που θέλουμε να δηλώσουμε (π.χ. Γρ. Τύπου, ΓΓΕΕ κ.λπ.) και στο δεύτερο πεδίο συμπληρώνουμε την ονομασία που εξειδικεύει την κατηγορία (π.χ. Γραφείο Τύπου Περιφέρειας Κρήτης κ.λπ.)
+  </span>
 </div>

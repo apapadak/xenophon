@@ -50,7 +50,7 @@ export class UserService {
     const userInfo = localStorage.getItem('userInfo');
 
     this.userInfo = userInfo ? JSON.parse(userInfo) : this.initializeUserData();
-    console.log('this.userInfo: ', userInfo);
+    //console.log('this.userInfo: ', userInfo);
   }
 
   initializeUserData(): UserData {
@@ -81,9 +81,9 @@ export class UserService {
   }
 
   getUserInfo() {
-    const userInfoString = localStorage.getItem('userInfo');
-    this.userInfo = userInfoString ? JSON.parse(userInfoString) : '';
-console.log(this.userInfo);
+    //const userInfoString = localStorage.getItem('userInfo');
+    //this.userInfo = userInfoString ? JSON.parse(userInfoString) : '';
+
     return this.userInfo;
   }
 }

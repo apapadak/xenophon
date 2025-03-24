@@ -117,6 +117,10 @@ p-button {
   font-weight: bold;
 }
 
+.notes-text {
+  color: black;
+}
+
 /*.custom-autocomplete {
   display: block;
   width: 250px; // Adjust the width as needed
