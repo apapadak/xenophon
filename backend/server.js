@@ -24,6 +24,7 @@ const distributionMapping = {
 };
 
 const disableWordCountRoleIds = [1, 3, 4, 6, 7];
+const disableWordCountInternetTypeIds = [3];
 const disablePeriodicitiesIdsForTvsRadios = [5, 6, 7, 8];
 
 const disableRolesIdsForPaperInternet = [6];
@@ -867,7 +868,7 @@ app.post('/api/claims/internet/saveClaims', async (req, res) => {
         title_internet_id = titleInternet.id;
       }
 
-      const wordcountId = disableWordCountRoleIds.includes(role.id) ? null : wordcount.id;
+      let wordcountId = (disableWordCountRoleIds.includes(role.id) || disableWordCountInternetTypeIds.includes(internetType.id)) ? null : wordcount.id;
 
       if (claimId === -1) {
         await pool.query(
@@ -1238,6 +1239,11 @@ app.get('/api/claims/dropdownData', authenticateToken, async (req, res) => {
       disableWordCount: disableWordCountRoleIds.includes(role.id)
     }));
 
+    const internettypes = internettypesResult.rows.map(type => ({
+      ...type,
+      disableWordCount: disableWordCountInternetTypeIds.includes(type.id)
+    }));
+
     res.json({
       titlePapers: titlePapersResult.rows,
       titleInternet: titleInternetResult.rows,
@@ -1246,7 +1252,7 @@ app.get('/api/claims/dropdownData', authenticateToken, async (req, res) => {
       titleOther: titleOtherResult.rows,
 
       papertypes: papertypesResult.rows,
-      internettypes: internettypesResult.rows,
+      internettypes: internettypes,
       tvtypes: tvtypesResult.rows,
       radiotypes: radiotypesResult.rows,
       othertypes: othertypesResult.rows,

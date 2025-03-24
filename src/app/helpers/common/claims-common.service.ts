@@ -153,6 +153,8 @@ export interface TitleOtherData {
 export interface TypeData {
   id: number;
   type: string;
+
+  disableWordCount: boolean;
 }
 
 export interface OtherTypeData {
@@ -716,7 +718,7 @@ export class ClaimsCommonService {
       !!rowData.internetType &&
       !!rowData.periodicity &&
       !!rowData.role &&
-      (rowData.role.disableWordCount || !!rowData.wordcount) &&
+      ( (rowData.role.disableWordCount || !!rowData.wordcount) || (rowData.internetType.disableWordCount || !!rowData.wordcount) ) &&
       !!rowData.pageviews;
   }
 
@@ -927,6 +929,12 @@ export class ClaimsCommonService {
   handleRoleChange(rowData: PaperTableData | InternetTableData | TvTableData | RadioTableData) {
     if (rowData.role?.disableWordCount) {
       rowData.wordcount = null; // Clear word count if the role disables it
+    }
+  }
+
+  handleInternetTypeChange(rowData: InternetTableData) {
+    if (rowData.internetType?.disableWordCount) {
+      rowData.wordcount = null; // Clear word count if the internettype disables it
     }
   }
 

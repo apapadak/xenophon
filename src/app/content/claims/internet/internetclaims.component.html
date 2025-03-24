@@ -78,6 +78,7 @@
                             [dropdown]="true"
                             [suggestions]="claimsCommonService.internettypes"
                             (completeMethod)="claimsCommonService.internettypes = claimsCommonService.search('internettypes',  'type', $event, 'id', 'type')"
+                            (ngModelChange)="claimsCommonService.handleInternetTypeChange(rowData)"
                             field="type"
                             [forceSelection]="true"
                             placeholder="Είδος"
@@ -144,11 +145,11 @@
                             (completeMethod)="claimsCommonService.wordcounts = claimsCommonService.search('wordcounts',  'wordcount', $event, 'id', 'wordcount')"
                             field="wordcount"
                             [forceSelection]="true"
-                            [placeholder]="rowData.disabled || (rowData.role?.disableWordCount && !rowData.wordcount) ? '' : 'Αριθμός λέξεων'"
+                            [placeholder]="rowData.disabled || (rowData.internetType?.disableWordCount && !rowData.wordcount) || (rowData.role?.disableWordCount && !rowData.wordcount) ? '' : 'Αριθμός λέξεων'"
                             pTooltip="Επιλογη από λίστα"
                             tooltipPosition="top"
 
-                            [disabled]="rowData.disabled || rowData.role?.disableWordCount">
+                            [disabled]="rowData.disabled || rowData.internetType?.disableWordCount || rowData.role?.disableWordCount">
             </p-autoComplete>
 
             <div *ngIf="wordcount.invalid && (wordcount.dirty || wordcount.touched)" class="error-message">Υποχρεωτική επιλογή από λίστα</div>
@@ -202,10 +203,10 @@
 
 <div>
   <span class="notes-text">
-    (1) Παράδειγμα: Συνάδελφος που γράφει καθημερινά για ιστοσελίδα κατά μέσο όρο 800 λέξεις ημερησίως, τις πολλαπλασιάζει με τον αριθμό των ημερών που παράγει έργο μέσα στην εβδομάδα και ακολούθως επί 48 (εργάσιμες εβδομάδες).
+    <span class="notes">(1)</span> Παράδειγμα: Συνάδελφος που γράφει καθημερινά για ιστοσελίδα κατά μέσο όρο 800 λέξεις ημερησίως, τις πολλαπλασιάζει με τον αριθμό των ημερών που παράγει έργο μέσα στην εβδομάδα και ακολούθως επί 48 (εργάσιμες εβδομάδες).
     <br/> Άρα αν ο συγκεκριμένος συνάδελφος δημοσιεύει σε πενθήμερη βάση συγκεντρώνει περίπου 192.000 λέξεις μέσα στο χρόνο (800x5x48) και επιλέγει στην πλατφόρμα το πεδίο από 150.001 – 500.000 λέξεις.
     <br/> Αντίστοιχα συνάδελφος ο οποίος δημοσιεύει έργο σε εβδομαδιαία έκδοση πολλαπλασιάζει τον μέσο όρο των λέξεων της εβδομάδας επί 48 (εργάσιμες εβδομάδες) ώστε να προκύψει το σύνολο των λέξεων του μέσα στο χρόνο και επιλέγει το αντίστοιχο πεδίο.
     <br/><br/>
-    (2a) Μέση μηνιαία εμφανίση ιστοσελίδας (pageviews), κατά το έτος αναφοράς η οποία προκύπτει απο την άθροιση των μηνιαίων εμφανίσεων δια δώδεκα.
+    <span class="notes">(2a)</span> Μέση μηνιαία εμφανίση ιστοσελίδας (pageviews), κατά το έτος αναφοράς η οποία προκύπτει απο την άθροιση των μηνιαίων εμφανίσεων δια δώδεκα.
   </span>
 </div>
