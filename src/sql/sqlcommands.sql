@@ -181,7 +181,7 @@ CREATE TABLE claims_paper (
 
   finalized_at  TIMESTAMP(3) WITH TIME ZONE,
 
-    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    	FOREIGN KEY (user_id) REFERENCES users(user_id) ON UPDATE CASCADE,
     FOREIGN KEY (title_paper_id) REFERENCES claims_titles_papers(id),
     FOREIGN KEY (title_paper_id_extra) REFERENCES claims_titles_papers_extra(id),
     FOREIGN KEY (paper_type_id) REFERENCES claims_paper_types(id),
@@ -229,7 +229,7 @@ CREATE TABLE claims_internet (
 
   finalized_at  TIMESTAMP(3) WITH TIME ZONE,
 
-	FOREIGN KEY (user_id) REFERENCES users(user_id),
+		FOREIGN KEY (user_id) REFERENCES users(user_id) ON UPDATE CASCADE,
     FOREIGN KEY (title_internet_id) REFERENCES claims_titles_internet(id),
     FOREIGN KEY (title_internet_id_extra) REFERENCES claims_titles_internet_extra(id),
     FOREIGN KEY (internet_type_id) REFERENCES claims_internet_types(id),
@@ -283,7 +283,7 @@ CREATE TABLE claims_tv (
 
   finalized_at TIMESTAMP(3) WITH TIME ZONE,
 
-	FOREIGN KEY (user_id) REFERENCES users(user_id),
+		FOREIGN KEY (user_id) REFERENCES users(user_id) ON UPDATE CASCADE,
     FOREIGN KEY (title_tv_id) REFERENCES claims_titles_tv(id),
     FOREIGN KEY (title_tv_id_extra) REFERENCES claims_titles_tv_extra(id),
     FOREIGN KEY (tv_type_id) REFERENCES claims_tv_types(id),
@@ -336,7 +336,7 @@ CREATE TABLE claims_radio (
 
   finalized_at  TIMESTAMP(3) WITH TIME ZONE,
 
-	FOREIGN KEY (user_id) REFERENCES users(user_id),
+		FOREIGN KEY (user_id) REFERENCES users(user_id) ON UPDATE CASCADE,
     FOREIGN KEY (title_radio_id) REFERENCES claims_titles_radio(id),
     FOREIGN KEY (title_radio_id_extra) REFERENCES claims_titles_radio_extra(id),
     FOREIGN KEY (radio_type_id) REFERENCES claims_radio_types(id),
@@ -383,7 +383,7 @@ CREATE TABLE claims_other (
 
   finalized_at  TIMESTAMP(3) WITH TIME ZONE,
 
-	FOREIGN KEY (user_id) REFERENCES users(user_id),
+		FOREIGN KEY (user_id) REFERENCES users(user_id) ON UPDATE CASCADE,
     FOREIGN KEY (title_other_id) REFERENCES claims_titles_other(id),
     FOREIGN KEY (other_type_id) REFERENCES claims_other_types(id),
     FOREIGN KEY (other_type_id_extra) REFERENCES claims_other_types_extra(id)
