@@ -50,7 +50,7 @@ async function hashPasswords(data) {
     if (row.password) {  // Ensure there's a password to hash
       const passwordString = row.password.toString().replace(/^\n+|\n+$/g, '').trim();
       row.password = await bcrypt.hash(passwordString, saltRounds);
-      console.log(`Hashed password for ${row.afm}: `, passwordString);  // Print each hashed password
+      console.log(`Hashed password for ${row.afm} ${row.mhtrwo} : -> `,   row.password);  // Print each hashed password
     }
   }
   return data;
@@ -83,7 +83,7 @@ async function insertData(data) {
       console.log("With values:", values);
 
       // Execute the query
-      await pool.query(query, values);
+      //await pool.query(query, values);
     }
   } catch (err) {
     console.error('Error executing query', err.stack);
@@ -93,7 +93,7 @@ async function insertData(data) {
 }
 
 async function processUsers() {
-  await clearTable();
+  //await clearTable();
   const hashedData = await hashPasswords(data);
   await insertData(hashedData);
   console.log('Data inserted successfully.');
