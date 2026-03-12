@@ -33,6 +33,7 @@ import {UserService} from '../../services/UserService';
 export class DistributionsComponent {
 
   userInfo: any;
+  years = [2023, 2024];
 
   constructor(
     public claimsCommonService: ClaimsCommonService,
@@ -42,15 +43,21 @@ export class DistributionsComponent {
      this.userInfo = userService.getUserInfo();
   }
 
-    downloadPDF(am: string) {
-      this.downloadService.downloadDistributionPDF(am);
-    }
+  downloadPDF(am: string, distributionYear: number) {
+    this.downloadService.downloadDistributionPDF(am, distributionYear);
+  }
 
-    ngOnInit(): void {
-      this.claimsCommonService.fetchPaperClaims(2023);
-      this.claimsCommonService.fetchInternetClaims(2023);
-      this.claimsCommonService.fetchTvClaims(2023);
-      this.claimsCommonService.fetchRadioClaims(2023);
-    }
+  ngOnInit(): void {
+    this.years.forEach(year => {
+      this.claimsCommonService.fetchPaperClaims(year);
+      this.claimsCommonService.fetchInternetClaims(year);
+      this.claimsCommonService.fetchTvClaims(year);
+      this.claimsCommonService.fetchRadioClaims(year);
+
+      if (year === 2024) {
+        this.claimsCommonService.fetchOtherClaims(year);
+      }
+    });
+  }
 
   }

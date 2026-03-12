@@ -8,7 +8,7 @@
 </div>
 <div class="card">
   <form #claimsPaperForm="ngForm"  >
-    <p-table [value]="claimsCommonService.paperData" class="claims-table flexible-width p-datatable-min-height">
+    <p-table [value]="claimsCommonService.paperData.current" class="claims-table flexible-width p-datatable-min-height">
       <ng-template pTemplate="header">
         <tr class="">
           <th class="min-width-150 header-tight-padding">Ενέργειες</th>
@@ -26,7 +26,7 @@
           <td class="cell-tight-padding">
             <div class="button-container">
               <p-button icon="pi pi-check" (click)="claimsCommonService.savePaperRow(claimsPaperForm, rowData)" class="p-button-success p-mr-2" [disabled]="rowData.disabled"></p-button>
-              <p-button icon="pi pi-trash" [disabled]="!claimsCommonService.showControls(claimsCommonService.paperData)" (click)="claimsCommonService.deleteRow(i, claimsCommonService.paperData)" class="p-button-danger"></p-button>
+              <p-button icon="pi pi-trash" [disabled]="!claimsCommonService.showControls(claimsCommonService.paperData.current)" (click)="claimsCommonService.deleteRow(i, claimsCommonService.paperData.current)" class="p-button-danger"></p-button>
             </div>
           </td>
 
@@ -178,11 +178,11 @@
     </p-table>
   </form>
 
-  <div *ngIf="claimsCommonService.showControls(claimsCommonService.paperData)" id="addAndStoreControls" class="addAndStoreControls">
-    <p-button label="Προσθήκη μέσου" (click)="claimsCommonService.addPaperRow()" icon="pi pi-plus" aria-label="Add new row" [disabled]="claimsCommonService.isAddRowDisabled(claimsCommonService.paperData)"></p-button>
+  <div *ngIf="claimsCommonService.showControls(claimsCommonService.paperData.current)" id="addAndStoreControls" class="addAndStoreControls">
+    <p-button label="Προσθήκη μέσου" (click)="claimsCommonService.addPaperRow()" icon="pi pi-plus" aria-label="Add new row" [disabled]="claimsCommonService.isAddRowDisabled(claimsCommonService.paperData.current)"></p-button>
 
-    <p-button label="Προσωρινή αποθήκευση" (click)="claimsCommonService.tempStore('paper', claimsCommonService.paperData, false)" icon="pi" aria-label="Προσωρινή αποθήκευση" [disabled]="claimsCommonService.isStoreButtonsDisabled(claimsCommonService.paperData)"></p-button>
-    <p-button label="Οριστική αποθήκευση" (click)="claimsCommonService.confirmFinalStore('paper', claimsCommonService.paperData)" icon="pi" aria-label="Οριστική αποθήκευση" [disabled]="claimsCommonService.isStoreButtonsDisabled(claimsCommonService.paperData)"></p-button>
+    <p-button label="Προσωρινή αποθήκευση" (click)="claimsCommonService.tempStore('paper', claimsCommonService.paperData.current, false)" icon="pi" aria-label="Προσωρινή αποθήκευση" [disabled]="claimsCommonService.isStoreButtonsDisabled(claimsCommonService.paperData.current)"></p-button>
+    <p-button label="Οριστική αποθήκευση" (click)="claimsCommonService.confirmFinalStore('paper', claimsCommonService.paperData.current)" icon="pi" aria-label="Οριστική αποθήκευση" [disabled]="claimsCommonService.isStoreButtonsDisabled(claimsCommonService.paperData.current)"></p-button>
   </div>
 </div>
 

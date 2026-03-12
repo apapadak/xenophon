@@ -1286,9 +1286,31 @@ app.get('/api/claims/dropdownData', authenticateToken, async (req, res) => {
 // Serve PDF distribution files
 app.get('/api/download/distributions', authenticateToken, async (req, res) => {
 
-  const { am } = req.query;
-  const pdfPath = path.join(__dirname, '..', '..', 'xenophon', 'src', 'assets', '2023_distribution', `${am}_distribution_2023.pdf`);
+  const { am, distributionYear } = req.query;
+
+  if (!am) {
+    return res.status(400).json({ message: "AM is required" });
+  }
+
+  if (!distributionYear || !/^\d{4}$/.test(String(distributionYear))) {
+    return res.status(400).json({ message: "distributionYear is required and must be a 4-digit year" });
+  }
+
+  const year = String(distributionYear);
+  const fileName = `${am}_distribution_${year}.pdf`;
+  const pdfPath = path.join(
+    __dirname,
+    '..',
+    '..',
+    'xenophon',
+    'src',
+    'assets',
+    `${year}_distribution`,
+    fileName
+  );
+
 console.log('Distribution path: ' + pdfPath);
+
   if (!fs.existsSync(pdfPath)) {
     return res.status(404).json({ message: "PDF file not found" });
   }

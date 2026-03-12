@@ -192,6 +192,11 @@ export interface PageviewsData {
   pageviews: string;
 }
 
+type ClaimsMap<T> = {
+  current: T[];
+  [year: number]: T[];
+};
+
 @Injectable({
   providedIn: 'root',
 })
@@ -203,11 +208,16 @@ export class ClaimsCommonService {
   //internetData: InternetTableData[] = [];
 
   //data: (PaperTableData | InternetTableData | TvTableData | RadioTableData)[] = [];
-  paperData: PaperTableData[] = [];
+  /*paperData: PaperTableData[] = [];
   internetData: InternetTableData[] = [];
   tvData: TvTableData[] = [];
   radioData: RadioTableData[] = [];
-  otherData: OtherTableData[] = [];
+  otherData: OtherTableData[] = [];*/
+  paperData: ClaimsMap<PaperTableData> = { current: [] };
+  internetData: ClaimsMap<InternetTableData> = { current: [] };
+  tvData: ClaimsMap<TvTableData> = { current: [] };
+  radioData: ClaimsMap<RadioTableData> = { current: [] };
+  otherData: ClaimsMap<OtherTableData> = { current: [] };
 
   titlePapers: TitlePaperData[] = [];
   titleInternet: TitleInternetData[] = [];
@@ -240,7 +250,6 @@ export class ClaimsCommonService {
   isAnyRowDeleted: boolean = false;
   latestTimestampAt: Date | null = null;
   latestFinalizedAt: Date | null = null;
-
 
   constructor(private http: HttpClient,
               private claimsService: ClaimsService,
@@ -332,24 +341,41 @@ export class ClaimsCommonService {
       sessionStorage.removeItem('pageviews');
   }
 
+  private getYearKey(distributionYear?: number): number | 'current' {
+    return distributionYear ?? 'current';
+  }
+
+  private getRows<T>(dataMap: ClaimsMap<T>, distributionYear?: number): T[] {
+    return dataMap[this.getYearKey(distributionYear)] ?? [];
+  }
+
+  private setRows<T>(dataMap: ClaimsMap<T>, rows: T[], distributionYear?: number): void {
+    dataMap[this.getYearKey(distributionYear)] = rows;
+  }
+
+
   fetchPaperClaims(distributionYear?: number) {
 //    console.log('userInfo: ', this.userInfo);
 
     this.claimsService.getPaperClaims(this.userInfo.user_id, distributionYear ? distributionYear.toString() : undefined).subscribe({
       next: (data) => {
-        this.paperData = data.map((row: PaperTableData) => ({  // Add disabled flag to each row in the fetched data
+        const mappedData = data.map((row: PaperTableData) => ({
           ...row,
           disabled: true
         }));
 
-        if (this.paperData.length === 0) {
+        this.setRows(this.paperData, mappedData, distributionYear);
+
+        if (distributionYear == null && this.paperData.current.length === 0) {
           this.addPaperRow();
         }
 
-        this.latestTimestampAt = this.findLatestTimestamp(this.paperData);
-        this.latestFinalizedAt = this.findLatestFinalizedAt(this.paperData);
+        if (distributionYear == null) {
+          this.latestTimestampAt = this.findLatestTimestamp(this.paperData.current);
+          this.latestFinalizedAt = this.findLatestFinalizedAt(this.paperData.current);
+        }
 
-        console.log('data:', this.paperData);
+        console.log('data:', this.getRows(this.paperData, distributionYear));
       },
       error: (err) => {
         console.error('Failed to fetch paper claims:', err);
@@ -362,19 +388,23 @@ export class ClaimsCommonService {
 
     this.claimsService.getInternetClaims(this.userInfo.user_id, distributionYear ? distributionYear.toString() : undefined).subscribe({
       next: (data) => {
-        this.internetData = data.map((row: PaperTableData) => ({ // Add disabled flag to each row in the fetched data
+        const mappedData = data.map((row: PaperTableData) => ({ // Add disabled flag to each row in the fetched data
           ...row,
           disabled: true
         }));
 
-        if (this.internetData.length === 0) {
+        this.setRows(this.internetData, mappedData, distributionYear);
+
+        if (distributionYear == null && this.internetData.current.length === 0) {
           this.addInternetRow();
         }
 
-        this.latestTimestampAt = this.findLatestTimestamp(this.internetData);
-        this.latestFinalizedAt = this.findLatestFinalizedAt(this.internetData);
+        if (distributionYear == null) {
+          this.latestTimestampAt = this.findLatestTimestamp(this.internetData.current);
+          this.latestFinalizedAt = this.findLatestFinalizedAt(this.internetData.current);
+        }
 
-        console.log('data:', this.internetData);
+        console.log('data:', this.getRows(this.internetData, distributionYear));
       },
       error: (err) => {
         console.error('Failed to fetch paper claims:', err);
@@ -387,19 +417,23 @@ export class ClaimsCommonService {
 
     this.claimsService.getTvClaims(this.userInfo.user_id, distributionYear ? distributionYear.toString() : undefined).subscribe({
       next: (data) => {
-        this.tvData = data.map((row: TvTableData) => ({ // Add disabled flag to each row in the fetched data
+        const mappedData = data.map((row: TvTableData) => ({ // Add disabled flag to each row in the fetched data
           ...row,
           disabled: true
         }));
 
-        if (this.tvData.length === 0) {
+        this.setRows(this.tvData, mappedData, distributionYear);
+
+        if (distributionYear == null && this.tvData.current.length === 0) {
           this.addTvRow();
         }
 
-        this.latestTimestampAt = this.findLatestTimestamp(this.tvData);
-        this.latestFinalizedAt = this.findLatestFinalizedAt(this.tvData);
+        if (distributionYear == null) {
+          this.latestTimestampAt = this.findLatestTimestamp(this.tvData.current);
+          this.latestFinalizedAt = this.findLatestFinalizedAt(this.tvData.current);
+        }
 
-        console.log('data:', this.tvData);
+        console.log('data:', this.getRows(this.tvData, distributionYear));
       },
       error: (err) => {
         console.error('Failed to fetch paper claims:', err);
@@ -412,19 +446,23 @@ export class ClaimsCommonService {
 
     this.claimsService.getRadioClaims(this.userInfo.user_id, distributionYear ? distributionYear.toString() : undefined).subscribe({
       next: (data) => {
-        this.radioData = data.map((row: RadioTableData) => ({ // Add disabled flag to each row in the fetched data
+        const mappedData = data.map((row: RadioTableData) => ({ // Add disabled flag to each row in the fetched data
           ...row,
           disabled: true
         }));
 
-        if (this.radioData.length === 0) {
+        this.setRows(this.radioData, mappedData, distributionYear);
+
+        if (distributionYear == null && this.radioData.current.length === 0) {
           this.addRadioRow();
         }
 
-        this.latestTimestampAt = this.findLatestTimestamp(this.radioData);
-        this.latestFinalizedAt = this.findLatestFinalizedAt(this.radioData);
+        if (distributionYear == null) {
+          this.latestTimestampAt = this.findLatestTimestamp(this.radioData.current);
+          this.latestFinalizedAt = this.findLatestFinalizedAt(this.radioData.current);
+        }
 
-        console.log('data:', this.radioData);
+        console.log('data:', this.getRows(this.radioData, distributionYear));
       },
       error: (err) => {
         console.error('Failed to fetch paper claims:', err);
@@ -437,19 +475,23 @@ export class ClaimsCommonService {
 
     this.claimsService.getOtherClaims(this.userInfo.user_id, distributionYear ? distributionYear.toString() : undefined).subscribe({
       next: (data) => {
-        this.otherData = data.map((row: OtherTableData) => ({  // Add disabled flag to each row in the fetched data
+        const mappedData = data.map((row: OtherTableData) => ({  // Add disabled flag to each row in the fetched data
           ...row,
           disabled: true
         }));
 
-        if (this.otherData.length === 0) {
+        this.setRows(this.otherData, mappedData, distributionYear);
+
+        if (distributionYear == null && this.otherData.current.length === 0) {
           this.addOtherRow();
         }
 
-        this.latestTimestampAt = this.findLatestTimestamp(this.otherData);
-        this.latestFinalizedAt = this.findLatestFinalizedAt(this.otherData);
+        if (distributionYear == null) {
+          this.latestTimestampAt = this.findLatestTimestamp(this.otherData.current);
+          this.latestFinalizedAt = this.findLatestFinalizedAt(this.otherData.current);
+        }
 
-        console.log('data:', this.otherData);
+        console.log('data:', this.getRows(this.otherData, distributionYear));
       },
       error: (err) => {
         console.error('Failed to fetch other claims:', err);
@@ -473,7 +515,7 @@ export class ClaimsCommonService {
       finalFlag: false
     };
 
-    this.paperData.push(newRow);
+    this.paperData.current.push(newRow);
   }
 
   addInternetRow() {
@@ -492,7 +534,7 @@ export class ClaimsCommonService {
       finalFlag: false
     };
 
-    this.internetData.push(newRow);
+    this.internetData.current.push(newRow);
   }
 
   addTvRow() {
@@ -511,7 +553,7 @@ export class ClaimsCommonService {
       finalFlag: false
     };
 
-    this.tvData.push(newRow);
+    this.tvData.current.push(newRow);
   }
 
   addRadioRow() {
@@ -530,7 +572,7 @@ export class ClaimsCommonService {
       finalFlag: false
     };
 
-    this.radioData.push(newRow);
+    this.radioData.current.push(newRow);
   }
 
   addOtherRow() {
@@ -544,7 +586,7 @@ export class ClaimsCommonService {
       finalFlag: false
     };
 
-    this.otherData.push(newRow);
+    this.otherData.current.push(newRow);
   }
 
 

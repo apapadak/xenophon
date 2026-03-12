@@ -5,7 +5,7 @@
 
 <div class="card">
   <form #claimsRadioForm="ngForm"  >
-    <p-table [value]="claimsCommonService.radioData" class="claims-table flexible-width p-datatable-min-height">
+    <p-table [value]="claimsCommonService.radioData.current" class="claims-table flexible-width p-datatable-min-height">
       <ng-template pTemplate="header">
         <tr class="">
           <th class="min-width-150 header-tight-padding">Ενέργειες</th>
@@ -25,7 +25,7 @@
           <td class="cell-tight-padding">
             <div class="button-container">
               <p-button icon="pi pi-check" (click)="claimsCommonService.saveRadioRow(claimsRadioForm, rowData)" class="p-button-success p-mr-2" [disabled]="rowData.disabled"></p-button>
-              <p-button icon="pi pi-trash" [disabled]="!claimsCommonService.showControls(claimsCommonService.radioData)" (click)="claimsCommonService.deleteRow(i, claimsCommonService.radioData)" class="p-button-danger"></p-button>
+              <p-button icon="pi pi-trash" [disabled]="!claimsCommonService.showControls(claimsCommonService.radioData.current)" (click)="claimsCommonService.deleteRow(i, claimsCommonService.radioData.current)" class="p-button-danger"></p-button>
             </div>
           </td>
 
@@ -181,11 +181,11 @@
     </p-table>
   </form>
 
-  <div *ngIf="claimsCommonService.showControls(claimsCommonService.radioData)" id="addAndStoreControls" class="addAndStoreControls">
-    <p-button label="Προσθήκη μέσου" (click)="claimsCommonService.addRadioRow()" icon="pi pi-plus" aria-label="Add new row" [disabled]="claimsCommonService.isAddRowDisabled(claimsCommonService.radioData)"></p-button>
+  <div *ngIf="claimsCommonService.showControls(claimsCommonService.radioData.current)" id="addAndStoreControls" class="addAndStoreControls">
+    <p-button label="Προσθήκη μέσου" (click)="claimsCommonService.addRadioRow()" icon="pi pi-plus" aria-label="Add new row" [disabled]="claimsCommonService.isAddRowDisabled(claimsCommonService.radioData.current)"></p-button>
 
-    <p-button label="Προσωρινή αποθήκευση" (click)="claimsCommonService.tempStore('radio', claimsCommonService.radioData, false)" icon="pi" aria-label="Προσωρινή αποθήκευση" [disabled]="claimsCommonService.isStoreButtonsDisabled(claimsCommonService.radioData)"></p-button>
-    <p-button label="Οριστική αποθήκευση" (click)="claimsCommonService.confirmFinalStore('radio', claimsCommonService.radioData)" icon="pi" aria-label="Οριστική αποθήκευση" [disabled]="claimsCommonService.isStoreButtonsDisabled(claimsCommonService.radioData)"></p-button>
+    <p-button label="Προσωρινή αποθήκευση" (click)="claimsCommonService.tempStore('radio', claimsCommonService.radioData.current, false)" icon="pi" aria-label="Προσωρινή αποθήκευση" [disabled]="claimsCommonService.isStoreButtonsDisabled(claimsCommonService.radioData.current)"></p-button>
+    <p-button label="Οριστική αποθήκευση" (click)="claimsCommonService.confirmFinalStore('radio', claimsCommonService.radioData.current)" icon="pi" aria-label="Οριστική αποθήκευση" [disabled]="claimsCommonService.isStoreButtonsDisabled(claimsCommonService.radioData.current)"></p-button>
   </div>
 </div>
 

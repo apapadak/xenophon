@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import {Observable} from "rxjs";
 
@@ -8,9 +8,14 @@ export class DownloadService {
 
   constructor(private http: HttpClient) {}
 
-  downloadDistributionPDF(am: string) {
-    return this.http.get(`${this.apiDownloadUrl}/distributions/?am=${am}`, {
-          responseType: 'blob', // This ensures the response is treated as a file (PDF)
+  downloadDistributionPDF(am: string, distributionYear: number): Observable<Blob> {
+    const params = new HttpParams()
+      .set('am', am)
+      .set('distributionYear', distributionYear.toString());
+
+    return this.http.get(`${this.apiDownloadUrl}/distributions`, {
+      params,
+      responseType: 'blob',
     });
   }
 

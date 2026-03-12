@@ -22,7 +22,7 @@ export class NavigationComponent {
   ) {}
 
   ngOnInit(): void {
-    this.showSubMenu['CLAIMS'] = false; // Set the submenu to be open by default
+    this.showSubMenu['CLAIMS'] = true; // Set the submenu to be open by default
 
     this.checkAdminStatus();
   }

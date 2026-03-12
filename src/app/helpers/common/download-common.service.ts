@@ -27,16 +27,16 @@ export class DownloadCommonService {
       return this.downloadService.downloadDistributionPDF(am);
   }*/
 
-  downloadDistributionPDF(am: string): void {
+  downloadDistributionPDF(am: string, distributionYear: number): void {
     console.log('Downloading Distribution PDF for user:', this.userInfo);
 
-    this.downloadService.downloadDistributionPDF(am).pipe(
+    this.downloadService.downloadDistributionPDF(am, distributionYear).pipe(
       catchError((error) => {
         if (error.status === 404) {
           this.messageService.add({
             severity: 'error',
             summary: 'Σφάλμα Λήψης',
-            detail: 'Το αρχείο PDF δεν βρέθηκε.',
+            detail: `Το αρχείο PDF για τη διανομή ${distributionYear} δεν βρέθηκε.`,
           });
         } else {
           this.messageService.add({
@@ -52,7 +52,7 @@ export class DownloadCommonService {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${am}_distribution_2023.pdf`;
+        a.download = `${am}_distribution_${distributionYear}.pdf`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -61,7 +61,7 @@ export class DownloadCommonService {
         this.messageService.add({
           severity: 'success',
           summary: 'Επιτυχής Λήψη',
-          detail: `Το αρχείο PDF λήφθηκε επιτυχώς.`,
+          detail: `Το αρχείο PDF της διανομής ${distributionYear} λήφθηκε επιτυχώς.`,
         });
       }
     });
