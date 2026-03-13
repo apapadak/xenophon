@@ -49,6 +49,14 @@ export class PaperClaimsComponent {
 
     this.claimsCommonService.fetchPaperClaims();
   }
+
+  allowOnlyDigits(event: Event, rowData: any, field: string): void {
+    const input = event.target as HTMLInputElement;
+    const digitsOnly = input.value.replace(/\D/g, '');
+
+    input.value = digitsOnly;
+    rowData[field] = digitsOnly;
+  }
 }
 
 

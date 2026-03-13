@@ -278,8 +278,9 @@ app.get('/api/claims/:distributionYear?/paper', authenticateToken, async (req, r
         p.periodicity,
         r.id AS role_id,
         r.role,
-        wc.id AS wordcount_id,
-        wc.wordcount,
+        /* 2026 -- wc.id AS wordcount_id,
+        wc.wordcount, */
+        c.wordcount,
         cl.id AS circulation_id,
         cl.circulation,
         c.finalflag AS "finalFlag",
@@ -293,7 +294,7 @@ app.get('/api/claims/:distributionYear?/paper', authenticateToken, async (req, r
       LEFT JOIN "${schema}".claims_paper_types t ON c.paper_type_id = t.id
       LEFT JOIN "${schema}".claims_periodicities p ON c.periodicity_id = p.id
       LEFT JOIN "${schema}".claims_roles r ON c.role_id = r.id
-      LEFT JOIN "${schema}".claims_wordcounts wc ON c.wordcount_id = wc.id
+      /* 2026 -- LEFT JOIN "${schema}".claims_wordcounts wc ON c.wordcount_id = wc.id */
       LEFT JOIN "${schema}".claims_circulations cl ON c.circulation_id = cl.id
       WHERE c.user_id = $1
       ORDER BY c.id`, // Order by claimId
@@ -327,10 +328,12 @@ app.get('/api/claims/:distributionYear?/paper', authenticateToken, async (req, r
         id: row.role_id,
         role: row.role
       },
-      wordcount: row.wordcount_id ? {
+      /* 2026 -- wordcount: row.wordcount_id ? {
         id: row.wordcount_id,
         wordcount: row.wordcount
       } : null,
+      */
+      wordcount : row.wordcount,
       circulation: {
         id: row.circulation_id,
         circulation: row.circulation
@@ -373,8 +376,10 @@ app.get('/api/claims/:distributionYear?/internet', authenticateToken, async (req
         p.periodicity,
         r.id AS role_id,
         r.role,
-        wc.id AS wordcount_id,
+        /* 2026 -- wc.id AS wordcount_id,
         wc.wordcount,
+        */
+        c.wordcount,
         pa.id AS pageviews_id,
         pa.pageviews,
         c.finalflag AS "finalFlag",
@@ -388,7 +393,7 @@ app.get('/api/claims/:distributionYear?/internet', authenticateToken, async (req
       LEFT JOIN "${schema}".claims_internet_types t ON c.internet_type_id = t.id
       LEFT JOIN "${schema}".claims_periodicities p ON c.periodicity_id = p.id
       LEFT JOIN "${schema}".claims_roles r ON c.role_id = r.id
-      LEFT JOIN "${schema}".claims_wordcounts wc ON c.wordcount_id = wc.id
+      /* 2026 -- LEFT JOIN "${schema}".claims_wordcounts wc ON c.wordcount_id = wc.id */
       LEFT JOIN "${schema}".claims_pageviews pa ON c.pageviews_id = pa.id
       WHERE c.user_id = $1
       ORDER BY c.id`, // Order by claimId
@@ -422,10 +427,12 @@ app.get('/api/claims/:distributionYear?/internet', authenticateToken, async (req
         id: row.role_id,
         role: row.role
       },
-      wordcount: row.wordcount_id ? {
+      /* 2026 -- wordcount: row.wordcount_id ? {
         id: row.wordcount_id,
         wordcount: row.wordcount
       } : null,
+      */
+      wordcount: row.wordcount,
       pageviews: row.pageviews_id ? {
         id: row.pageviews_id,
         pageviews: row.pageviews
@@ -486,7 +493,6 @@ app.get('/api/claims/:distributionYear?/tv', authenticateToken, async (req, res)
       ORDER BY c.id`, // Order by claimId
       [userId]
     );
-    //LEFT JOIN claims_wordcounts wc ON c.wordcount_id = wc.id
     //LEFT JOIN claims_circulations cl ON c.circulation_id = cl.id
 
     // Print each row line by line
@@ -516,7 +522,8 @@ app.get('/api/claims/:distributionYear?/tv', authenticateToken, async (req, res)
         id: row.role_id,
         role: row.role
       },
-      wordcount: null,
+      // 2026 -- wordcount: null,
+      wordcount: '',
       circulation: null,
       finalFlag: row.finalFlag,
       created_at : row.created_at,
@@ -573,7 +580,6 @@ app.get('/api/claims/:distributionYear?/radio', authenticateToken, async (req, r
       ORDER BY c.id`, // Order by claimId
       [userId]
     );
-    //LEFT JOIN claims_wordcounts wc ON c.wordcount_id = wc.id
     //LEFT JOIN claims_circulations cl ON c.circulation_id = cl.id
 
     // Print each row line by line
@@ -603,7 +609,7 @@ app.get('/api/claims/:distributionYear?/radio', authenticateToken, async (req, r
         id: row.role_id,
         role: row.role
       },
-      wordcount: null,
+      wordcount: '',
       circulation: null,
       finalFlag: row.finalFlag,
       created_at : row.created_at,
@@ -764,18 +770,18 @@ app.post('/api/claims/paper/saveClaims', async (req, res) => {
         title_paper_id = titlePaper.id;
       }
 
-      const wordcountId = disableWordCountRoleIds.includes(role.id) ? null : wordcount.id;
+      // 2026 -- const wordcountId = disableWordCountRoleIds.includes(role.id) ? null : wordcount.id;
 
       if (claimId === -1) {
         await pool.query(
           `INSERT INTO claims_paper (
             user_id, signature, title_paper_id, title_paper_id_extra,
-            paper_type_id, periodicity_id, role_id, wordcount_id, circulation_id, finalFlag, created_at, finalized_at
+            paper_type_id, periodicity_id, role_id, wordcount, circulation_id, finalFlag, created_at, finalized_at
           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CURRENT_TIMESTAMP,
                     CASE WHEN $11 THEN CURRENT_TIMESTAMP ELSE NULL END)`,
           [
             userId, signature, title_paper_id, title_paper_id_extra,
-            paperType.id, periodicity.id, role.id, wordcountId, circulation.id, finalFlag,
+            paperType.id, periodicity.id, role.id, wordcount, circulation.id, finalFlag,
                     finalFlag
           ]
         );
@@ -784,12 +790,12 @@ app.post('/api/claims/paper/saveClaims', async (req, res) => {
           `UPDATE claims_paper SET
             user_id = $1, signature = $2, title_paper_id = $3,
             title_paper_id_extra = $4, paper_type_id = $5, periodicity_id = $6,
-            role_id = $7, wordcount_id = $8, circulation_id = $9, finalFlag = $10, updated_at = CURRENT_TIMESTAMP,
+            role_id = $7, wordcount = $8, circulation_id = $9, finalFlag = $10, updated_at = CURRENT_TIMESTAMP,
             finalized_at = CASE WHEN $11 THEN CURRENT_TIMESTAMP ELSE finalized_at END
           WHERE id = $12`,
           [
             userId, signature, title_paper_id, title_paper_id_extra,
-            paperType.id, periodicity.id, role.id, wordcountId, circulation.id, finalFlag, finalFlag, claimId
+            paperType.id, periodicity.id, role.id, wordcount, circulation.id, finalFlag, finalFlag, claimId
           ]
         );
       }
@@ -868,18 +874,18 @@ app.post('/api/claims/internet/saveClaims', async (req, res) => {
         title_internet_id = titleInternet.id;
       }
 
-      let wordcountId = (disableWordCountRoleIds.includes(role.id) || disableWordCountInternetTypeIds.includes(internetType.id)) ? null : wordcount.id;
+      // 2026 -- let wordcountId = (disableWordCountRoleIds.includes(role.id) || disableWordCountInternetTypeIds.includes(internetType.id)) ? null : wordcount.id;
 
       if (claimId === -1) {
         await pool.query(
           `INSERT INTO claims_internet (
             user_id, signature, title_internet_id, title_internet_id_extra,
-            internet_type_id, periodicity_id, role_id, wordcount_id, pageviews_id, finalFlag, created_at, finalized_at
+            internet_type_id, periodicity_id, role_id, wordcount, pageviews_id, finalFlag, created_at, finalized_at
           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CURRENT_TIMESTAMP,
                     CASE WHEN $11 THEN CURRENT_TIMESTAMP ELSE NULL END)`,
           [
             userId, signature, title_internet_id, title_internet_id_extra,
-            internetType.id, periodicity.id, role.id, wordcountId, pageviews.id, finalFlag,
+            internetType.id, periodicity.id, role.id, wordcount, pageviews.id, finalFlag,
             finalFlag
           ]
         );
@@ -888,12 +894,12 @@ app.post('/api/claims/internet/saveClaims', async (req, res) => {
           `UPDATE claims_internet SET
             user_id = $1, signature = $2, title_internet_id = $3,
             title_internet_id_extra = $4, internet_type_id = $5, periodicity_id = $6,
-            role_id = $7, wordcount_id = $8, pageviews_id = $9, finalFlag = $10, updated_at = CURRENT_TIMESTAMP,
+            role_id = $7, wordcount = $8, pageviews_id = $9, finalFlag = $10, updated_at = CURRENT_TIMESTAMP,
             finalized_at = CASE WHEN $11 THEN CURRENT_TIMESTAMP ELSE finalized_at END
           WHERE id = $12`,
           [
             userId, signature, title_internet_id, title_internet_id_extra,
-            internetType.id, periodicity.id, role.id, wordcountId, pageviews.id, finalFlag, finalFlag, claimId
+            internetType.id, periodicity.id, role.id, wordcount, pageviews.id, finalFlag, finalFlag, claimId
           ]
         );
       }
@@ -1229,7 +1235,7 @@ app.get('/api/claims/dropdownData', authenticateToken, async (req, res) => {
     const othertypesResult = await client.query('SELECT * FROM claims_other_types');
     const periodicitiesResult = await client.query('SELECT * FROM claims_periodicities');
     const rolesResult = await client.query('SELECT * FROM claims_roles');
-    const wordcountsResult = await client.query('SELECT * FROM claims_wordcounts');
+    // 2026 -- const wordcountsResult = await client.query('SELECT * FROM claims_wordcounts');
     const circulationsResult = await client.query('SELECT * FROM claims_circulations');
     const pageviewsResult = await client.query('SELECT * FROM claims_pageviews');
 
@@ -1264,7 +1270,7 @@ app.get('/api/claims/dropdownData', authenticateToken, async (req, res) => {
       paperInternetRoles: roles.filter(row => !disableRolesIdsForPaperInternet.includes(row.id)),
       tvRadioRoles:       roles.filter(row => !disableRolesIdsForTvRadio.includes(row.id)),
 
-      wordcounts: wordcountsResult.rows,
+      // 2026 -- wordcounts: wordcountsResult.rows,
       circulations: circulationsResult.rows,
       pageviews: pageviewsResult.rows
     });

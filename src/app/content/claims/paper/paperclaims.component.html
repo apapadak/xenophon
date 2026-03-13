@@ -131,7 +131,7 @@
             <div *ngIf="role.invalid && (role.dirty || role.touched)" class="error-message">Υποχρεωτική επιλογή από λίστα</div>
 
           </td>
-          <td class="cell-tight-padding">
+          <!-- 2026 -- <td class="cell-tight-padding">
             <p-autoComplete appendTo="body"
                             required
                             #wordcount="ngModel"
@@ -151,6 +151,27 @@
 
             <div *ngIf="wordcount.invalid && (wordcount.dirty || wordcount.touched)" class="error-message">Υποχρεωτική επιλογή από λίστα</div>
 
+          </td>
+          -->
+          <td class="cell-tight-padding">
+            <input type="text"
+                   inputmode="numeric"
+                   pattern="^[0-9]+$"
+                   autocomplete="off"
+                   pInputText
+                   required
+                   #wordcount="ngModel"
+                   [(ngModel)]="rowData.wordcount"
+                   name="wordCount{{i}}"
+                   placeholder="Αριθμός Λέξεων"
+                   pTooltip="Αριθμός λέξεων"
+                   tooltipPosition="top"
+                   maxlength="255"
+                   class="custom-input"
+                   (input)="allowOnlyDigits($event, rowData, 'wordcount')"
+                   [disabled]="rowData.disabled || rowData.role?.disableWordCount">
+
+            <div *ngIf="wordcount.invalid && (wordcount.dirty || wordcount.touched)" class="error-message">Ο αριθμός λέξεων είναι υποχρεωτικός</div>
           </td>
           <td class="cell-tight-padding">
             <p-autoComplete appendTo="body"

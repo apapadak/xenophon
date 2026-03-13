@@ -141,10 +141,11 @@ CREATE TABLE claims_roles (
 	role		VARCHAR(255) UNIQUE NOT NULL
 );
 
-CREATE TABLE claims_wordcounts (
-	id 			SERIAL PRIMARY KEY,
-	wordcount	VARCHAR(255) UNIQUE NOT NULL
-);
+-- 2026
+--CREATE TABLE claims_wordcounts (
+--	id 			SERIAL PRIMARY KEY,
+--	wordcount	VARCHAR(255) UNIQUE NOT NULL
+--);
 
 CREATE TABLE claims_circulations (
 	id 			SERIAL PRIMARY KEY,
@@ -172,7 +173,7 @@ CREATE TABLE claims_paper (
 	paper_type_id 						INT,
 	periodicity_id 					INT,
 	role_id						    INT,
-	wordcount_id				    INT,
+	wordcount				    INT,
 	circulation_id				    INT,
 	finalFlag						BOOLEAN DEFAULT FALSE,
 
@@ -188,7 +189,7 @@ CREATE TABLE claims_paper (
     FOREIGN KEY (periodicity_id) REFERENCES claims_periodicities(id),
 
 	FOREIGN KEY (role_id) REFERENCES claims_roles(id),
-	FOREIGN KEY (wordcount_id) REFERENCES claims_wordcounts(id),
+	// 2026 -- FOREIGN KEY (wordcount_id) REFERENCES claims_wordcounts(id),
 	FOREIGN KEY (circulation_id) REFERENCES claims_circulations(id)
 );
 
@@ -220,7 +221,7 @@ CREATE TABLE claims_internet (
 	internet_type_id 						INT,
 	periodicity_id 					INT,
 	role_id						    INT,
-	wordcount_id				    INT,
+	wordcount				    INT,
   pageviews_id					    INT,
   finalFlag						BOOLEAN DEFAULT FALSE,
 
@@ -236,7 +237,7 @@ CREATE TABLE claims_internet (
     FOREIGN KEY (periodicity_id) REFERENCES claims_periodicities(id),
 
 	FOREIGN KEY (role_id) REFERENCES claims_roles(id),
-	FOREIGN KEY (wordcount_id) REFERENCES claims_wordcounts(id),
+	// 2026 --  FOREIGN KEY (wordcount_id) REFERENCES claims_wordcounts(id),
 	FOREIGN KEY (pageviews_id) REFERENCES claims_pageviews(id)
 );
 

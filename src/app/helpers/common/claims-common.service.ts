@@ -14,7 +14,9 @@ export interface BaseTableData {
 
   periodicity?: PeriodicityData | null;
   role?: RoleData | null;
-  wordcount?: WordcountData | null;
+
+  wordcount?: string | null;
+  //2026 - wordcount?: WordcountData | null;
 
   disabled: boolean; // Add this property used for disabling the whole row when needed
   finalFlag: boolean;
@@ -177,10 +179,10 @@ export interface RoleData {
   disableWordCount: boolean;
 }
 
-export interface WordcountData {
+/* 2026 - export interface WordcountData {
   id: number;
   wordcount: string;
-}
+}*/
 
 export interface CirculationData {
   id: number;
@@ -241,7 +243,7 @@ export class ClaimsCommonService {
   paperInternetRoles: RoleData[] = [];
   tvRadioRoles: RoleData[] = [];
 
-  wordcounts: WordcountData[] = [];
+  // 2026 -- wordcounts: WordcountData[] = [];
 
   circulations: CirculationData[] = [];
 
@@ -289,7 +291,7 @@ export class ClaimsCommonService {
       this.paperInternetRoles = data.paperInternetRoles;
       this.tvRadioRoles = data.tvRadioRoles;
 
-      this.wordcounts = data.wordcounts;
+      // 2026 -- this.wordcounts = data.wordcounts;
       this.circulations = data.circulations;
       this.pageviews = data.pageviews;
 
@@ -311,7 +313,7 @@ export class ClaimsCommonService {
       //sessionStorage.setItem('roles', JSON.stringify(this.roles));
       sessionStorage.setItem('paperInternetRoles', JSON.stringify(this.paperInternetRoles));
       sessionStorage.setItem('tvRadioRoles', JSON.stringify(this.tvRadioRoles));
-      sessionStorage.setItem('wordcounts', JSON.stringify(this.wordcounts));
+      // 2026 -- sessionStorage.setItem('wordcounts', JSON.stringify(this.wordcounts));
       sessionStorage.setItem('circulations', JSON.stringify(this.circulations));
       sessionStorage.setItem('pageviews', JSON.stringify(this.pageviews));
     });
@@ -336,7 +338,7 @@ export class ClaimsCommonService {
       //sessionStorage.removeItem('roles');
       sessionStorage.removeItem('paperInternetRoles');
       sessionStorage.removeItem('tvRadioRoles');
-      sessionStorage.removeItem('wordcounts');
+      // 2026 -- sessionStorage.removeItem('wordcounts');
       sessionStorage.removeItem('circulations');
       sessionStorage.removeItem('pageviews');
   }
@@ -508,7 +510,8 @@ export class ClaimsCommonService {
       paperType: null,
       periodicity: null,
       role: null,
-      wordcount: null,
+      wordcount: '',
+      // 2026 -- wordcount: null,
       circulation: null,
 
       disabled: false,
@@ -527,7 +530,8 @@ export class ClaimsCommonService {
       internetType: null,
       periodicity: null,
       role: null,
-      wordcount: null,
+      wordcount: '',
+      // 2026 -- wordcount: null,
       pageviews: null,
 
       disabled: false,
@@ -546,7 +550,8 @@ export class ClaimsCommonService {
       tvType: null,
       periodicity: null,
       role: null,
-      wordcount: null,
+      wordcount: '',
+      // 2026 -- wordcount: null,
       circulation: null,
 
       disabled: false,
@@ -565,7 +570,8 @@ export class ClaimsCommonService {
       radioType: null,
       periodicity: null,
       role: null,
-      wordcount: null,
+      wordcount: '',
+      // 2026 -- wordcount: null,
       circulation: null,
 
       disabled: false,
@@ -970,13 +976,15 @@ export class ClaimsCommonService {
 
   handleRoleChange(rowData: PaperTableData | InternetTableData | TvTableData | RadioTableData) {
     if (rowData.role?.disableWordCount) {
-      rowData.wordcount = null; // Clear word count if the role disables it
+      rowData.wordcount = ''; // Clear word count if the role disables it
+      // 2026 -- rowData.wordcount = null; // Clear word count if the role disables it
     }
   }
 
   handleInternetTypeChange(rowData: InternetTableData) {
     if (rowData.internetType?.disableWordCount) {
-      rowData.wordcount = null; // Clear word count if the internettype disables it
+      rowData.wordcount = ''; // Clear word count if the role disables it
+      // 2026 -- rowData.wordcount = null; // Clear word count if the internettype disables it
     }
   }
 
