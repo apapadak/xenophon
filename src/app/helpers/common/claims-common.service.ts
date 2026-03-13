@@ -510,7 +510,7 @@ export class ClaimsCommonService {
       paperType: null,
       periodicity: null,
       role: null,
-      wordcount: '',
+      wordcount: null,
       // 2026 -- wordcount: null,
       circulation: null,
 
@@ -530,7 +530,7 @@ export class ClaimsCommonService {
       internetType: null,
       periodicity: null,
       role: null,
-      wordcount: '',
+      wordcount: null,
       // 2026 -- wordcount: null,
       pageviews: null,
 
@@ -550,7 +550,7 @@ export class ClaimsCommonService {
       tvType: null,
       periodicity: null,
       role: null,
-      wordcount: '',
+      wordcount: null,
       // 2026 -- wordcount: null,
       circulation: null,
 
@@ -570,7 +570,7 @@ export class ClaimsCommonService {
       radioType: null,
       periodicity: null,
       role: null,
-      wordcount: '',
+      wordcount: null,
       // 2026 -- wordcount: null,
       circulation: null,
 
@@ -976,14 +976,14 @@ export class ClaimsCommonService {
 
   handleRoleChange(rowData: PaperTableData | InternetTableData | TvTableData | RadioTableData) {
     if (rowData.role?.disableWordCount) {
-      rowData.wordcount = ''; // Clear word count if the role disables it
+      rowData.wordcount = null; // Clear word count if the role disables it
       // 2026 -- rowData.wordcount = null; // Clear word count if the role disables it
     }
   }
 
   handleInternetTypeChange(rowData: InternetTableData) {
     if (rowData.internetType?.disableWordCount) {
-      rowData.wordcount = ''; // Clear word count if the role disables it
+      rowData.wordcount = null; // Clear word count if the role disables it
       // 2026 -- rowData.wordcount = null; // Clear word count if the internettype disables it
     }
   }
