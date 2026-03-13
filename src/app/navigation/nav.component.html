@@ -10,8 +10,8 @@
       <ul *ngIf="showSubMenu['CLAIMS']" class="sub-menu">
         <li (click)="onNavigate('PAPERCLAIMS')">Έντυπα</li>
         <li (click)="onNavigate('INTERNETCLAIMS')">Ιστοσελίδες</li>
-        <li (click)="onNavigate('TVCLAIMS')">TV</li>
-        <li (click)="onNavigate('RADIOCLAIMS')">Radio</li>
+        <li *ngIf="showSubMenu['TVCLAIMS']" (click)="onNavigate('TVCLAIMS')">TV</li>
+        <li *ngIf="showSubMenu['RADIOCLAIMS']" (click)="onNavigate('RADIOCLAIMS')">Radio</li>
         <li (click)="onNavigate('OTHERCLAIMS')">ΑΛΛΟ</li>
       </ul>
     </li>
