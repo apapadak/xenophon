@@ -120,3 +120,7 @@ p-button {
 .notes-text {
   color: black;
 }
+
+.notes-title {
+  font-weight: bold
+}
