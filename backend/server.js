@@ -261,9 +261,26 @@ app.get('/api/claims/:distributionYear?/paper', authenticateToken, async (req, r
   const distributionYear = req.params.distributionYear;
   const schema = distributionYear ? (distributionMapping[distributionYear] || 'public') : 'public';
 
+  const useLegacyWordcount = ['2023', '2024'].includes(distributionYear);
+
   if (!userId) {
     return res.status(400).json({ message: "userId is required" });
   }
+
+  const wordcountSelect = useLegacyWordcount
+    ? `
+        wc.id AS wordcount_id,
+        wc.wordcount,
+      `
+    : `
+        c.wordcount,
+      `;
+
+  const wordcountJoin = useLegacyWordcount
+    ? `
+        LEFT JOIN "${schema}".claims_wordcounts wc ON c.wordcount_id = wc.id
+      `
+    : '';
 
   try {
     const result = await pool.query(
@@ -278,9 +295,7 @@ app.get('/api/claims/:distributionYear?/paper', authenticateToken, async (req, r
         p.periodicity,
         r.id AS role_id,
         r.role,
-        /* 2026 -- wc.id AS wordcount_id,
-        wc.wordcount, */
-        c.wordcount,
+        ${wordcountSelect}
         cl.id AS circulation_id,
         cl.circulation,
         c.finalflag AS "finalFlag",
@@ -294,7 +309,7 @@ app.get('/api/claims/:distributionYear?/paper', authenticateToken, async (req, r
       LEFT JOIN "${schema}".claims_paper_types t ON c.paper_type_id = t.id
       LEFT JOIN "${schema}".claims_periodicities p ON c.periodicity_id = p.id
       LEFT JOIN "${schema}".claims_roles r ON c.role_id = r.id
-      /* 2026 -- LEFT JOIN "${schema}".claims_wordcounts wc ON c.wordcount_id = wc.id */
+      ${wordcountJoin}
       LEFT JOIN "${schema}".claims_circulations cl ON c.circulation_id = cl.id
       WHERE c.user_id = $1
       ORDER BY c.id`, // Order by claimId
@@ -328,12 +343,12 @@ app.get('/api/claims/:distributionYear?/paper', authenticateToken, async (req, r
         id: row.role_id,
         role: row.role
       },
-      /* 2026 -- wordcount: row.wordcount_id ? {
-        id: row.wordcount_id,
-        wordcount: row.wordcount
-      } : null,
-      */
-      wordcount : row.wordcount,
+      wordcount: useLegacyWordcount
+        ? (row.wordcount_id ? {
+            id: row.wordcount_id,
+            wordcount: row.wordcount
+          } : null)
+        : row.wordcount,
       circulation: {
         id: row.circulation_id,
         circulation: row.circulation
@@ -359,9 +374,26 @@ app.get('/api/claims/:distributionYear?/internet', authenticateToken, async (req
   const distributionYear = req.params.distributionYear;
   const schema = distributionYear ? (distributionMapping[distributionYear] || 'public') : 'public';
 
+  const useLegacyWordcount = ['2023', '2024'].includes(distributionYear);
+
   if (!userId) {
     return res.status(400).json({ message: "userId is required" });
   }
+
+  const wordcountSelect = useLegacyWordcount
+    ? `
+        wc.id AS wordcount_id,
+        wc.wordcount,
+      `
+    : `
+        c.wordcount,
+      `;
+
+  const wordcountJoin = useLegacyWordcount
+    ? `
+        LEFT JOIN "${schema}".claims_wordcounts wc ON c.wordcount_id = wc.id
+      `
+    : '';
 
   try {
     const result = await pool.query(
@@ -376,10 +408,7 @@ app.get('/api/claims/:distributionYear?/internet', authenticateToken, async (req
         p.periodicity,
         r.id AS role_id,
         r.role,
-        /* 2026 -- wc.id AS wordcount_id,
-        wc.wordcount,
-        */
-        c.wordcount,
+        ${wordcountSelect}
         pa.id AS pageviews_id,
         pa.pageviews,
         c.finalflag AS "finalFlag",
@@ -393,7 +422,7 @@ app.get('/api/claims/:distributionYear?/internet', authenticateToken, async (req
       LEFT JOIN "${schema}".claims_internet_types t ON c.internet_type_id = t.id
       LEFT JOIN "${schema}".claims_periodicities p ON c.periodicity_id = p.id
       LEFT JOIN "${schema}".claims_roles r ON c.role_id = r.id
-      /* 2026 -- LEFT JOIN "${schema}".claims_wordcounts wc ON c.wordcount_id = wc.id */
+      ${wordcountJoin}
       LEFT JOIN "${schema}".claims_pageviews pa ON c.pageviews_id = pa.id
       WHERE c.user_id = $1
       ORDER BY c.id`, // Order by claimId
@@ -427,12 +456,12 @@ app.get('/api/claims/:distributionYear?/internet', authenticateToken, async (req
         id: row.role_id,
         role: row.role
       },
-      /* 2026 -- wordcount: row.wordcount_id ? {
-        id: row.wordcount_id,
-        wordcount: row.wordcount
-      } : null,
-      */
-      wordcount: row.wordcount,
+      wordcount: useLegacyWordcount
+        ? (row.wordcount_id ? {
+            id: row.wordcount_id,
+            wordcount: row.wordcount
+          } : null)
+        : row.wordcount,
       pageviews: row.pageviews_id ? {
         id: row.pageviews_id,
         pageviews: row.pageviews
