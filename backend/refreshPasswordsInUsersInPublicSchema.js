@@ -14,7 +14,7 @@ const pool = new Pool({
 async function updatePasswordsUsingMhtrwo() {
   try {
     // Retrieve user_id and mhtrwo for every user
-    const { rows: users } = await pool.query('SELECT user_id, mhtrwo FROM users');
+    const { rows: users } = await pool.query('SELECT user_id, mhtrwo FROM public.users');
     const saltRounds = 10;
 
     for (const user of users) {
@@ -26,7 +26,7 @@ async function updatePasswordsUsingMhtrwo() {
       const plainValue = user.mhtrwo.toString().trim();
       const hashedPassword = await bcrypt.hash(plainValue, saltRounds);
 
-      await pool.query('UPDATE users SET password = $1 WHERE user_id = $2', [hashedPassword, user.user_id]);
+      await pool.query('UPDATE public.users SET password = $1 WHERE user_id = $2', [hashedPassword, user.user_id]);
       console.log(`Updated password for user_id ${user.user_id} using mhtrwo value.`);
     }
 
