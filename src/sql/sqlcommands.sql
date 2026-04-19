@@ -147,6 +147,18 @@ CREATE TABLE claims_roles (
 --	wordcount	VARCHAR(255) UNIQUE NOT NULL
 --);
 
+-- 2026
+CREATE TABLE claims_timelength (
+	id          SERIAL PRIMARY KEY,
+	timelength  VARCHAR(255) UNIQUE NOT NULL
+);
+
+-- 2026
+CREATE TABLE claims_coverage (
+	id        SERIAL PRIMARY KEY,
+	coverage  VARCHAR(255) UNIQUE NOT NULL
+);
+
 CREATE TABLE claims_circulations (
 	id 			SERIAL PRIMARY KEY,
 	circulation VARCHAR(255) UNIQUE NOT NULL
@@ -275,8 +287,12 @@ CREATE TABLE claims_tv (
 	tv_type_id 						INT,
 	periodicity_id 					INT,
 	role_id						    INT,
-	wordcount    				    INT,
-	circulation					    INT,
+	-- 2026
+	--wordcount    				    INT,
+	--circulation					    INT,
+	timelength_id         INT,
+	coverage_id           INT,
+	-- 2026
   finalFlag						BOOLEAN DEFAULT FALSE,
 
   created_at  TIMESTAMP(3) WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -290,9 +306,13 @@ CREATE TABLE claims_tv (
     FOREIGN KEY (tv_type_id) REFERENCES claims_tv_types(id),
     FOREIGN KEY (periodicity_id) REFERENCES claims_periodicities(id),
 
-	FOREIGN KEY (role_id) REFERENCES claims_roles(id)
+	FOREIGN KEY (role_id) REFERENCES claims_roles(id),
+	-- 2026
 	--FOREIGN KEY (wordcount_id) REFERENCES claims_wordcounts(id),
 	--FOREIGN KEY (circulation_id) REFERENCES claims_circulations(id)
+	FOREIGN KEY (timelength_id) REFERENCES claims_timelength(id),
+	FOREIGN KEY (coverage_id) REFERENCES claims_coverage(id)
+	-- 2026
 );
 
 -- Create the trigger function
@@ -328,8 +348,12 @@ CREATE TABLE claims_radio (
 	radio_type_id 					INT,
 	periodicity_id 					INT,
 	role_id						    INT,
-	wordcount    				    INT,
-	circulation					    INT,
+	-- 2026
+	--wordcount    				    INT,
+	--circulation					    INT,
+	timelength_id         INT,
+  coverage_id           INT,
+  -- 2026
   finalFlag						BOOLEAN DEFAULT FALSE,
 
   created_at  TIMESTAMP(3) WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -343,9 +367,13 @@ CREATE TABLE claims_radio (
     FOREIGN KEY (radio_type_id) REFERENCES claims_radio_types(id),
     FOREIGN KEY (periodicity_id) REFERENCES claims_periodicities(id),
 
-	FOREIGN KEY (role_id) REFERENCES claims_roles(id)
+	FOREIGN KEY (role_id) REFERENCES claims_roles(id),
+	-- 2026
 	--FOREIGN KEY (wordcount_id) REFERENCES claims_wordcounts(id),
 	--FOREIGN KEY (circulation_id) REFERENCES claims_circulations(id)
+  FOREIGN KEY (timelength_id) REFERENCES claims_timelength(id),
+  FOREIGN KEY (coverage_id) REFERENCES claims_coverage(id)
+  -- 2026
 );
 
 -- Create the trigger function

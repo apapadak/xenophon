@@ -25,10 +25,14 @@ const distributionMapping = {
 
 const disableWordCountRoleIds = [1, 3, 4, 6, 7];
 const disableWordCountInternetTypeIds = [3];
-const disablePeriodicitiesIdsForTvsRadios = [5, 6, 7, 8];
 
-const disableRolesIdsForPaperInternet = [6];
-const disableRolesIdsForTvRadio = [4];
+const disableTimeLengthAndCoverageIdsForTvRadio = [1, 3, 8];
+
+const reductRolesIdsForPaperInternet = [6];
+const reductRolesIdsForTvRadio = [2, 4, 5, 6, 10];
+const reductPeriodicitiesIdsForTvsRadios = [5, 6, 7, 8];
+const reductCoverageIdsForTv = [1, 2, 3, 4];
+const reductCoverageIdsForRadio = [5, 6, 7, 4];
 
 const saltRounds = 10;
 
@@ -505,8 +509,14 @@ app.get('/api/claims/:distributionYear?/tv', authenticateToken, async (req, res)
         p.periodicity,
         r.id AS role_id,
         r.role,
-        c.wordcount,
-        c.circulation,
+
+        /* 2026 */
+        ti.id as timelength_id,
+        ti.timelength,
+        co.id as coverage_id,
+        co.coverage,
+        /* 2026 */
+
         c.finalflag AS "finalFlag",
         c.created_at AS created_at,
         c.updated_at AS updated_at,
@@ -518,11 +528,12 @@ app.get('/api/claims/:distributionYear?/tv', authenticateToken, async (req, res)
       LEFT JOIN "${schema}".claims_tv_types t ON c.tv_type_id = t.id
       LEFT JOIN "${schema}".claims_periodicities p ON c.periodicity_id = p.id
       LEFT JOIN "${schema}".claims_roles r ON c.role_id = r.id
+      LEFT JOIN "${schema}".claims_timelength ti ON c.timelength_id = ti.id
+      LEFT JOIN "${schema}".claims_coverage co ON c.coverage_id = co.id
       WHERE c.user_id = $1
       ORDER BY c.id`, // Order by claimId
       [userId]
     );
-    //LEFT JOIN claims_circulations cl ON c.circulation_id = cl.id
 
     // Print each row line by line
     if ( process.env.NODE_ENV === 'local' ) {
@@ -552,8 +563,22 @@ app.get('/api/claims/:distributionYear?/tv', authenticateToken, async (req, res)
         role: row.role
       },
       // 2026 -- wordcount: null,
-      wordcount: '',
-      circulation: null,
+      //wordcount: '',
+      //circulation: null,
+      /* 2026 */
+      timelength: row.timelength_id == null
+      ? null
+      : {
+          id: row.timelength_id,
+          timelength: row.timelength
+      },
+      coverage: row.coverage_id == null
+      ? null
+      : {
+          id: row.coverage_id,
+          coverage: row.coverage
+      },
+      /* 2026 */
       finalFlag: row.finalFlag,
       created_at : row.created_at,
       updated_at : row.updated_at,
@@ -592,8 +617,14 @@ app.get('/api/claims/:distributionYear?/radio', authenticateToken, async (req, r
         p.periodicity,
         r.id AS role_id,
         r.role,
-        c.wordcount,
-        c.circulation,
+
+        /* 2026 */
+        ti.id as timelength_id,
+        ti.timelength,
+        co.id as coverage_id,
+        co.coverage,
+        /* 2026 */
+
         c.finalflag AS "finalFlag",
         c.created_at AS created_at,
         c.updated_at AS updated_at,
@@ -605,11 +636,12 @@ app.get('/api/claims/:distributionYear?/radio', authenticateToken, async (req, r
       LEFT JOIN "${schema}".claims_radio_types t ON c.radio_type_id = t.id
       LEFT JOIN "${schema}".claims_periodicities p ON c.periodicity_id = p.id
       LEFT JOIN "${schema}".claims_roles r ON c.role_id = r.id
+      LEFT JOIN "${schema}".claims_timelength ti ON c.timelength_id = ti.id
+      LEFT JOIN "${schema}".claims_coverage co ON c.coverage_id = co.id
       WHERE c.user_id = $1
       ORDER BY c.id`, // Order by claimId
       [userId]
     );
-    //LEFT JOIN claims_circulations cl ON c.circulation_id = cl.id
 
     // Print each row line by line
     if ( process.env.NODE_ENV === 'local' ) {
@@ -638,8 +670,23 @@ app.get('/api/claims/:distributionYear?/radio', authenticateToken, async (req, r
         id: row.role_id,
         role: row.role
       },
-      wordcount: '',
-      circulation: null,
+      // 2026 -- wordcount: null,
+      //wordcount: '',
+      //circulation: null,
+      /* 2026 */
+      timelength: row.timelength_id == null
+      ? null
+      : {
+          id: row.timelength_id,
+          timelength: row.timelength
+      },
+      coverage: row.coverage_id == null
+      ? null
+      : {
+          id: row.coverage_id,
+          coverage: row.coverage
+      },
+      /* 2026 */
       finalFlag: row.finalFlag,
       created_at : row.created_at,
       updated_at : row.updated_at,
@@ -986,8 +1033,12 @@ app.post('/api/claims/tv/saveClaims', async (req, res) => {
         tvType,
         periodicity,
         role,
-        wordcount,
-        circulation
+        /* 2026 -- wordcount,
+        circulation, */
+        /* 2026 */
+        timelength,
+        coverage
+        /* 2026 */
       } = claim;
 
       let title_tv_id = null;
@@ -1007,16 +1058,19 @@ app.post('/api/claims/tv/saveClaims', async (req, res) => {
         title_tv_id = titleTv.id;
       }
 
+      const timelengthId = timelength?.id ?? null;
+      const coverageId = coverage?.id ?? null;
+
       if (claimId === -1) {
         await pool.query(
           `INSERT INTO claims_tv (
             user_id, signature, title_tv_id, title_tv_id_extra,
-            tv_type_id, periodicity_id, role_id, wordcount, circulation, finalFlag, created_at, finalized_at
+            tv_type_id, periodicity_id, role_id, timelength_id, coverage_id, finalFlag, created_at, finalized_at
           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CURRENT_TIMESTAMP,
                     CASE WHEN $11 THEN CURRENT_TIMESTAMP ELSE NULL END)`,
           [
             userId, signature, title_tv_id, title_tv_id_extra,
-            tvType.id, periodicity.id, role.id, wordcount, circulation, finalFlag,
+            tvType.id, periodicity.id, role.id, timelengthId, coverageId, finalFlag,
             finalFlag
           ]
         );
@@ -1025,12 +1079,12 @@ app.post('/api/claims/tv/saveClaims', async (req, res) => {
           `UPDATE claims_tv SET
             user_id = $1, signature = $2, title_tv_id = $3,
             title_tv_id_extra = $4, tv_type_id = $5, periodicity_id = $6,
-            role_id = $7, wordcount = $8, circulation = $9, finalFlag = $10, updated_at = CURRENT_TIMESTAMP,
+            role_id = $7, timelength_id = $8, coverage_id = $9, finalFlag = $10, updated_at = CURRENT_TIMESTAMP,
             finalized_at = CASE WHEN $11 THEN CURRENT_TIMESTAMP ELSE finalized_at END
           WHERE id = $12`,
           [
             userId, signature, title_tv_id, title_tv_id_extra,
-            tvType.id, periodicity.id, role.id, wordcount, circulation, finalFlag, finalFlag, claimId
+            tvType.id, periodicity.id, role.id, timelengthId, coverageId, finalFlag, finalFlag, claimId
           ]
         );
       }
@@ -1088,8 +1142,12 @@ app.post('/api/claims/radio/saveClaims', async (req, res) => {
         radioType,
         periodicity,
         role,
-        wordcount,
-        circulation
+        /* 2026 -- wordcount,
+        circulation, */
+        /* 2026 */
+        timelength,
+        coverage
+        /* 2026 */
       } = claim;
 
       let title_radio_id = null;
@@ -1109,16 +1167,19 @@ app.post('/api/claims/radio/saveClaims', async (req, res) => {
         title_radio_id = titleRadio.id;
       }
 
+      const timelengthId = timelength?.id ?? null;
+      const coverageId = coverage?.id ?? null;
+
       if (claimId === -1) {
         await pool.query(
           `INSERT INTO claims_radio (
             user_id, signature, title_radio_id, title_radio_id_extra,
-            radio_type_id, periodicity_id, role_id, wordcount, circulation, finalFlag, created_at, finalized_at
+            radio_type_id, periodicity_id, role_id, timelength_id, coverage_id, finalFlag, created_at, finalized_at
           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CURRENT_TIMESTAMP,
                     CASE WHEN $11 THEN CURRENT_TIMESTAMP ELSE NULL END)`,
           [
             userId, signature, title_radio_id, title_radio_id_extra,
-            radioType.id, periodicity.id, role.id, wordcount, circulation, finalFlag,
+            radioType.id, periodicity.id, role.id, timelengthId, coverageId, finalFlag,
             finalFlag
           ]
         );
@@ -1127,12 +1188,12 @@ app.post('/api/claims/radio/saveClaims', async (req, res) => {
           `UPDATE claims_radio SET
             user_id = $1, signature = $2, title_radio_id = $3,
             title_radio_id_extra = $4, radio_type_id = $5, periodicity_id = $6,
-            role_id = $7, wordcount = $8, circulation = $9, finalFlag = $10, updated_at = CURRENT_TIMESTAMP,
+            role_id = $7, timelength_id = $8, coverage_id = $9, finalFlag = $10, updated_at = CURRENT_TIMESTAMP,
             finalized_at = CASE WHEN $11 THEN CURRENT_TIMESTAMP ELSE finalized_at END
           WHERE id = $12`,
           [
             userId, signature, title_radio_id, title_radio_id_extra,
-            radioType.id, periodicity.id, role.id, wordcount, circulation, finalFlag, finalFlag, claimId
+            radioType.id, periodicity.id, role.id, timelengthId, coverageId, finalFlag, finalFlag, claimId
           ]
         );
       }
@@ -1268,10 +1329,16 @@ app.get('/api/claims/dropdownData', authenticateToken, async (req, res) => {
     const circulationsResult = await client.query('SELECT * FROM claims_circulations');
     const pageviewsResult = await client.query('SELECT * FROM claims_pageviews');
 
+    /* 2026 */
+    const timelengthResult = await client.query('SELECT * FROM claims_timelength');
+    const coverageResult = await client.query('SELECT * FROM claims_coverage');
+    /* 2026 */
+
     // Add disableWordCount flag to each role
     const roles = rolesResult.rows.map(role => ({
       ...role,
-      disableWordCount: disableWordCountRoleIds.includes(role.id)
+      disableWordCount: disableWordCountRoleIds.includes(role.id),
+      disableTimeLengthAndCoverage: disableTimeLengthAndCoverageIdsForTvRadio.includes(role.id)
     }));
 
     const internettypes = internettypesResult.rows.map(type => ({
@@ -1293,15 +1360,21 @@ app.get('/api/claims/dropdownData', authenticateToken, async (req, res) => {
       othertypes: othertypesResult.rows,
 
       periodicities: periodicitiesResult.rows,
-      tvperiodicities: periodicitiesResult.rows.filter(row => !disablePeriodicitiesIdsForTvsRadios.includes(row.id)),
-      radioperiodicities: periodicitiesResult.rows.filter(row => !disablePeriodicitiesIdsForTvsRadios.includes(row.id)),
-//      roles: roles,
-      paperInternetRoles: roles.filter(row => !disableRolesIdsForPaperInternet.includes(row.id)),
-      tvRadioRoles:       roles.filter(row => !disableRolesIdsForTvRadio.includes(row.id)),
+      tvperiodicities: periodicitiesResult.rows.filter(row => !reductPeriodicitiesIdsForTvsRadios.includes(row.id)),
+      radioperiodicities: periodicitiesResult.rows.filter(row => !reductPeriodicitiesIdsForTvsRadios.includes(row.id)),
+
+      paperInternetRoles: roles.filter(row => !reductRolesIdsForPaperInternet.includes(row.id)),
+      tvRadioRoles:       roles.filter(row => !reductRolesIdsForTvRadio.includes(row.id)),
 
       // 2026 -- wordcounts: wordcountsResult.rows,
       circulations: circulationsResult.rows,
-      pageviews: pageviewsResult.rows
+      pageviews: pageviewsResult.rows,
+
+      /* 2026 */
+      timelengths: timelengthResult.rows,
+      tvcoverages: coverageResult.rows.filter(row => reductCoverageIdsForTv.includes(row.id)),
+      radiocoverages: coverageResult.rows.filter(row => reductCoverageIdsForRadio.includes(row.id))
+      /* 2026 */
     });
   } catch (err) {
     console.error(err);

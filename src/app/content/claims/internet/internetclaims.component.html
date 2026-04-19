@@ -173,7 +173,7 @@
                             [dropdown]="true"
                             [suggestions]="claimsCommonService.paperInternetRoles"
                             (completeMethod)="claimsCommonService.paperInternetRoles = claimsCommonService.search('paperInternetRoles',  'role', $event, 'id', 'role')"
-                            (ngModelChange)="claimsCommonService.handleRoleChange(rowData)"
+                            (ngModelChange)="claimsCommonService.handlePaperInternetRoleChange(rowData)"
                             field="role"
                             [forceSelection]="true"
                             placeholder="Ιδιότητα"

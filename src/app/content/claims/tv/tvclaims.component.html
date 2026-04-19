@@ -3,6 +3,48 @@
 <p-confirmDialog header="Επιβεβαίωση"></p-confirmDialog>
 <p-toast></p-toast>
 
+<div>
+  <span class="notes-title">
+    Δηλώνετε:
+  </span>
+  <ul class="b">
+    <li>
+      Πρωτότυπα κείμενα αφήγησης / σενάρια, συνεντεύξεις κ.α. για ενημερωτικά βίντεο κάθε διάρκειας, αφιερώματα, ένθετα, ντοκυμαντέρ σε τηλεοπτικούς σταθμούς ελεύθερης λήψης και συνδρομητικούς.
+    </li>
+    <li>
+      Πρωτότυπες αναλύσεις, συνεντεύξεις, ρεπορτάζ, σχόλια, κριτικές κ.α. για ζωντανές” ενημερωτικές εκπομπές / μαγκαζίνο / αναλυτικά δελτία ειδήσεων σε τηλεοπτικούς σταθμούς ελεύθερης λήψης και συνδρομητικούς.
+    </li>
+    <li>
+      Σε περίπτωση συλλογικών ρεπορτάζ/βίντεο δηλώνεται το μέρος που έχει συνεισφέρει κάθε δικαιούχος.
+    </li>
+  </ul>
+  <span class="notes-title">
+    Στην διανομή της εύλογης αμοιβής του άρθρου 18 του ν. 2121/1993 δεν συμμετέχουν:
+  </span>
+  <ul class="b">
+    <li>
+      έργο με συνολικό ετήσιο χρόνο μικρότερο των 20 λεπτών ανά μέσο ενημέρωσης
+    </li>
+    <li>
+      επιμέλεια και διόρθωση κειμένων καθώς και απομαγνητοφώνηση συνεντεύξεων άλλων δημιουργών
+    </li>
+    <li>
+      αναμετάδοση άρθρων, ρεπορτάζ, αποσπασμάτων έργων / συνεντεύξεων άλλων δημιουργών, δημόσιων ομιλιών και συνεντεύξεων κοινής λήψης
+    </li>
+    <li>
+      αυτούσιες μεταφράσεις άρθρων και ρεπορτάζ από τον Τύπο του εξωτερικού
+    </li>
+    <li>
+      αυτούσια αποσπάσματα από έγγραφα δημόσιων αρχών, δικαστικές αποφάσεις, νόμους και κανονιστικές πράξεις της διοίκησης
+    </li>
+    <li>
+      σύντομα κείμενα / αφηγήσεις, με απλή καταγραφή γεγονότων
+    </li>
+  </ul>
+</div>
+
+<br/><br/>
+
 <div class="card">
   <form #claimsTvForm="ngForm"  >
     <p-table [value]="claimsCommonService.tvData.current" class="claims-table flexible-width p-datatable-min-height">
@@ -14,6 +56,8 @@
           <th class="min-width-150 header-tight-padding">Είδος</th>
           <th class="min-width-150 header-tight-padding">Περιοδικότητα</th>
           <th class="min-width-150 header-tight-padding">Ιδιότητα</th>
+          <th class="min-width-150 header-tight-padding">Συνολικός χρόνος<span class="notes">(1)</span></th>
+          <th class="min-width-150 header-tight-padding">Εμβέλεια</th>
           <!-- 2025 changes, for 2024 distribution
           <th class="min-width-150 header-tight-padding">Αριθμός λέξεων</th>
           <th class="min-width-150 header-tight-padding">Μέση τηλεθέαση</th>
@@ -118,7 +162,7 @@
                             [dropdown]="true"
                             [suggestions]="claimsCommonService.tvRadioRoles"
                             (completeMethod)="claimsCommonService.tvRadioRoles = claimsCommonService.search('tvRadioRoles',  'role', $event, 'id', 'role')"
-                            (ngModelChange)="claimsCommonService.handleRoleChange(rowData)"
+                            (ngModelChange)="claimsCommonService.handleTvRadioRoleChange(rowData)"
                             field="role"
                             [forceSelection]="true"
                             placeholder="Ιδιότητα"
@@ -177,6 +221,50 @@
           </td>
           2025 changes, for 2024 distribution -->
 
+          <!-- 2026 changes -->
+          <td class="cell-tight-padding">
+            <p-autoComplete appendTo="body"
+                            required
+                            #timelength="ngModel"
+                            [(ngModel)]="rowData.timelength"
+                            name="timelength{{i}}"
+                            [dropdown]="true"
+                            [suggestions]="claimsCommonService.timelengths"
+                            (completeMethod)="claimsCommonService.timelengths = claimsCommonService.search('timelengths', 'timelength', $event, 'id', 'timelength')"
+                            field="timelength"
+                            [forceSelection]="true"
+                            [placeholder]=""
+                            pTooltip="Επιλογη από λίστα"
+                            tooltipPosition="top"
+
+                            [disabled]="rowData.disabled || rowData.role?.disableTimeLengthAndCoverage">
+            </p-autoComplete>
+
+            <div *ngIf="timelength.invalid && (timelength.dirty || timelength.touched)" class="error-message">Υποχρεωτική επιλογή από λίστα</div>
+
+          </td>
+          <td class="cell-tight-padding">
+            <p-autoComplete appendTo="body"
+                            required
+                            #coverage="ngModel"
+                            [(ngModel)]="rowData.coverage"
+                            name="coverage{{i}}"
+                            [dropdown]="true"
+                            [suggestions]="claimsCommonService.tvcoverages"
+                            (completeMethod)="claimsCommonService.tvcoverages = claimsCommonService.search('tvcoverages', 'coverage', $event, 'id', 'coverage')"
+                            field="coverage"
+                            [forceSelection]="true"
+                            [placeholder]=""
+                            pTooltip="Επιλογη από λίστα"
+                            tooltipPosition="top"
+
+                            [disabled]="rowData.disabled || rowData.role?.disableTimeLengthAndCoverage">
+            </p-autoComplete>
+
+            <div *ngIf="coverage.invalid && (coverage.dirty || coverage.touched)" class="error-message">Υποχρεωτική επιλογή από λίστα</div>
+
+          </td>
+          <!-- 2026 changes -->
         </tr>
       </ng-template>
     </p-table>
@@ -204,6 +292,8 @@
 
 <div>
   <span class="notes-text">
-    Τα πεδία "Αριθμός λέξεων" και "Μέση τηλεθέαση" δεν είναι ενεργά (βλ. <a href="https://xenophonrights.gr/%CE%BA%CE%B1%CE%BD%CE%BF%CE%BD%CE%B9%CF%83%CE%BC%CE%BF%CF%82-%CE%B4%CE%B9%CE%B1%CE%BD%CE%BF%CE%BC%CE%B7%CF%82/" target="_blank">Κανονισμό Διανομής</a>)
+    <span class="notes">(1)</span> Παράδειγμα: Συνάδελφος που δημιουργεί πρωτότυπες αφηγήσεις (με βάση τις πιο πάνω οδηγίες) κατά μέσο όρο 3 λεπτά ημερησίως, πολλαπλασιάζει με τον αριθμό των ημερών που παράγει έργο μέσα στην εβδομάδα και ακολούθως επί 48 εργάσιμες εβδομάδες.
+    <br/><br/> Άρα αν η παραγωγή έργου γίνεται σε πενθήμερη βάση ο συγκεκριμένος συνάδελφος συγκεντρώνει <span class="notes-title">720 λεπτά ετησίως (3 x 5 x 48)</span> και τα δηλώνει στο αντίστοιχο πεδίο.
   </span>
+  <br/><br/>
 </div>

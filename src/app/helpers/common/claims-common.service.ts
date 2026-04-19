@@ -101,13 +101,21 @@ export interface InternetTableData extends InternetTypeTableData {
 export interface TvTableData extends TvTypeTableData {
   titleTv: TitleTvData;
 
-  circulation: CirculationData | number | null;
+  // -- circulation: CirculationData | number | null;
+  /*  2026 */
+  timelength: TimelengthData | number | null;
+  coverage: CoverageData | number | null;
+  /*  2026 */
 }
 
 export interface RadioTableData extends RadioTypeTableData {
   titleRadio: TitleRadioData;
 
-  circulation: CirculationData | number | null;
+  // -- circulation: CirculationData | number | null;
+  /*  2026 */
+  timelength: TimelengthData | number | null;
+  coverage: CoverageData | number | null;
+  /*  2026 */
 }
 
 export interface OtherTableData extends OtherTypeTableData {
@@ -177,6 +185,7 @@ export interface RoleData {
   role: string;
 
   disableWordCount: boolean;
+  disableTimeLengthAndCoverage: boolean;
 }
 
 /* 2026 - export interface WordcountData {
@@ -193,6 +202,17 @@ export interface PageviewsData {
   id: number;
   pageviews: string;
 }
+/* 2026 */
+export interface TimelengthData {
+  id: number;
+  timelength: string;
+}
+
+export interface CoverageData {
+  id: number;
+  coverage: string;
+}
+/* 2026 */
 
 type ClaimsMap<T> = {
   current: T[];
@@ -244,9 +264,11 @@ export class ClaimsCommonService {
   tvRadioRoles: RoleData[] = [];
 
   // 2026 -- wordcounts: WordcountData[] = [];
-
+  timelengths: TimelengthData[] = [];
+  tvcoverages: CoverageData[] = [];
+  radiocoverages: CoverageData[] = [];
+  // 2026
   circulations: CirculationData[] = [];
-
   pageviews: PageviewsData[] = [];
 
   isAnyRowDeleted: boolean = false;
@@ -294,6 +316,11 @@ export class ClaimsCommonService {
       // 2026 -- this.wordcounts = data.wordcounts;
       this.circulations = data.circulations;
       this.pageviews = data.pageviews;
+      // 2026
+      this.timelengths = data.timelengths;
+      this.tvcoverages = data.tvcoverages;
+      this.radiocoverages = data.radiocoverages;
+      // 2026
 
       sessionStorage.setItem('titlePapers', JSON.stringify(this.titlePapers));
       sessionStorage.setItem('titleInternet', JSON.stringify(this.titleInternet));
@@ -316,6 +343,9 @@ export class ClaimsCommonService {
       // 2026 -- sessionStorage.setItem('wordcounts', JSON.stringify(this.wordcounts));
       sessionStorage.setItem('circulations', JSON.stringify(this.circulations));
       sessionStorage.setItem('pageviews', JSON.stringify(this.pageviews));
+      sessionStorage.setItem('timelengths', JSON.stringify(this.timelengths));
+      sessionStorage.setItem('tvcoverages', JSON.stringify(this.tvcoverages));
+      sessionStorage.setItem('radiocoverages', JSON.stringify(this.radiocoverages));
     });
   }
 
@@ -341,6 +371,12 @@ export class ClaimsCommonService {
       // 2026 -- sessionStorage.removeItem('wordcounts');
       sessionStorage.removeItem('circulations');
       sessionStorage.removeItem('pageviews');
+      // 2026
+      sessionStorage.removeItem('timelengths');
+      sessionStorage.removeItem('tvcoverages');
+      sessionStorage.removeItem('radiocoverages');
+      // 2026
+
   }
 
   private getYearKey(distributionYear?: number): number | 'current' {
@@ -550,9 +586,13 @@ export class ClaimsCommonService {
       tvType: null,
       periodicity: null,
       role: null,
-      wordcount: null,
-      // 2026 -- wordcount: null,
-      circulation: null,
+      /* 2026 -- wordcount: null,
+      circulation: null,*/
+
+      /* 2026 */
+      timelength: null,
+      coverage: null,
+      /* 2026 */
 
       disabled: false,
       finalFlag: false
@@ -570,9 +610,13 @@ export class ClaimsCommonService {
       radioType: null,
       periodicity: null,
       role: null,
-      wordcount: null,
-      // 2026 -- wordcount: null,
-      circulation: null,
+      /* 2026 -- wordcount: null,
+      circulation: null,*/
+
+      /* 2026 */
+      timelength: null,
+      coverage: null,
+      /* 2026 */
 
       disabled: false,
       finalFlag: false
@@ -775,7 +819,9 @@ export class ClaimsCommonService {
       !!rowData.signature &&
       !!rowData.tvType &&
       !!rowData.periodicity &&
-      !!rowData.role
+      !!rowData.role &&
+      (rowData.role.disableTimeLengthAndCoverage || !!rowData.timelength) &&
+      (rowData.role.disableTimeLengthAndCoverage || !!rowData.coverage);
   }
 
   isValidRadioRow(rowData: RadioTableData): boolean {
@@ -783,7 +829,9 @@ export class ClaimsCommonService {
       !!rowData.signature &&
       !!rowData.radioType &&
       !!rowData.periodicity &&
-      !!rowData.role
+      !!rowData.role &&
+      (rowData.role.disableTimeLengthAndCoverage || !!rowData.timelength) &&
+      (rowData.role.disableTimeLengthAndCoverage || !!rowData.coverage);
   }
 
   isValidOtherRow(rowData: OtherTableData): boolean {
@@ -974,17 +1022,22 @@ export class ClaimsCommonService {
     return a.localeCompare(b); // Default locale compare for other cases
   }
 
-  handleRoleChange(rowData: PaperTableData | InternetTableData | TvTableData | RadioTableData) {
+  handlePaperInternetRoleChange(rowData: PaperTableData | InternetTableData) {
     if (rowData.role?.disableWordCount) {
       rowData.wordcount = null; // Clear word count if the role disables it
-      // 2026 -- rowData.wordcount = null; // Clear word count if the role disables it
+    }
+  }
+
+  handleTvRadioRoleChange(rowData: TvTableData | RadioTableData) {
+    if (rowData.role?.disableTimeLengthAndCoverage) {
+      rowData.timelength = null;
+      rowData.coverage = null;
     }
   }
 
   handleInternetTypeChange(rowData: InternetTableData) {
     if (rowData.internetType?.disableWordCount) {
       rowData.wordcount = null; // Clear word count if the role disables it
-      // 2026 -- rowData.wordcount = null; // Clear word count if the internettype disables it
     }
   }
 
