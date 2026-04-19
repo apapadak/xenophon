@@ -26,7 +26,7 @@ const distributionMapping = {
 const disableWordCountRoleIds = [1, 3, 4, 6, 7];
 const disableWordCountInternetTypeIds = [3];
 
-const disableTimeLengthAndCoverageIdsForTvRadio = [1, 3, 8];
+const disableTimeLengthIdsForTvRadio = [1, 3, 8];
 
 const reductRolesIdsForPaperInternet = [6];
 const reductRolesIdsForTvRadio = [2, 4, 5, 6, 10];
@@ -1338,7 +1338,7 @@ app.get('/api/claims/dropdownData', authenticateToken, async (req, res) => {
     const roles = rolesResult.rows.map(role => ({
       ...role,
       disableWordCount: disableWordCountRoleIds.includes(role.id),
-      disableTimeLengthAndCoverage: disableTimeLengthAndCoverageIdsForTvRadio.includes(role.id)
+      disableTimeLength: disableTimeLengthIdsForTvRadio.includes(role.id)
     }));
 
     const internettypes = internettypesResult.rows.map(type => ({

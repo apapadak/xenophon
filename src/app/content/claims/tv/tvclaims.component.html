@@ -237,7 +237,7 @@
                             pTooltip="Επιλογη από λίστα"
                             tooltipPosition="top"
 
-                            [disabled]="rowData.disabled || rowData.role?.disableTimeLengthAndCoverage">
+                            [disabled]="rowData.disabled || rowData.role?.disableTimeLength">
             </p-autoComplete>
 
             <div *ngIf="timelength.invalid && (timelength.dirty || timelength.touched)" class="error-message">Υποχρεωτική επιλογή από λίστα</div>
@@ -258,7 +258,7 @@
                             pTooltip="Επιλογη από λίστα"
                             tooltipPosition="top"
 
-                            [disabled]="rowData.disabled || rowData.role?.disableTimeLengthAndCoverage">
+                            [disabled]="rowData.disabled">
             </p-autoComplete>
 
             <div *ngIf="coverage.invalid && (coverage.dirty || coverage.touched)" class="error-message">Υποχρεωτική επιλογή από λίστα</div>

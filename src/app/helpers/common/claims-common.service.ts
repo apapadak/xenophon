@@ -185,7 +185,7 @@ export interface RoleData {
   role: string;
 
   disableWordCount: boolean;
-  disableTimeLengthAndCoverage: boolean;
+  disableTimeLength: boolean;
 }
 
 /* 2026 - export interface WordcountData {
@@ -820,8 +820,8 @@ export class ClaimsCommonService {
       !!rowData.tvType &&
       !!rowData.periodicity &&
       !!rowData.role &&
-      (rowData.role.disableTimeLengthAndCoverage || !!rowData.timelength) &&
-      (rowData.role.disableTimeLengthAndCoverage || !!rowData.coverage);
+      (rowData.role.disableTimeLength || !!rowData.timelength) &&
+      !!rowData.coverage;
   }
 
   isValidRadioRow(rowData: RadioTableData): boolean {
@@ -830,8 +830,8 @@ export class ClaimsCommonService {
       !!rowData.radioType &&
       !!rowData.periodicity &&
       !!rowData.role &&
-      (rowData.role.disableTimeLengthAndCoverage || !!rowData.timelength) &&
-      (rowData.role.disableTimeLengthAndCoverage || !!rowData.coverage);
+      (rowData.role.disableTimeLength || !!rowData.timelength) &&
+      !!rowData.coverage;
   }
 
   isValidOtherRow(rowData: OtherTableData): boolean {
@@ -1029,7 +1029,7 @@ export class ClaimsCommonService {
   }
 
   handleTvRadioRoleChange(rowData: TvTableData | RadioTableData) {
-    if (rowData.role?.disableTimeLengthAndCoverage) {
+    if (rowData.role?.disableTimeLength) {
       rowData.timelength = null;
       rowData.coverage = null;
     }
