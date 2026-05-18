@@ -22,9 +22,12 @@ export class NavigationComponent {
   ) {}
 
   ngOnInit(): void {
-    this.showSubMenu['CLAIMS'] = true; // Set the submenu to be open by default
-    this.showSubMenu['TVCLAIMS'] = true;
-    this.showSubMenu['RADIOCLAIMS'] = true;
+    this.showSubMenu['CLAIMS'] = false; // Set the submenu to be open by default
+    this.showSubMenu['PAPERCLAIMS'] = false;
+    this.showSubMenu['INTERNETCLAIMS'] = false;
+    this.showSubMenu['TVCLAIMS'] = false;
+    this.showSubMenu['RADIOCLAIMS'] = false;
+    this.showSubMenu['OTHERCLAIMS'] = false;
 
     this.checkAdminStatus();
   }
